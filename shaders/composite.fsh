@@ -335,8 +335,12 @@ color = normals * 0.5 + 0.5;
 #ifdef Fog
 color += AerialPerspective(length(viewspace));
 #endif
+float multiplier = 1.0;
+#ifdef Color_Compression
+multiplier = 0.0;
+#endif
 #ifdef Volumetric_Light
-color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * LightColor * 0.2;
+color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * LightColor * 0.2 * multiplier;
 #endif
 
 gl_FragData[0] = vec4(toSRGB(color / Color_Downscale), 1.0);

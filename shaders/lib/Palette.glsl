@@ -729,7 +729,10 @@ vec3 dither8x8(vec2 coord, vec3 color, vec2 pixelSize) {
 
 	//color = levels(color, 0.3, 1.6, 0.55);
 
-	color = levels(color, 0.9, 2.82, 0.55);
+	//color = levels(color, 0.3, 1.5, 0.5);
+
+	color = levels(color, Palette_Brightness, Palette_Contrast, Palette_Gamma);
+
 
 	pixelCoord = mod(pixelCoord, 8.0);
 	int index = int(pixelCoord.x + (pixelCoord.y * 8));

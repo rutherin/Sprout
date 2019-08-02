@@ -65,7 +65,7 @@ vec2 water_calculateParallax(vec2 position, vec3 direction) {
  
 // Procedural texture generation for the water
 vec3 water(vec2 uv, mat3 tbn, vec3 tangentVector, vec3 viewVector, inout vec3 normal) {
-    const vec3 waterCol  = vec3(0.0, 0.4453, 0.7305) * 0.8;
+    const vec3 waterCol  = vec3(0.0, 0.4453, 0.7305) * 0.9;
     const vec3 waterCol2 = vec3(0.0, 0.4180, 0.6758) * 0.8;
  
     uv *= vec2(0.51);
@@ -86,8 +86,13 @@ vec3 water(vec2 uv, mat3 tbn, vec3 tangentVector, vec3 viewVector, inout vec3 no
     )) * tbn;
  
     normal = waveNormals;
+
+    float multiplier = 0.7;
+    #ifdef Color_Compression
+    multiplier *= 0.6;
+    #endif
  
-    return mix(waterCol, waterCol2, smoothstep(-0.1, -0.08, dot(waveNormals, viewVector))) * Water_Brightness * 0.8;
+    return mix(waterCol, waterCol2, smoothstep(-0.1, -0.08, dot(waveNormals, viewVector))) * (Water_Brightness * 0.8) * multiplier;
 }
 
 void main() {

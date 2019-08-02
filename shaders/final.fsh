@@ -268,7 +268,7 @@ void main() {
 vec2 distortedTexcoord = calculateDistortion();
 
 #ifdef Pixelizer
-vec2 newTC = pixelize(texcoord, pixelX);
+vec2 newTC = pixelize(texcoord, 6);
 #else
 vec2 newTC = distortedTexcoord;
 #endif
@@ -294,7 +294,7 @@ color = Contrast(color);
 color = LiftGammaGain(color);
 
 #ifdef Big_Dither
-color = dither8x8(newTC, color, pixelX);
+color = dither8x8(newTC, color, 6);
 #endif
 
 #ifndef Color_Compression
