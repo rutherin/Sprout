@@ -163,6 +163,11 @@ vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVec
 	vec3 scatteringAmbient = vec3(0.0);
 		 transmittance = vec3(1.0);
 
+	float multiplier = 1.0;
+	#ifdef Color_Compression
+	multiplier = 0.1;
+	#endif
+
 	for (int i = 0; i < iSteps; ++i, position += increment) {
 		vec3 density          = sky_atmosphereDensity(length(position));
 		if (density.y > 1e35) break;
@@ -182,5 +187,5 @@ vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVec
 
 	vec3 scattering = scatteringSun * sunIlluminance + scatteringMoon * moonIlluminance + scatteringAmbient / 3.14 * ambientColor * 0.1;
 
-	return background * transmittance + scattering * (2 * PI) * vec3(0.5, 0.9, 1.0) * 7;
+	return background * transmittance + scattering * (2 * PI) * vec3(0.5, 0.9, 1.0) * 7 * multiplier;
 }
