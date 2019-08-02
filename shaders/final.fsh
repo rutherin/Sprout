@@ -33,6 +33,7 @@ uniform float near, far;
 const vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
 
 #define lumaCoeff vec3(0.2125, 0.7254, 0.0721)
+#include "/lib/Palette.glsl"
 
 
 vec3 toSRGB(vec3 color) {
@@ -264,13 +265,19 @@ void ditherScreen(inout vec3 color) {
 void main() {
 vec2 distortedTexcoord = calculateDistortion();
 
-vec3 color = toLinear(texture2D(colortex6, distortedTexcoord).rgb);
+#ifdef Pixelizer
+vec2 newTC = pixelize(texcoord, pixelX);
+#else
+vec2 newTC = distortedTexcoord;
+#endif
+
+vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
 #ifdef Depth_Of_Field
-calculateDepthOfField(color, distortedTexcoord);
+calculateDepthOfField(color, newTC);
 #endif
 
 color *= Color_Downscale;
-calculateBloom(color, distortedTexcoord);
+calculateBloom(color, newTC);
 //calculateExposure(color);
 calculateNightEye(color);
 //tonemap_filmic(color);
@@ -284,8 +291,13 @@ color = Saturation(color);
 color = Contrast(color);
 color = LiftGammaGain(color);
 
+#ifdef Big_Dither
+color = dither8x8(newTC, color, pixelX);
+#endif
 
+#ifndef Color_Compression
 color          = toSRGB(color);
+#endif
 ditherScreen(color);
 
 gl_FragColor   = vec4(color, 1.0);
