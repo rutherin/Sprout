@@ -4,6 +4,8 @@
 
 
 varying vec2 texcoord;
+flat out mat2x3 sunVec;
+flat out mat2x3 lightVec;
 
 void main() {
 

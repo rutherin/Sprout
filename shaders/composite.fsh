@@ -13,6 +13,9 @@ const bool colortex6Clear = false;
 
 varying vec2 texcoord;
 
+flat in mat2x3 lightVec;
+flat in mat2x3 sunVec;
+
 uniform vec3 shadowLightPosition;
 uniform vec3 upPosition;
 uniform vec3 sunPosition;
@@ -37,6 +40,8 @@ uniform float viewWidth, viewHeight, aspectRatio;
 uniform int frameCounter;
 uniform int isEyeInWater;
 uniform float near, far;
+
+
 
 
 
@@ -215,11 +220,15 @@ vec3 toLinear(vec3 color) {
 
 vec3 AerialPerspective(float dist) {
 
+	float moonFade = smoothstep(0.0, 0.005, -sunVec[1].y);
+
+
     float indoors       = 1.0 - clamp01((-eyeBrightnessSmooth.y + 230) / 100.0);
     if (isEyeInWater > 0.0) indoors = 1.0;
 
     float factor  = pow(dist, 1.0) * 0.0008 * Fog_Amount * (1.0 + isEyeInWater * 4);
-    return pow(vec3(0.2, 0.3, 1.25), vec3(1.3 - clamp01(factor) * 0.4)) * factor * 5 * indoors;
+	// /if (moonFade <= 0.00) return vec3(0.0);
+    return pow(vec3(0.2, 0.3, 1.25), vec3(1.3 - clamp01(factor) * 0.4)) * factor * 2 * indoors;
 }
 
 vec4 VL() {
@@ -303,7 +312,7 @@ vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLight
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
 lighting += pow2(lightmaps.y) * ambientColor * 0.5 * AO;
-lighting += (lightmaps.x + pow((length(color * 0.8)), 5.7) * 150 * emitter) * vec3(1.4, 0.4, 0.1) * 10.5;
+lighting += (lightmaps.x + pow((length(color * 0.1)), 1.0) * emitter) * vec3(1.4, 0.4, 0.1) * 10.5;
 lighting += specular.b * color * 50;
 
 color *= lighting;
