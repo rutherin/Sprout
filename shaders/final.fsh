@@ -10,6 +10,8 @@ const bool colortex6MipmapEnabled = true;
 
 layout (location = 0) out vec4 outColor;
 
+#define About 0 //[0]
+
 varying vec2 texcoord;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
