@@ -48,6 +48,11 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/Sky.fsh"
 
+#define pow2(x) (x * x)
+#define pow3(x) pow2(x) * x
+#define pow4(x) pow2(pow2(x))
+#define pow5(x) pow2(pow2(x)) * x
+
 float depth0 = texture2D(depthtex0, texcoord.st).x;
 
 
@@ -297,7 +302,7 @@ vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLight
 
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
-lighting += lightmaps.y * ambientColor * 0.5 * AO;
+lighting += pow2(lightmaps.y) * ambientColor * 0.5 * AO;
 lighting += (lightmaps.x + pow((length(color * 0.8)), 5.7) * 150 * emitter) * vec3(1.4, 0.4, 0.1) * 10.5;
 lighting += specular.b * color * 50;
 
