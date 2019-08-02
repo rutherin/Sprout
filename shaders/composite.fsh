@@ -23,11 +23,11 @@ uniform vec3 cameraPosition;
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
+uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D depthtex0;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
-uniform sampler2D colortex2;
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
