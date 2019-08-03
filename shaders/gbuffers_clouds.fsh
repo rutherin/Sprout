@@ -3,7 +3,9 @@
 uniform float frameTimeCounter;
 uniform float viewWidth;
 uniform float viewHeight;
-
+varying vec3 normal;
+varying vec3 upVec;
+varying vec3 sunVec;
 uniform vec3 cameraPosition;
 
 uniform mat4 gbufferModelViewInverse;
@@ -13,12 +15,20 @@ varying vec2 texcoord;
 varying vec4 color;
 uniform sampler2D texture;
 
+float sunVisibility = clamp(dot(sunVec,upVec)+0.05,0.0,0.1)/0.1;
+
 
 void main(){
 
 	vec4 albedo = texture2D(texture, texcoord.xy);
 
-/* DRAWBUFFERS:0123 */
+    	float quarterNdotU = clamp(0.25 * dot(normal, upVec) + 0.75,0.5,1.0);
+
+    	albedo.rgb *= 1.0 * (quarterNdotU * (0.35 * sunVisibility + 0.15));
+	
+	albedo.a *= 0.5 * color.a;
+    
+/* DRAWBUFFERS:0 */
 	gl_FragData[0] = albedo;
 
 }
