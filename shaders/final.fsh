@@ -267,8 +267,10 @@ void ditherScreen(inout vec3 color) {
 void main() {
 vec2 distortedTexcoord = calculateDistortion();
 
+int pixelCOMB = (pixelX * pixelY) / 2;
+
 #ifdef Pixelizer
-vec2 newTC = pixelize(texcoord, 6);
+vec2 newTC = pixelize(distortedTexcoord, pixelCOMB);
 #else
 vec2 newTC = distortedTexcoord;
 #endif
@@ -294,7 +296,7 @@ color = Contrast(color);
 color = LiftGammaGain(color);
 
 #ifdef Big_Dither
-color = dither8x8(newTC, color, 6);
+color = dither8x8(newTC, color, pixelCOMB);
 #endif
 
 #ifndef Color_Compression

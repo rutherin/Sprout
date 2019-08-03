@@ -48,10 +48,10 @@ float getwaves(vec2 uv){
 }
  
 vec2 water_calculateParallax(vec2 position, vec3 direction) {
-    const int iterations    = 5;
+    const int iterations    = 1;
     const float rIterations = 1.0 / iterations;
  
-    const float depth = 5.0;
+    const float depth = 2.0;
     float dist = inversesqrt(dot(direction, direction));
  
     vec2 offset = (direction.xy * rIterations) * (dist * depth);
