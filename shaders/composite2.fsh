@@ -21,7 +21,7 @@ uniform vec3 cameraPosition, previousCameraPosition;
 uniform float viewWidth, viewHeight;
 uniform int frameCounter;
 
-const vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
+vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
 
 #define diagonal2(mat) vec2((mat)[0].x, (mat)[1].y)
 #define diagonal3(mat) vec3((mat)[0].x, (mat)[1].y, mat[2].z)
@@ -134,7 +134,7 @@ vec3 worldspace = mat3(gbufferModelViewInverse) * viewspace;
 vec2 CameraVelocity = computeCameraVelocity(worldspace);
 vec2 prevCoord = -CameraVelocity + texcoord;
 
-float weight = floor(prevCoord) == 0 ? dot(0.5 - abs(fract(prevCoord / pixel) - 0.5), vec2(1.0)) : 0.0;
+float weight = floor(prevCoord) == vec2(0.0) ? dot(0.5 - abs(fract(prevCoord / pixel) - 0.5), vec2(1.0)) : 0.0;
 
 mat2x3 limits = mat2x3(0.0);
 

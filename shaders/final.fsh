@@ -32,7 +32,7 @@ uniform float frameTime;
 
 uniform float viewWidth, viewHeight;
 uniform float near, far;
-const vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
+vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
 
 #define lumaCoeff vec3(0.2125, 0.7254, 0.0721)
 #include "/lib/Palette.glsl"
