@@ -2,6 +2,11 @@
 
 #include "/lib/Settings.glsl"
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
+/////Anyone downloading this has permission to edit anything within for personal use, but //////////
+/////////////////////redistribution of any kind requires explicit permission.///////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* DRAWBUFFERS:0 */
 
@@ -96,7 +101,9 @@ float ld(float depth) {
 
 
 void calculateDepthOfField(inout vec3 color, in vec2 coord) {
-
+#ifndef Depth_Of_Field
+return;
+#endif
     float ditherSizeSq = pow(viewWidth, 2.0);
     float dither       = pow(noiseSmooth(gl_FragCoord.xy * noiseResInverse).b, 2.2) * ditherSizeSq;
 
@@ -265,14 +272,12 @@ void ditherScreen(inout vec3 color) {
 
 
 void main() {
-vec2 distortedTexcoord = calculateDistortion();
-
 int pixelCOMB = (pixelX * pixelY) / 2;
 
 #ifdef Pixelizer
-vec2 newTC = pixelize(distortedTexcoord, pixelCOMB);
+vec2 newTC = pixelize(texcoord, pixelCOMB);
 #else
-vec2 newTC = distortedTexcoord;
+vec2 newTC = texcoord;
 #endif
 
 vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
