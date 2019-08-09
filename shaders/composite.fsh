@@ -238,8 +238,10 @@ vec3 AerialPerspective(float dist) {
     float indoors       = 1.0 - clamp01((-eyeBrightnessSmooth.y + 230) / 100.0);
 
     float factor  = pow(dist, 1.0) * 0.0008 * Fog_Amount * (1.0 + isEyeInWater * 4);
-	    if (isEyeInWater > 0.0) factor *= 5.0;
-	    if (isEyeInWater > 0.0) colormult = vec3(0.3, 1.8, 1.6);
+	    if (isEyeInWater > 0.0) factor *= 15.0;
+	    if (isEyeInWater > 0.0) colormult = vec3(0.3, 1.8, 1.6) * 0.01;
+		if (isEyeInWater > 0.0) indoors = 1.0;
+
 
 	// /if (moonFade <= 0.00) return vec3(0.0);
     return pow(vec3(0.2, 0.3, 1.25) * colormult, vec3(1.3 - clamp01(factor) * 0.4)) * factor * 2 * indoors;
