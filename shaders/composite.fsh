@@ -402,7 +402,10 @@ if (depth0 >= 1.0) {
      color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientColor) * 0.5;
 
 }
-
+float multiplier = 1.0;
+#ifdef Color_Compression
+multiplier = 0.1;
+#endif
 #ifdef Cell_Shading
 celshade(color);
 #endif
@@ -410,11 +413,7 @@ celshade(color);
 color = normals * 0.5 + 0.5;
 #endif
 #ifdef Fog
-color += AerialPerspective(length(viewspace)) * LightColor * 0.5;
-#endif
-float multiplier = 1.0;
-#ifdef Color_Compression
-multiplier = 0.0;
+color += AerialPerspective(length(viewspace)) * LightColor * 0.5 * multiplier;
 #endif
 vec3 colormult2 = vec3(1.0, 1.0, 1.0);
 if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 1.6);

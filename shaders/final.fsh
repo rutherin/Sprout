@@ -281,6 +281,7 @@ vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
 #ifdef Depth_Of_Field
 calculateDepthOfField(color, newTC);
 #endif
+calculateBloom(color, newTC);
 
 //calculateExposure(color);
 calculateNightEye(color);
@@ -298,7 +299,6 @@ color = LiftGammaGain(color);
 #ifdef Big_Dither
 color = dither8x8(newTC, color, pixelCOMB);
 #endif
-calculateBloom(color, newTC);
 
 #ifndef Color_Compression
 color          = toSRGB(color);

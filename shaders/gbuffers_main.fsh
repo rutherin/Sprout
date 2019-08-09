@@ -126,5 +126,5 @@ colortex1write = vec4(vertexlightmaps * 1.0, matIDs * 0.1, 1);
 #endif
 
 colortex2write = vec4(normalize(TBN * normalTex.xyz) * 0.5 + 0.5, 1);
-colortex3write = speculartex;
+//colortex3write = speculartex;
 }
