@@ -290,8 +290,8 @@ vec3 palette[] = vec3[26](
 #endif
 
 #if (GBPreset == 17) //Pastel 15
-int paletteSize = 15;
-vec3 palette[] = vec3[15](
+int paletteSize = 16;
+vec3 palette[] = vec3[16](
 	vec3(0.988, 0.6, 0.467),
 	vec3(0.988, 0.741, 0.565),
 	vec3(0.98, 0.902, 0.667),
@@ -304,6 +304,7 @@ vec3 palette[] = vec3[15](
 	vec3(0.439, 0.647, 0.831),
 	vec3(0.427, 0.455, 0.812),
 	vec3(0.345, 0.267, 0.471),
+	vec3(0.045, 0.067, 0.171),
 	vec3(0.518, 0.349, 0.788),
 	vec3(0.745, 0.341, 0.761),
 	vec3(0.871, 0.463, 0.647)
@@ -728,7 +729,7 @@ vec3 levels(vec3 color, float brightness, float contrast, vec3 gamma) {
 	value = (color - 0.556) * contrast + 0.58;
 	#endif
     #if (GBPreset == 17)
-	value = (color - 0.556) * contrast + 0.58;
+	value = (color - 0.63) * contrast + 0.71;
 	#endif
 	value = clamp(value + brightness, 0.0, 1.0);
 	return clamp(vec3(pow(abs(value.r), gamma.x),pow(abs(value.g), gamma.y),pow(abs(value.b), gamma.z)), 0.0, 1.0);
