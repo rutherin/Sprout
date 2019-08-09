@@ -32,6 +32,7 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform vec2 resolution;
 uniform float frameTime;
+uniform int isEyeInWater;
 
 
 
@@ -120,6 +121,8 @@ return;
     #ifdef Distance_Blur
           CoC         += smoothstep(0.1, 1.8, ld(expDepth)) * 1.4;
     #endif
+
+    if (isEyeInWater >= 0.5) CoC += smoothstep(0.1, 0.3, ld(expDepth)) * 0.4;
 
     #ifdef Tilt_Shift
           CoC          = (coord.y - 0.5) * 0.5;

@@ -233,14 +233,16 @@ vec3 toLinear(vec3 color) {
 vec3 AerialPerspective(float dist) {
 
 	float moonFade = smoothstep(0.0, 0.005, -sunVec[1].y);
-
+	vec3 colormult = vec3(1.0, 1.0, 1.0);
 
     float indoors       = 1.0 - clamp01((-eyeBrightnessSmooth.y + 230) / 100.0);
-    if (isEyeInWater > 0.0) indoors = 1.0;
 
     float factor  = pow(dist, 1.0) * 0.0008 * Fog_Amount * (1.0 + isEyeInWater * 4);
+	    if (isEyeInWater > 0.0) factor *= 5.0;
+	    if (isEyeInWater > 0.0) colormult = vec3(0.3, 1.8, 1.6);
+
 	// /if (moonFade <= 0.00) return vec3(0.0);
-    return pow(vec3(0.2, 0.3, 1.25), vec3(1.3 - clamp01(factor) * 0.4)) * factor * 2 * indoors;
+    return pow(vec3(0.2, 0.3, 1.25) * colormult, vec3(1.3 - clamp01(factor) * 0.4)) * factor * 2 * indoors;
 }
 
 vec4 VL() {
@@ -351,8 +353,11 @@ float multiplier = 1.0;
 #ifdef Color_Compression
 multiplier = 0.0;
 #endif
+vec3 colormult2 = vec3(1.0, 1.0, 1.0);
+if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 1.6);
+
 #ifdef Volumetric_Light
-color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * LightColor * 0.2 * multiplier;
+color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * LightColor * 0.2 * multiplier * colormult2;
 #endif
 
 gl_FragData[0] = vec4(toSRGB(color / Color_Downscale), 1.0);
