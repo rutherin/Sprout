@@ -40,7 +40,7 @@ float getwaves(vec2 uv){
     float sw = 0.5;
     float iter = 0.3;
     float ww = 1.0;
-    uv += frameTimeCounter * 0.1;
+    uv += frameTimeCounter * 0.01;
     // it seems its absolutely fastest way for water height function that looks real
     for(int i=0;i<20;i++){
         w += ww * wave(uv * 0.07 , vec2(sin(iter), cos(iter)) * 10.0, 2.0 + iter * 0.08, 2.0 + iter * 3.0);
@@ -53,10 +53,10 @@ float getwaves(vec2 uv){
 }
  
 vec2 water_calculateParallax(vec2 position, vec3 direction) {
-    const int iterations    = 1;
+    const int iterations    = Water_Parallax_Iterations;
     const float rIterations = 1.0 / iterations;
  
-    const float depth = 2.0;
+    const float depth = 3.0 * Water_Parallax_Depth;
     float dist = inversesqrt(dot(direction, direction));
  
     vec2 offset = (direction.xy * rIterations) * (dist * depth);
@@ -97,7 +97,7 @@ vec3 water(vec2 uv, mat3 tbn, vec3 tangentVector, vec3 viewVector, inout vec3 no
     multiplier *= 0.6;
     #endif
  
-    return mix(waterCol, waterCol2, smoothstep(-0.1, -0.08, dot(waveNormals, viewVector))) * (Water_Brightness * 0.8) * multiplier * (vertexlightmaps.x + vertexlightmaps.y);
+    return mix(waterCol, waterCol2, smoothstep(-0.1, -0.58, dot(waveNormals, viewVector))) * (Water_Brightness * 2.9) * multiplier * (vertexlightmaps.x + vertexlightmaps.y);
 }
 
 void main() {

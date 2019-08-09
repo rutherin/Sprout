@@ -162,6 +162,8 @@ option.DBAO_Samples = Steps
 option.DBAO = SSAO
 option.Cell_Shading = Outline
 option.Cell_Outline_Thickness = Outline Weight
+option.Water_Parallax_Depth=Parallax Depth
+option.Water_Parallax_Iterations=Parallax Iterations
 
 profile.Low=Low (1060)
 profile.Medium=Medium (1070)
