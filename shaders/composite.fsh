@@ -357,7 +357,7 @@ vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor) * 0.17;
 vec3 lightmaps = texture2D(colortex1, texcoord).xyz;
 lightmaps.xy = pow(lightmaps.xy, vec2(2.0));
 float matIDs = lightmaps.z * 10;
-float emitter = float(matIDs > 2.5 &&  matIDs < 3.5);
+float emitter = float(matIDs >= 2.5 &&  matIDs < 3.5);
 vec3 screenspace = vec3(texcoord, depth0);
 
 vec3 viewspace = calculateViewSpace(screenspace);
@@ -383,7 +383,7 @@ vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLight
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
 lighting += pow2(lightmaps.y) * ambientColor * 0.5 * AO;
-lighting += (lightmaps.x + pow((length(color * 0.1)), 1.0) * emitter) * vec3(1.4, 0.4, 0.1) * 10.5;
+lighting += (lightmaps.x + pow((length(color * 0.8)), 5.7) * 150 * emitter) * vec3(1.4, 0.4, 0.1) * 10.5;
 lighting += specular.b * color * 50;
 
 color *= lighting;

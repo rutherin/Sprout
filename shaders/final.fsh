@@ -229,6 +229,7 @@ vec4 bicubicTexture(sampler2D tex, vec2 coord) {
   return mix( mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
 }
 
+
 vec2 calculateBlurTileOffset(const int id) {
 	const vec2 idMult = floor(id * 0.5 + vec2(0.0, 0.5));
 	const vec2 offset = vec2(1.0, 2.0) * (1.0 - exp2(-2.0 * idMult)) / 3.0;
@@ -252,12 +253,6 @@ void calculateBloom(inout vec3 color, in vec2 coord) {
     color = mix(color, bloom * Color_Downscale, 0.2 * Bloom_Brightness);
 }
 
-
-void calculateExposure(inout vec3 color) {
-    float averageLuminance = texture2DLod(colortex6, vec2(0.0) * pixel + pixel * 0.4, 0.0).a * 4;
-    color /= averageLuminance;
-    color *= 0.75;
-}
 
 void ditherScreen(inout vec3 color) {
     vec3 lestynRGB = vec3(dot(vec2(171.0, 231.0), gl_FragCoord.xy));
@@ -288,13 +283,13 @@ vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
 calculateDepthOfField(color, newTC);
 #endif
 
-color *= Color_Downscale;
-calculateBloom(color, newTC);
+//color *= Color_Downscale;
 //calculateExposure(color);
 calculateNightEye(color);
 //tonemap_filmic(color);
 
 color = (color * sRGB_2_AP0) * 1.0;
+calculateBloom(color, newTC);
 FilmToneMap(color);
 
 color = WhiteBalance(color);
