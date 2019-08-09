@@ -1,11 +1,5 @@
-#version 450 compatibility
+#version 460 compatibility
 #include "/lib/Settings.glsl"
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
-/////Anyone downloading this has permission to edit anything within for personal use, but //////////
-/////////////////////redistribution of any kind requires explicit permission.///////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* DRAWBUFFERS:60 */
 
@@ -27,7 +21,7 @@ uniform vec3 cameraPosition, previousCameraPosition;
 uniform float viewWidth, viewHeight;
 uniform int frameCounter;
 
-vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
+const vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
 
 #define diagonal2(mat) vec2((mat)[0].x, (mat)[1].y)
 #define diagonal3(mat) vec3((mat)[0].x, (mat)[1].y, mat[2].z)
@@ -140,7 +134,7 @@ vec3 worldspace = mat3(gbufferModelViewInverse) * viewspace;
 vec2 CameraVelocity = computeCameraVelocity(worldspace);
 vec2 prevCoord = -CameraVelocity + texcoord;
 
-float weight = floor(prevCoord) == vec2(0.0) ? dot(0.5 - abs(fract(prevCoord / pixel) - 0.5), vec2(1.0)) : 0.0;
+float weight = floor(prevCoord) == 0 ? dot(0.5 - abs(fract(prevCoord / pixel) - 0.5), vec2(1.0)) : 0.0;
 
 mat2x3 limits = mat2x3(0.0);
 

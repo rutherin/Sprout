@@ -1,21 +1,14 @@
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
-/////Anyone downloading this has permission to edit anything within for personal use, but //////////
-/////////////////////redistribution of any kind requires explicit permission.///////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /*******************************************************************************
  - Sky Constants
  ******************************************************************************/
 
-const float atmosphere_planetRadius = 1731e3; // Should probably move this to somewhere else.
+const float atmosphere_planetRadius = 6731e3; // Should probably move this to somewhere else.
 
 const vec2  atmosphere_scaleHeights     = vec2(8.0e3, 1.2e3);
 const float atmosphere_atmosphereHeight = 110e3;
 
-const float atmosphere_mieg = 1.00;
+const float atmosphere_mieg = 0.77;
 
 const float airNumberDensity       = 2.6867774e19; // Couldn't find it for air, so just using value for an ideal gas. Not sure how different it is for actual air.
 const float ozoneConcentrationPeak = 8e-6;
@@ -146,7 +139,7 @@ vec3 GetMoonColorZom() {
 
 vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVector, vec3 moonVector, vec3 sunIlluminance, vec3 moonIlluminance, const int iSteps, inout vec3 transmittance, vec3 ambientColor) {
 	//const int iSteps = 25; // For very high quality: 50 is enough, could get away with less if mie scale height was lower
-	const int jSteps = 2;  // For very high quality: 10 is good, can probably get away with less
+	const int jSteps = 5;  // For very high quality: 10 is good, can probably get away with less
 
 	vec3 viewPosition = (atmosphere_planetRadius + cameraPosition.y) * upVector;
 
@@ -170,11 +163,6 @@ vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVec
 	vec3 scatteringAmbient = vec3(0.0);
 		 transmittance = vec3(1.0);
 
-	float multiplier = 1.0;
-	#ifdef Color_Compression
-	multiplier = 0.8;
-	#endif
-
 	for (int i = 0; i < iSteps; ++i, position += increment) {
 		vec3 density          = sky_atmosphereDensity(length(position));
 		if (density.y > 1e35) break;
@@ -192,7 +180,7 @@ vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVec
 		transmittance  *= stepTransmittance;
 	}
 
-	vec3 scattering = scatteringSun * sunIlluminance + scatteringMoon * moonIlluminance + scatteringAmbient / 3.14 * ambientColor;
+	vec3 scattering = scatteringSun * sunIlluminance + scatteringMoon * moonIlluminance + scatteringAmbient / 3.14 * ambientColor * 0.1;
 
-	return background * transmittance + scattering * (2 * PI) * multiplier;
+	return background * transmittance + scattering * (2 * PI) * vec3(0.5, 0.9, 1.0);
 }

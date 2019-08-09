@@ -1,11 +1,5 @@
-#version 450 compatibility
+#version 460 compatibility
 #include "/lib/Settings.glsl"
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
-/////Anyone downloading this has permission to edit anything within for personal use, but //////////
-/////////////////////redistribution of any kind requires explicit permission.///////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 const int colortex0Format = RGBA16;
@@ -13,14 +7,12 @@ const int colortex0Format = RGBA16;
 
 /* DRAWBUFFERS:0 */
 
+const int shadowMapResolution = 2048;
 const float sunPathRotation = -50;
 
 const bool colortex6Clear = false;
 
 varying vec2 texcoord;
-
-flat in mat2x3 lightVec;
-flat in mat2x3 sunVec;
 
 uniform vec3 shadowLightPosition;
 uniform vec3 upPosition;
@@ -29,11 +21,11 @@ uniform vec3 cameraPosition;
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
-uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D depthtex0;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
+uniform sampler2D colortex2;
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
@@ -45,10 +37,7 @@ uniform mat4 shadowProjectionInverse;
 uniform float viewWidth, viewHeight, aspectRatio;
 uniform int frameCounter;
 uniform int isEyeInWater;
-uniform vec3 skyColor;
 uniform float near, far;
-
-
 
 
 
@@ -60,12 +49,8 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/Sky.fsh"
 
-#define pow2(x) (x * x)
-#define pow3(x) pow2(x) * x
-#define pow4(x) pow2(pow2(x))
-#define pow5(x) pow2(pow2(x)) * x
-
 float depth0 = texture2D(depthtex0, texcoord.st).x;
+
 
 float bayer2(vec2 a){
     a = floor(a);
@@ -154,17 +139,13 @@ float ld(float depth) {
 
 float dbao(sampler2D depth, float dither){
 	float ao = 0.0;
-
-	#ifndef DBAO
-	return (1.0 * 1.0);
-	#endif
 	
-	const int aoloop = DBAO_Loops;	//3 for lq, 6 for hq
-	const int aoside = DBAO_Samples;	//4 for lq, 6 for hq
-	float radius = 0.1 * DBAO_Radius;
+	const int aoloop = 3;	//3 for lq, 6 for hq
+	const int aoside = 4;	//4 for lq, 6 for hq
+	float radius = 0.1;
 	float dither2 = fract(dither5x3()-dither);
 	float d = ld(texture2D(depth,texcoord.xy).r);
-	const float piangle = 0.0174103175;
+	const float piangle = 0.0174603175;
 	float rot = 180/aoside*dither2;
 	float size = radius*dither;
 	float sd = 0.0;
@@ -174,20 +155,18 @@ float dbao(sampler2D depth, float dither){
 	
 	for (int i = 0; i < aoloop; i++) {
 		for (int j = 0; j < aoside; j++) {
-			sd = ld(texture2D(depth, texcoord.xy + vec2(cos(rot * piangle), sin(rot * piangle)) * size * scale).r);
-
-			float aosample = far * (d - sd) / size;
-
-			angle = clamp(0.5 - aosample, 0.0, 1.0);
-			dist = clamp(0.0625  *aosample, 0.0, 1.0);
-			sd = ld(texture2D(depth, texcoord.xy - vec2(cos(rot * piangle), sin(rot * piangle)) * size * scale).r);
-			aosample = far*(d - sd) / size;
-			angle += clamp(0.5 - aosample, 0.0, 1.0);
-			dist += clamp(0.0625 * aosample, 0.0, 1.0);
-			ao += clamp(angle + dist, 0.0, 1.0);
-			rot += 180.0 / aoside;
+			sd = ld(texture2D(depth,texcoord.xy+vec2(cos(rot*piangle),sin(rot*piangle)) * size * scale).r);
+			float aosample = far*(d-sd)/size;
+			angle = clamp(0.5-aosample,0.0,1.0);
+			dist = clamp(0.0625*aosample,0.0,1.0);
+			sd = ld(texture2D(depth,texcoord.xy-vec2(cos(rot*piangle),sin(rot*piangle)) * size * scale).r);
+			aosample = far*(d-sd)/size;
+			angle += clamp(0.5-aosample,0.0,1.0);
+			dist += clamp(0.0625*aosample,0.0,1.0);
+			ao += clamp(angle+dist,0.0,1.0);
+			rot += 180.0/aoside;
 		}
-		rot += 180.0 / aoside;
+		rot += 180.0/aoside;
 		size += radius;						//lq
 		//size = radius + radius*dither;	//hq
 		//radius *= 2.0;					//hq
@@ -197,59 +176,6 @@ float dbao(sampler2D depth, float dither){
 	ao /= aoloop*aoside;
 	
 	return ao*sqrt(ao);
-}
-
-const vec3  sRGBApproxWavelengths = vec3( 610.0, 549.0, 468.0 );
-
-float hash13(vec3 p3) {
-    p3  = fract(p3 * .1031);
-    p3 += dot(p3, p3.yzx + 19.19);
-    return fract((p3.x + p3.y) * p3.z);
-}
-
-#define max0(x) max(x, 0.0)
-float radiation(in float temperature, in float wavelength)
-{
-    float e = exp(1.4387752e+7 / (temperature * wavelength));
-    return 3.74177e+29 / (pow(wavelength, 5.0) * (e - 1.0));
-}
-
-vec3 radiation(in float t, in vec3 w)
-{
-    return vec3(
-        radiation(t, w.x), 
-        radiation(t, w.y), 
-        radiation(t, w.z)
-    );
-}
-
-
-void generateStars(inout vec3 color, in vec3 worldVector, in const float freq, in float visibility) {
-    if (visibility >= 1.0) return;
-
-	vec3 SSunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.0, 1.0, 1.0) * 7;
-	vec3 SMoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
-	vec3 SLightColor = SSunColor + SMoonColor;
-
-
-    const float minTemp =  3500.0;
-    const float maxTemp =  50500.0;
-    const float tempRange = maxTemp - minTemp;
-    const float frequency = freq;
-
-    const float res = 0.5;
-
-    vec3 p  = worldVector * res;
-    vec3 id = floor(p);
-    vec3 fp = fract(p) - 0.5;
-
-    float rp    = hash13(id) * 6;
-    float stars = pow(max0(0.75 - length(fp)) * 1.5, 11.0);
-
-    float starTemp = (sin(rp / frequency * PI * 16.0) * 0.5 + 0.5) * tempRange + minTemp;
-    vec3  starEmission = radiation(starTemp, sRGBApproxWavelengths) * 1.0e-15;
-
-    color = vec3(stars) * step(rp, frequency) * pow2(1.0) * starEmission * 10 * ((SSunColor * 0.0) + (SMoonColor * 10.0));
 }
 
 void celshade(inout vec3 color) {
@@ -285,20 +211,11 @@ vec3 toLinear(vec3 color) {
 
 vec3 AerialPerspective(float dist) {
 
-   //if (moonFade <= 0.0) return vec3(0.0);
-
-	vec3 colormult = vec3(1.0, 1.0, 1.0);
-
     float indoors       = 1.0 - clamp01((-eyeBrightnessSmooth.y + 230) / 100.0);
+    if (isEyeInWater > 0.0) indoors = 1.0;
 
     float factor  = pow(dist, 1.0) * 0.0008 * Fog_Amount * (1.0 + isEyeInWater * 4);
-	    if (isEyeInWater > 0.0) factor *= 15.0;
-	    if (isEyeInWater > 0.0) colormult = vec3(0.3, 1.8, 1.6) * 0.01;
-		if (isEyeInWater > 0.0) indoors = 1.0;
-
-
-
-    return pow(vec3(0.2, 0.3, 1.25) * colormult, vec3(1.3 - clamp01(factor) * 0.4)) * factor * 2 * indoors;
+    return pow(vec3(0.2, 0.3, 1.25), vec3(1.3 - clamp01(factor) * 0.4)) * factor * 5 * indoors;
 }
 
 vec4 VL() {
@@ -332,7 +249,7 @@ vec4 VL() {
 float hgPhase(float cosTheta, const float g) {
 	const float gg = g * g;
 	const float rGG = 0.2 / gg;
-	const float p1 = (2.375 * (1.10 - gg)) * (1.0 / 3.14) * 0.2 * rGG;
+	const float p1 = (5.375 * (1.10 - gg)) * (1.0 / 3.14) * 0.2 * rGG;
 	float p2 = (cosTheta * cosTheta + 1.0) * pow(-2.0 * g * cosTheta + 1.0 + gg, -1.5);
 	return p1 * p2;
 }
@@ -348,16 +265,16 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.0, 1.0, 1.0) * 7;
-vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(0.9, 0.7, 0.5) * 19.5;
+vec3 MoonColor = GetMoonColorZom() * vec3(0.1, 0.2, 0.53) * 20;
 vec3 LightColor = SunColor + MoonColor;
 
-vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor) * 0.17;
+vec3 ambientColor = vec3(0.4, 0.5, 1.3) * (SunColor + MoonColor) * 0.7;
 
 vec3 lightmaps = texture2D(colortex1, texcoord).xyz;
 lightmaps.xy = pow(lightmaps.xy, vec2(2.0));
 float matIDs = lightmaps.z * 10;
-float emitter = float(matIDs >= 2.5 &&  matIDs < 3.5);
+float emitter = float(matIDs > 2.5 &&  matIDs < 3.5);
 vec3 screenspace = vec3(texcoord, depth0);
 
 vec3 viewspace = calculateViewSpace(screenspace);
@@ -365,7 +282,6 @@ vec3 viewspace = calculateViewSpace(screenspace);
 vec3 viewvec = normalize(viewspace);
 
 vec3 worldspace = mat3(gbufferModelViewInverse) * viewspace;
-
 
 vec3 shadowscreenspace = calculateShadowSpace(worldspace);
 
@@ -378,11 +294,11 @@ shadowspacedistorted = shadowspacedistorted * 0.5 + 0.5;
 
 float shadow = calculateShadow(shadowtex0, shadowspacedistorted);
 
-vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLightPosition))) * (SunColor + MoonColor);
+vec3 lighting = shadow * vec3(0.4) * max(0.0, dot(normals, normalize(shadowLightPosition))) * (SunColor + MoonColor);
 
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
-lighting += pow2(lightmaps.y) * ambientColor * 0.5 * AO;
+lighting += lightmaps.y * ambientColor * 0.5 * AO;
 lighting += (lightmaps.x + pow((length(color * 0.8)), 5.7) * 150 * emitter) * vec3(1.4, 0.4, 0.1) * 10.5;
 lighting += specular.b * color * 50;
 
@@ -390,17 +306,11 @@ color *= lighting;
 
 vec3 transmittance = vec3(1.0);
 
-float visibility = 0.0;
-
-//if (lightVec = -sunVec) visibility = 1.0;
-
 if (depth0 >= 1.0) {
      color = vec3(0.0);
-	 generateStars(color, worldspace, 0.05, visibility);
      color += CalculateSunSpot(dot(viewvec, sunvec)) * SunColor * 150.0;
      color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor;
      color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientColor) * 0.5;
-
 }
 
 #ifdef Cell_Shading
@@ -410,17 +320,10 @@ celshade(color);
 color = normals * 0.5 + 0.5;
 #endif
 #ifdef Fog
-color += AerialPerspective(length(viewspace)) * LightColor * 0.5;
+color += AerialPerspective(length(viewspace));
 #endif
-float multiplier = 1.0;
-#ifdef Color_Compression
-multiplier = 0.0;
-#endif
-vec3 colormult2 = vec3(1.0, 1.0, 1.0);
-if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 1.6);
-
 #ifdef Volumetric_Light
-color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 1.0) + (MoonColor * 10)) * 0.2 * multiplier * colormult2 * 0.8;
+color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * LightColor * 0.2;
 #endif
 
 gl_FragData[0] = vec4(toSRGB(color / Color_Downscale), 1.0);

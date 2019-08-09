@@ -1,12 +1,6 @@
 #extension GL_EXT_gpu_shader4 : enable
 #include "/lib/Settings.glsl"
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
-/////Anyone downloading this has permission to edit anything within for personal use, but //////////
-/////////////////////redistribution of any kind requires explicit permission.///////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 layout (location = 0) out vec4 colortex0write;
 layout (location = 1) out vec4 colortex1write;
 layout (location = 2) out vec4 colortex2write;
@@ -106,6 +100,7 @@ vec2 parallax_calculateCoordinate(vec2 textureCoordinates, mat2 textureCoordinat
     return position.xy;
 }
 
+
 void main() {
 
 float shadowed    = 1.0;
@@ -119,12 +114,7 @@ vec4 normalTex   = texture2D(normals, coord) * 2.0 - 1.0;
 albedo.rgb *= color.rgb;
 
 colortex0write = albedo;
-#ifdef Minecraft_AO
-colortex1write = vec4(vertexlightmaps * (color.a * 1.2), matIDs * 0.1, 1);
-#else
-colortex1write = vec4(vertexlightmaps * 1.0, matIDs * 0.1, 1);
-#endif
-
+colortex1write = vec4(vertexlightmaps * color.a, matIDs * 0.1, 1);
 colortex2write = vec4(normalize(TBN * normalTex.xyz) * 0.5 + 0.5, 1);
 colortex3write = speculartex;
 }

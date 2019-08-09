@@ -1,12 +1,7 @@
-#version 450 compatibility
+#version 460 compatibility
 
 #include "/lib/Settings.glsl"
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
-/////Anyone downloading this has permission to edit anything within for personal use, but //////////
-/////////////////////redistribution of any kind requires explicit permission.///////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* DRAWBUFFERS:0 */
 
@@ -14,8 +9,6 @@ const bool colortex0MipmapEnabled = true;
 const bool colortex6MipmapEnabled = true;
 
 layout (location = 0) out vec4 outColor;
-
-#define About 0 //[0]
 
 varying vec2 texcoord;
 uniform sampler2D depthtex1;
@@ -30,18 +23,13 @@ uniform float centerDepthSmooth;
 uniform float aspectRatio;
 uniform float frameTimeCounter;
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
-uniform vec2 resolution;
-uniform float frameTime;
-uniform int isEyeInWater;
-
 
 
 uniform float viewWidth, viewHeight;
 uniform float near, far;
-vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
+const vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
 
 #define lumaCoeff vec3(0.2125, 0.7254, 0.0721)
-#include "/lib/Palette.glsl"
 
 
 vec3 toSRGB(vec3 color) {
@@ -102,9 +90,7 @@ float ld(float depth) {
 
 
 void calculateDepthOfField(inout vec3 color, in vec2 coord) {
-#ifndef Depth_Of_Field
-return;
-#endif
+
     float ditherSizeSq = pow(viewWidth, 2.0);
     float dither       = pow(noiseSmooth(gl_FragCoord.xy * noiseResInverse).b, 2.2) * ditherSizeSq;
 
@@ -121,8 +107,6 @@ return;
     #ifdef Distance_Blur
           CoC         += smoothstep(0.1, 1.8, ld(expDepth)) * 1.4;
     #endif
-
-    if (isEyeInWater >= 0.5) CoC += smoothstep(0.1, 0.3, ld(expDepth)) * 0.4;
 
     #ifdef Tilt_Shift
           CoC          = (coord.y - 0.5) * 0.5;
@@ -229,7 +213,6 @@ vec4 bicubicTexture(sampler2D tex, vec2 coord) {
   return mix( mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
 }
 
-
 vec2 calculateBlurTileOffset(const int id) {
 	const vec2 idMult = floor(id * 0.5 + vec2(0.0, 0.5));
 	const vec2 offset = vec2(1.0, 2.0) * (1.0 - exp2(-2.0 * idMult)) / 3.0;
@@ -254,57 +237,36 @@ void calculateBloom(inout vec3 color, in vec2 coord) {
 }
 
 
+void calculateExposure(inout vec3 color) {
+    float averageLuminance = texture2DLod(colortex6, vec2(0.0) * pixel + pixel * 0.4, 0.0).a * 4;
+    color /= averageLuminance;
+    color *= 0.75;
+}
+
 void ditherScreen(inout vec3 color) {
     vec3 lestynRGB = vec3(dot(vec2(171.0, 231.0), gl_FragCoord.xy));
          lestynRGB = fract(lestynRGB.rgb / vec3(103.0, 71.0, 97.0));
 
     color += lestynRGB.rgb / 255.0;
 }
-#define max3(x,y,z)       max(x,max(y,z))
-#define min3(a,b,c)       min(min(a,b),c)
-#define clamp01(x) clamp(x, 0.0, 1.0)
-#define max0(x) max(x, 0.0)
-
-#include "/lib/ACES_Main.glsl"
-
 
 
 void main() {
-int pixelCOMB = (pixelX * pixelY) / 2;
+vec2 distortedTexcoord = calculateDistortion();
 
-#ifdef Pixelizer
-vec2 newTC = pixelize(texcoord, pixelCOMB);
-#else
-vec2 newTC = texcoord;
-#endif
-
-vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
+vec3 color = toLinear(texture2D(colortex6, distortedTexcoord).rgb);
 #ifdef Depth_Of_Field
-calculateDepthOfField(color, newTC);
+calculateDepthOfField(color, distortedTexcoord);
 #endif
 
-//color *= Color_Downscale;
+color *= Color_Downscale;
+calculateBloom(color, distortedTexcoord);
 //calculateExposure(color);
 calculateNightEye(color);
-//tonemap_filmic(color);
+tonemap_filmic(color);
 
-color = (color * sRGB_2_AP0) * 1.0;
-calculateBloom(color, newTC);
-FilmToneMap(color);
 
-color = WhiteBalance(color);
-color = Vibrance(color);
-color = Saturation(color);
-color = Contrast(color);
-color = LiftGammaGain(color);
-
-#ifdef Big_Dither
-color = dither8x8(newTC, color, pixelCOMB);
-#endif
-
-#ifndef Color_Compression
 color          = toSRGB(color);
-#endif
 ditherScreen(color);
 
 gl_FragColor   = vec4(color, 1.0);
