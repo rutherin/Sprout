@@ -64,7 +64,7 @@ gl_Position.xy = temporalJitter() * gl_Position.w + gl_Position.xy;
 
 texcoord = gl_MultiTexCoord0.xy;
 
-color = gl_Color.rgb;
+color = gl_Color.rgb * vec3(1.3, 1.4, 1.0);
 
 vertexlightmaps = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 

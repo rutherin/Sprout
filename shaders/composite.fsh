@@ -382,7 +382,7 @@ vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLight
 
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
-lighting += pow2(lightmaps.y) * ambientColor * 0.5 * AO;
+lighting += pow2(lightmaps.y) * ambientColor * 0.5 * vec3(0.7, 0.9, 1.1) * AO;
 lighting += (lightmaps.x + pow((length(color * 0.8)), 5.7) * 150 * emitter) * vec3(1.4, 0.4, 0.1) * 10.5;
 lighting += specular.b * color * 50;
 

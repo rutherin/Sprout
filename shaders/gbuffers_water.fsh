@@ -71,7 +71,7 @@ vec2 water_calculateParallax(vec2 position, vec3 direction) {
 // Procedural texture generation for the water
 vec3 water(vec2 uv, mat3 tbn, vec3 tangentVector, vec3 viewVector, inout vec3 normal) {
     const vec3 waterCol  = vec3(0.0, 0.4453, 0.7305) * 0.9;
-    const vec3 waterCol2 = vec3(0.0, 0.4180, 0.6758) * 0.8;
+    const vec3 waterCol2 = vec3(0.0, 0.5180, 0.6758) * 0.85;
  
     uv *= vec2(0.51);
  
