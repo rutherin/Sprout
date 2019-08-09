@@ -423,6 +423,6 @@ if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 1.6);
 color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 1.0) + (MoonColor * 10)) * 0.2 * multiplier * colormult2 * 0.8;
 #endif
 
-gl_FragData[0] = vec4(toSRGB(color / Color_Downscale), 1.0);
+gl_FragData[0] = vec4(toSRGB(color), 1.0);
 
 }

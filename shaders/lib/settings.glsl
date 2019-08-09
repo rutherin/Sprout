@@ -13,7 +13,6 @@ const float noiseResInverse         = 1.0 / noiseTextureResolution;
 #define Parallax_Depth 0.15 // [0.1 0.15 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0]
 //#define Smooth_POM
 
-#define Color_Downscale 1.0
 
 //#define Shadowmap_Resolution 2048 //[256 512 1024 2048 4096 6114 8192]
 
