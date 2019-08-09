@@ -692,16 +692,22 @@ vec3 pickClosest(vec3 color, vec3 bayerColor) {
 vec3 levels(vec3 color, float brightness, float contrast, vec3 gamma) {
 	vec3 value = (color - 0.5) * contrast + 0.5;
     #if (GBPreset == 2)
-    value = (color - 0.5) * contrast + 0.45;
+    value = (color - 0.5) * contrast + 0.5;
     #endif
     #if (GBPreset == 3)
-    value = (color - 0.5) * contrast + 0.49;
+    value = (color - 0.5) * contrast + 0.51;
     #endif
     #if (GBPreset == 4)
     value = (color - 0.496) * contrast + 0.49;
     #endif
 	#if (GBPreset == 5)
-	value = (color - 0.43) * contrast + 0.39;
+	value = (color - 0.43) * contrast + 0.58;
+	#endif
+	#if (GBPreset == 6)
+	value = (color - 0.52) * contrast + 0.58;
+	#endif
+	#if (GBPreset == 7)
+	value = (color - 0.55) * contrast + 0.62;
 	#endif
     #if (GBPreset == 10)
 	value = (color - 0.44) * contrast + 0.40;
@@ -710,7 +716,7 @@ vec3 levels(vec3 color, float brightness, float contrast, vec3 gamma) {
 	value = (color - 0.556) * contrast + 0.58;
 	#endif
     #if (GBPreset == 12)
-	value = (color - 0.49) * contrast + 0.48;
+	value = (color - 0.49) * contrast + 0.49;
 	#endif
     #if (GBPreset == 13)
 	value = (color - 0.556) * contrast + 0.58;

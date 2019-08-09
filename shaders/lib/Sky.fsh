@@ -172,7 +172,7 @@ vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVec
 
 	float multiplier = 1.0;
 	#ifdef Color_Compression
-	multiplier = 0.5;
+	multiplier = 0.8;
 	#endif
 
 	for (int i = 0; i < iSteps; ++i, position += increment) {
