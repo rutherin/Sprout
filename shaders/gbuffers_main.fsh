@@ -120,7 +120,12 @@ vec4 normalTex   = texture2D(normals, coord) * 2.0 - 1.0;
 albedo.rgb *= color.rgb;
 
 colortex0write = albedo;
-colortex1write = vec4(vertexlightmaps * color.a, matIDs * 0.1, 1);
+#ifdef Minecraft_AO
+colortex1write = vec4(vertexlightmaps * (color.a * 1.2), matIDs * 0.1, 1);
+#else
+colortex1write = vec4(vertexlightmaps * 1.0, matIDs * 0.1, 1);
+#endif
+
 colortex2write = vec4(normalize(TBN * normalTex.xyz) * 0.5 + 0.5, 1);
 colortex3write = speculartex;
 }

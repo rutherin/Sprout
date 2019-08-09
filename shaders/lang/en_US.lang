@@ -23,6 +23,7 @@ screen.Depth_Of_Field=Depth Of Field
 screen.Resource_Packs=Resource Packs
 screen.Filter_Settings=Advanced Filter
 screen.Screen_Dither=LowQ
+screen.Ambient_Occlusion=Ambient Occlusion
 
 #Settings
 option.White_World=White World
@@ -155,6 +156,12 @@ option.WHITE_BALANCE=White Balance
 option.GAIN_MOD=Gamma Gain
 option.Color_Compression=LowQ Color Compression
 option.GBPreset=LowQ Preset
+option.DBAO_Radius = Radius
+option.DBAO_Loops = Loops
+option.DBAO_Samples = Steps
+option.DBAO = SSAO
+option.Cell_Shading = Outline
+option.Cell_Outline_Thickness = Outline Weight
 
 profile.Low=Low (1060)
 profile.Medium=Medium (1070)

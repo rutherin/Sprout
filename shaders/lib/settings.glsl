@@ -102,4 +102,9 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 #define PHI   sqrt(5.0) * 0.5 + 0.5
 #define GOLDEN_ANGLE TAU / PHI / PHI
 
-#define Ambient_Occlusion
+#define DBAO
+#define DBAO_Loops 3 //[1 2 3 4 5 6 7 8 9 10]
+#define DBAO_Samples 4 //[1 2 3 4 5 6 7 8 9 10]
+#define DBAO_Radius 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0 4.0 5.0 10.0]
+
+#define Minecraft_AO

@@ -97,7 +97,7 @@ vec3 water(vec2 uv, mat3 tbn, vec3 tangentVector, vec3 viewVector, inout vec3 no
     multiplier *= 0.6;
     #endif
  
-    return mix(waterCol, waterCol2, smoothstep(-0.1, -0.08, dot(waveNormals, viewVector))) * (Water_Brightness * 0.8) * multiplier;
+    return mix(waterCol, waterCol2, smoothstep(-0.1, -0.08, dot(waveNormals, viewVector))) * (Water_Brightness * 0.8) * multiplier * (vertexlightmaps.x + vertexlightmaps.y);
 }
 
 void main() {

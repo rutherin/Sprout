@@ -154,10 +154,14 @@ float ld(float depth) {
 
 float dbao(sampler2D depth, float dither){
 	float ao = 0.0;
+
+	#ifndef DBAO
+	return (1.0 * 1.0);
+	#endif
 	
-	const int aoloop = 3;	//3 for lq, 6 for hq
-	const int aoside = 4;	//4 for lq, 6 for hq
-	float radius = 0.1;
+	const int aoloop = DBAO_Loops;	//3 for lq, 6 for hq
+	const int aoside = DBAO_Samples;	//4 for lq, 6 for hq
+	float radius = 0.1 * DBAO_Radius;
 	float dither2 = fract(dither5x3()-dither);
 	float d = ld(texture2D(depth,texcoord.xy).r);
 	const float piangle = 0.0174603175;
@@ -170,18 +174,20 @@ float dbao(sampler2D depth, float dither){
 	
 	for (int i = 0; i < aoloop; i++) {
 		for (int j = 0; j < aoside; j++) {
-			sd = ld(texture2D(depth,texcoord.xy+vec2(cos(rot*piangle),sin(rot*piangle)) * size * scale).r);
-			float aosample = far*(d-sd)/size;
-			angle = clamp(0.5-aosample,0.0,1.0);
-			dist = clamp(0.0625*aosample,0.0,1.0);
-			sd = ld(texture2D(depth,texcoord.xy-vec2(cos(rot*piangle),sin(rot*piangle)) * size * scale).r);
-			aosample = far*(d-sd)/size;
-			angle += clamp(0.5-aosample,0.0,1.0);
-			dist += clamp(0.0625*aosample,0.0,1.0);
-			ao += clamp(angle+dist,0.0,1.0);
-			rot += 180.0/aoside;
+			sd = ld(texture2D(depth, texcoord.xy + vec2(cos(rot * piangle), sin(rot * piangle)) * size * scale).r);
+
+			float aosample = far * (d - sd) / size;
+
+			angle = clamp(0.5 - aosample, 0.0, 1.0);
+			dist = clamp(0.0625  *aosample, 0.0, 1.0);
+			sd = ld(texture2D(depth, texcoord.xy - vec2(cos(rot * piangle), sin(rot * piangle)) * size * scale).r);
+			aosample = far*(d - sd) / size;
+			angle += clamp(0.5 - aosample, 0.0, 1.0);
+			dist += clamp(0.0625 * aosample, 0.0, 1.0);
+			ao += clamp(angle + dist, 0.0, 1.0);
+			rot += 180.0 / aoside;
 		}
-		rot += 180.0/aoside;
+		rot += 180.0 / aoside;
 		size += radius;						//lq
 		//size = radius + radius*dither;	//hq
 		//radius *= 2.0;					//hq
