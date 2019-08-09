@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 450 compatibility
 
 #include "/lib/Settings.glsl"
 

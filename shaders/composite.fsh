@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 450 compatibility
 #include "/lib/Settings.glsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,7 @@ uniform mat4 shadowProjectionInverse;
 uniform float viewWidth, viewHeight, aspectRatio;
 uniform int frameCounter;
 uniform int isEyeInWater;
+uniform vec3 skyColor;
 uniform float near, far;
 
 
@@ -65,7 +66,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #define pow5(x) pow2(pow2(x)) * x
 
 float depth0 = texture2D(depthtex0, texcoord.st).x;
-
 
 float bayer2(vec2 a){
     a = floor(a);
@@ -164,7 +164,7 @@ float dbao(sampler2D depth, float dither){
 	float radius = 0.1 * DBAO_Radius;
 	float dither2 = fract(dither5x3()-dither);
 	float d = ld(texture2D(depth,texcoord.xy).r);
-	const float piangle = 0.0174603175;
+	const float piangle = 0.0174103175;
 	float rot = 180/aoside*dither2;
 	float size = radius*dither;
 	float sd = 0.0;
@@ -197,6 +197,59 @@ float dbao(sampler2D depth, float dither){
 	ao /= aoloop*aoside;
 	
 	return ao*sqrt(ao);
+}
+
+const vec3  sRGBApproxWavelengths = vec3( 610.0, 549.0, 468.0 );
+
+float hash13(vec3 p3) {
+    p3  = fract(p3 * .1031);
+    p3 += dot(p3, p3.yzx + 19.19);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+#define max0(x) max(x, 0.0)
+float radiation(in float temperature, in float wavelength)
+{
+    float e = exp(1.4387752e+7 / (temperature * wavelength));
+    return 3.74177e+29 / (pow(wavelength, 5.0) * (e - 1.0));
+}
+
+vec3 radiation(in float t, in vec3 w)
+{
+    return vec3(
+        radiation(t, w.x), 
+        radiation(t, w.y), 
+        radiation(t, w.z)
+    );
+}
+
+
+void generateStars(inout vec3 color, in vec3 worldVector, in const float freq, in float visibility) {
+    if (visibility >= 1.0) return;
+
+	vec3 SSunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.0, 1.0, 1.0) * 7;
+	vec3 SMoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
+	vec3 SLightColor = SSunColor + SMoonColor;
+
+
+    const float minTemp =  3500.0;
+    const float maxTemp =  50500.0;
+    const float tempRange = maxTemp - minTemp;
+    const float frequency = freq;
+
+    const float res = 0.5;
+
+    vec3 p  = worldVector * res;
+    vec3 id = floor(p);
+    vec3 fp = fract(p) - 0.5;
+
+    float rp    = hash13(id) * 6;
+    float stars = pow(max0(0.75 - length(fp)) * 1.5, 11.0);
+
+    float starTemp = (sin(rp / frequency * PI * 16.0) * 0.5 + 0.5) * tempRange + minTemp;
+    vec3  starEmission = radiation(starTemp, sRGBApproxWavelengths) * 1.0e-15;
+
+    color = vec3(stars) * step(rp, frequency) * pow2(1.0) * starEmission * 10 * ((SSunColor * 0.0) + (SMoonColor * 10.0));
 }
 
 void celshade(inout vec3 color) {
@@ -232,7 +285,8 @@ vec3 toLinear(vec3 color) {
 
 vec3 AerialPerspective(float dist) {
 
-	float moonFade = smoothstep(0.0, 0.005, -sunVec[1].y);
+   //if (moonFade <= 0.0) return vec3(0.0);
+
 	vec3 colormult = vec3(1.0, 1.0, 1.0);
 
     float indoors       = 1.0 - clamp01((-eyeBrightnessSmooth.y + 230) / 100.0);
@@ -243,7 +297,7 @@ vec3 AerialPerspective(float dist) {
 		if (isEyeInWater > 0.0) indoors = 1.0;
 
 
-	// /if (moonFade <= 0.00) return vec3(0.0);
+
     return pow(vec3(0.2, 0.3, 1.25) * colormult, vec3(1.3 - clamp01(factor) * 0.4)) * factor * 2 * indoors;
 }
 
@@ -278,7 +332,7 @@ vec4 VL() {
 float hgPhase(float cosTheta, const float g) {
 	const float gg = g * g;
 	const float rGG = 0.2 / gg;
-	const float p1 = (5.375 * (1.10 - gg)) * (1.0 / 3.14) * 0.2 * rGG;
+	const float p1 = (2.375 * (1.10 - gg)) * (1.0 / 3.14) * 0.2 * rGG;
 	float p2 = (cosTheta * cosTheta + 1.0) * pow(-2.0 * g * cosTheta + 1.0 + gg, -1.5);
 	return p1 * p2;
 }
@@ -294,8 +348,8 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.0, 1.0, 1.0) * 10;
-vec3 MoonColor = GetMoonColorZom() * vec3(0.1, 1.0, 1.0);
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.0, 1.0, 1.0) * 7;
+vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
 vec3 LightColor = SunColor + MoonColor;
 
 vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor) * 0.17;
@@ -311,6 +365,7 @@ vec3 viewspace = calculateViewSpace(screenspace);
 vec3 viewvec = normalize(viewspace);
 
 vec3 worldspace = mat3(gbufferModelViewInverse) * viewspace;
+
 
 vec3 shadowscreenspace = calculateShadowSpace(worldspace);
 
@@ -335,11 +390,17 @@ color *= lighting;
 
 vec3 transmittance = vec3(1.0);
 
+float visibility = 0.0;
+
+//if (lightVec = -sunVec) visibility = 1.0;
+
 if (depth0 >= 1.0) {
      color = vec3(0.0);
+	 generateStars(color, worldspace, 0.05, visibility);
      color += CalculateSunSpot(dot(viewvec, sunvec)) * SunColor * 150.0;
      color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor;
      color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientColor) * 0.5;
+
 }
 
 #ifdef Cell_Shading
@@ -349,7 +410,7 @@ celshade(color);
 color = normals * 0.5 + 0.5;
 #endif
 #ifdef Fog
-color += AerialPerspective(length(viewspace));
+color += AerialPerspective(length(viewspace)) * LightColor * 0.5;
 #endif
 float multiplier = 1.0;
 #ifdef Color_Compression
@@ -359,7 +420,7 @@ vec3 colormult2 = vec3(1.0, 1.0, 1.0);
 if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 1.6);
 
 #ifdef Volumetric_Light
-color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * LightColor * 0.2 * multiplier * colormult2;
+color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 1.0) + (MoonColor * 10)) * 0.2 * multiplier * colormult2 * 0.8;
 #endif
 
 gl_FragData[0] = vec4(toSRGB(color / Color_Downscale), 1.0);

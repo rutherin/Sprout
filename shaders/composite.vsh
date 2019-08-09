@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 450 compatibility
 #include "/lib/Settings.glsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -10,6 +10,7 @@
 varying vec2 texcoord;
 flat out mat2x3 sunVec;
 flat out mat2x3 lightVec;
+out vec3 color;
 
 void main() {
 

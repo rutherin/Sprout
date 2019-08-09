@@ -10,12 +10,12 @@
  - Sky Constants
  ******************************************************************************/
 
-const float atmosphere_planetRadius = 6731e3; // Should probably move this to somewhere else.
+const float atmosphere_planetRadius = 1731e3; // Should probably move this to somewhere else.
 
 const vec2  atmosphere_scaleHeights     = vec2(8.0e3, 1.2e3);
 const float atmosphere_atmosphereHeight = 110e3;
 
-const float atmosphere_mieg = 0.77;
+const float atmosphere_mieg = 1.00;
 
 const float airNumberDensity       = 2.6867774e19; // Couldn't find it for air, so just using value for an ideal gas. Not sure how different it is for actual air.
 const float ozoneConcentrationPeak = 8e-6;
@@ -172,7 +172,7 @@ vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVec
 
 	float multiplier = 1.0;
 	#ifdef Color_Compression
-	multiplier = 0.1;
+	multiplier = 0.5;
 	#endif
 
 	for (int i = 0; i < iSteps; ++i, position += increment) {
@@ -192,7 +192,7 @@ vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVec
 		transmittance  *= stepTransmittance;
 	}
 
-	vec3 scattering = scatteringSun * sunIlluminance + scatteringMoon * moonIlluminance + scatteringAmbient / 3.14 * ambientColor * 0.1;
+	vec3 scattering = scatteringSun * sunIlluminance + scatteringMoon * moonIlluminance + scatteringAmbient / 3.14 * ambientColor;
 
-	return background * transmittance + scattering * (2 * PI) * vec3(0.5, 0.9, 1.6) * 2 * multiplier;
+	return background * transmittance + scattering * (2 * PI) * multiplier;
 }

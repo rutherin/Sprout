@@ -106,7 +106,6 @@ vec2 parallax_calculateCoordinate(vec2 textureCoordinates, mat2 textureCoordinat
     return position.xy;
 }
 
-
 void main() {
 
 float shadowed    = 1.0;
