@@ -358,7 +358,7 @@ vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.1, 1.05, 1.0) * 4.5;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
 vec3 LightColor = SunColor + MoonColor;
 
-vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor) * 0.37;
+vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor) * 0.33;
 
 vec3 lightmaps = texture2D(colortex1, texcoord).xyz;
 lightmaps.xy = pow(lightmaps.xy, vec2(2.0));
@@ -406,6 +406,9 @@ float watermultiplier = 1.0;
 if (isEyeInWater > 0.0) watermultiplier = 2.0;
 
 float cloudAlpha = 0.0;
+#ifdef Cell_Shading
+celshade(color);
+#endif
 
 if (depth0 >= 1.0) {
      color = vec3(0.0);
@@ -430,9 +433,7 @@ if (depth0 >= 1.0) {
 #ifdef Color_Compression
 multiplier = 0.1;
 #endif
-#ifdef Cell_Shading
-celshade(color);
-#endif
+
 #ifdef Normal_Debug
 color = normals * 0.5 + 0.5;
 #endif

@@ -95,8 +95,8 @@ vec3 water(vec2 uv) {
 	d1 = frameTimeCounter * 0.07 + d1;
 	d2 = frameTimeCounter * 0.5 + d2;
 	vec2 dist = vec2(
-		sin(d1) * 0.15 + sin(d2) * 0.05,
-		cos(d1) * 0.15 + cos(d2) * 0.05
+		sin(d1) * 0.15 + sin(d2) * 0.195,
+		cos(d1) * 0.15 + cos(d2) * 0.15
 	);
   
   float depth = length(worldspace - cameraPosition) / 25.0;
