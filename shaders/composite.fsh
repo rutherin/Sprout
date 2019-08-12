@@ -416,8 +416,9 @@ if (depth0 >= 1.0) {
      color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2 * 2);
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
      if (isEyeInWater > 0.0) {
-         color = vec3(0.1, 0.4, 0.9) * 1.5;
+         color = vec3(0.1, 0.4, 0.9) * 0.3 * pow(far, 0.4);
          color += hgPhase(dot(lightvec, viewvec), 0.5);
+         color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2 * 2) * 0.1 * pow(far, 0.15);
          color *= 0.3;
          color = color * vec3(0.3, 0.8, 1.0) * ((SunColor * 0.27) + MoonColor);
      }
