@@ -230,7 +230,7 @@ vec3 radiation(in float t, in vec3 w)
 void generateStars(inout vec3 color, in vec3 worldVector, in const float freq, in float visibility) {
     if (visibility >= 1.0) return;
 
-	vec3 SSunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.0, 1.0, 1.0) * 7;
+	vec3 SSunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.0, 1.0, 1.0) * 5;
 	vec3 SMoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
 	vec3 SLightColor = SSunColor + SMoonColor;
 
@@ -354,11 +354,11 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.0, 1.0, 1.0) * 7;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.1, 1.05, 1.0) * 4.5;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
 vec3 LightColor = SunColor + MoonColor;
 
-vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor) * 0.17;
+vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor) * 0.37;
 
 vec3 lightmaps = texture2D(colortex1, texcoord).xyz;
 lightmaps.xy = pow(lightmaps.xy, vec2(2.0));
