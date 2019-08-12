@@ -400,8 +400,10 @@ float visibility = 0.0;
 
 //if (lightVec = -sunVec) visibility = 1.0;
 vec3 colormult2 = vec3(1.0, 1.0, 1.0);
-if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 1.6) * 3;
+if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 1.6);
 float multiplier = 1.0;
+float watermultiplier = 1.0;
+if (isEyeInWater > 0.0) watermultiplier = 2.0;
 
 float cloudAlpha = 0.0;
 
@@ -415,7 +417,7 @@ if (depth0 >= 1.0) {
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
 
      #ifdef Volumetric_Light
-     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 0.33) + (MoonColor * 8)) * 0.2 * multiplier * colormult2 * 0.8;
+     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 0.46) + (MoonColor * 8)) * 0.2 * multiplier * colormult2 * 0.8;
      #endif
 }
 
@@ -430,9 +432,9 @@ color = normals * 0.5 + 0.5;
 #endif
 #ifdef Fog
 if (depth0 < 1.0) {
-color += AerialPerspective(length(viewspace)) * ((SunColor * 0.8) + (MoonColor * 3)) * 0.5 * multiplier * (colormult2 * 2);
+color += AerialPerspective(length(viewspace)) * ((SunColor * 0.8) + (MoonColor * 3)) * 0.5 * multiplier * (colormult2);
 #ifdef Volumetric_Light
-color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 1.2) + (MoonColor * 10)) * 0.2 * multiplier * colormult2 * 0.8;
+color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 1.3) + (MoonColor * 10)) * 0.2 * multiplier * colormult2 * 0.8 * watermultiplier;
 #endif
 }
 #endif
