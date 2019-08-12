@@ -67,19 +67,6 @@ float depth1 = texture2D(depthtex1, texcoord.st).x;
 
 float transparent = float(depth0 < depth1);
 
-float bayer2(vec2 a){
-    a = floor(a);
-    return fract(dot(a, vec2(0.5, a.y * 0.75)));
-}
-
-float bayer4(vec2 a)   { return bayer2( 0.5  *a) * 0.25     + bayer2(a); }
-float bayer8(vec2 a)   { return bayer4( 0.5  *a) * 0.25     + bayer2(a); }
-float bayer16(vec2 a)  { return bayer4( 0.25 *a) * 0.0625   + bayer4(a); }
-float bayer32(vec2 a)  { return bayer8( 0.25 *a) * 0.0625   + bayer4(a); }
-float bayer64(vec2 a)  { return bayer8( 0.125*a) * 0.015625 + bayer8(a); }
-float bayer128(vec2 a) { return bayer16(0.125*a) * 0.015625 + bayer8(a); }
-
-
 vec2 haltonSequence(vec2 i, vec2 b) {
     vec2 f = vec2(1.0), r = vec2(0.0);
     while (i.x > 0.0 || i.y > 0.0) {
@@ -201,12 +188,6 @@ float dbao(sampler2D depth, float dither){
 
 const vec3  sRGBApproxWavelengths = vec3( 610.0, 549.0, 468.0 );
 
-float hash13(vec3 p3) {
-    p3  = fract(p3 * .1031);
-    p3 += dot(p3, p3.yzx + 19.19);
-    return fract((p3.x + p3.y) * p3.z);
-}
-
 #define max0(x) max(x, 0.0)
 float radiation(in float temperature, in float wavelength)
 {
@@ -273,14 +254,6 @@ void celshade(inout vec3 color) {
 //	outline = saturate(1.0 - outline * 0.5);
 	
 	color *= outline;
-}
-
-vec3 toSRGB(vec3 color) {
-	return mix(color * 12.92, 1.055 * pow(color, vec3(1.0 / 2.4)) - 0.055, vec3(greaterThan(color, vec3(0.0031308))));
-}
-
-vec3 toLinear(vec3 color) {
-	return mix(color / 12.92, pow((color + 0.055) / 1.055, vec3(2.4)), vec3(greaterThan(color, vec3(0.04045))));
 }
 
 vec3 AerialPerspective(float dist) {
@@ -388,13 +361,13 @@ float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 lighting += pow2(lightmaps.y) * ambientColor * 0.5 * vec3(0.7, 0.9, 1.1) * AO;
 	float torchMap  = lightmaps.x;
 		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
-		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.7, emitter * (1.0 - transparent)), 3.0)) - 1.0;
+		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.8, emitter * (1.0 - transparent)), 3.0)) - 1.0;
 
     float emissive = emitter * pow(flength(color), 5.0);
 
 	vec3 torchLightmap = (torchMap + emissive * emitter * (1.0 - transparent) * 14.0) * vec3(1.0, 0.8, 0.1);
 
-lighting += (lightmaps.x * vec3(1.4, 0.4, 0.1) * 10.5);
+if (emitter <= 0.5) lighting += (lightmaps.x * vec3(1.4, 0.4, 0.1) * 10.5);
 lighting += torchLightmap;
 
 
@@ -422,7 +395,7 @@ celshade(color);
 if (depth0 >= 1.0) {
      color = vec3(0.0);
 	 generateStars(color, worldspace, 0.05, visibility);
-     color += CalculateSunSpot(dot(viewvec, sunvec)) * SunColor * 150.0;
+     color += CalculateSunSpot(dot(viewvec, sunvec)) * SunColor * 1.0;
      color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor;
      color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientColor) * 0.5;
      color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2 * 2);

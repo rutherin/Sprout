@@ -32,9 +32,15 @@ uniform float centerDepthSmooth;
 uniform float aspectRatio;
 uniform float frameTimeCounter;
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
+uniform mat4 gbufferPreviousProjection;
+uniform mat4 gbufferPreviousModelView;
+uniform mat4 gbufferModelViewInverse;
+
 uniform vec2 resolution;
 uniform float frameTime;
 uniform int isEyeInWater;
+uniform vec3 cameraPosition, previousCameraPosition;
+
 
 
 
@@ -42,17 +48,12 @@ uniform float viewWidth, viewHeight;
 uniform float near, far;
 vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
 
+float depth0 = texture2D(depthtex0, texcoord.st).x;
+float depth1 = texture2D(depthtex1, texcoord.st).x;
+
+
 #define lumaCoeff vec3(0.2125, 0.7254, 0.0721)
 #include "/lib/Palette.glsl"
-
-
-vec3 toSRGB(vec3 color) {
-	return mix(color * 12.92, 1.055 * pow(color, vec3(1.0 / 2.4)) - 0.055, vec3(greaterThan(color, vec3(0.0031308))));
-}
-
-vec3 toLinear(vec3 color) {
-	return mix(color / 12.92, pow((color + 0.055) / 1.055, vec3(2.4)), vec3(greaterThan(color, vec3(0.04045))));
-}
 
 vec3 getColor(vec2 coord) {
     return texture2DLod(colortex6, coord, 0.0).rgb;
@@ -293,13 +294,12 @@ color = Vibrance(color);
 color = Saturation(color);
 color = Contrast(color);
 color = LiftGammaGain(color);
-SeishinBloom(color);
+//SeishinBloom(color);
+
 
 #ifdef Big_Dither
 color = dither8x8(newTC, color, pixelCOMB);
 #endif
-
-
 
 #ifndef Color_Compression
 color          = toSRGB(color * 1.2);

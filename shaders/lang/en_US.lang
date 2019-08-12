@@ -24,6 +24,7 @@ screen.Resource_Packs=Resource Packs
 screen.Filter_Settings=Advanced Filter
 screen.Screen_Dither=LowQ
 screen.Ambient_Occlusion=Ambient Occlusion
+screen.Motion_Blur=Motion Blur
 
 option.About1=Sprout by Silvia! v
 value.About1.0=0.75
@@ -174,6 +175,9 @@ option.CLOUD_SPEED_2D=Speed
 option.CloudFBM22=Second Layer
 option.shadowMapResolution=Shadow Resolution
 option.Sky_Steps=Atmosphere Marches
+option.Motion_Blur=Toggle
+option.MOTION_BLUR_SAMPLES=Loops
+option.MotionBlurStrength=Strength
 
 profile.Very_Low=Very Low
 profile.Low=Low

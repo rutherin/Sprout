@@ -20,6 +20,7 @@ varying vec2 texcoord;
 uniform sampler2D colortex0;
 uniform sampler2D colortex6;
 uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
@@ -29,14 +30,6 @@ uniform float viewWidth, viewHeight;
 uniform int frameCounter;
 
 vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
-
-vec3 toSRGB(vec3 color) {
-	return mix(color * 12.92, 1.055 * pow(color, vec3(1.0 / 2.4)) - 0.055, vec3(greaterThan(color, vec3(0.0031308))));
-}
-
-vec3 toLinear(vec3 color) {
-	return mix(color / 12.92, pow((color + 0.055) / 1.055, vec3(2.4)), vec3(greaterThan(color, vec3(0.04045))));
-}
 
 vec3 calculateViewSpace(vec3 screenSpace) {
     screenSpace = screenSpace * 2.0 - 1.0;
@@ -104,8 +97,50 @@ vec3 SeishinBloom() {
 	return bloom;
 }
 
+#define MotionBlurStrength 5.00 //[1.00 2.00 3.00 4.00 5.00 6.00 7.00 8.00 9.00 10.00]
+
+vec3 motionBlur (vec3 color, float hand){
+	if (hand < 0.5){
+		float motionblur  = texture2D(depthtex1, texcoord.st).x;
+		vec3 mblur = vec3(0.0);
+		float mbwg = 0.0;
+		float mbm = 0.0;
+		vec2 pixel = 2.0 / vec2(viewWidth, viewHeight);
+		
+		vec4 currentPosition = vec4(texcoord.x * 2.0 - 1.0, texcoord.y * 2.0 - 1.0, 2.0 * motionblur - 1.0, 1.0);
+		
+		vec4 fragposition = gbufferProjectionInverse * currentPosition;
+		fragposition = gbufferModelViewInverse * fragposition;
+		fragposition /= fragposition.w;
+		fragposition.xyz += cameraPosition;
+		
+		vec4 previousPosition = fragposition;
+		previousPosition.xyz -= previousCameraPosition;
+		previousPosition = gbufferPreviousModelView * previousPosition;
+		previousPosition = gbufferPreviousProjection * previousPosition;
+		previousPosition /= previousPosition.w;
+
+		vec2 velocity = (currentPosition - previousPosition).xy;
+		velocity = velocity / (1.0 + length(velocity)) * MotionBlurStrength * 0.02;
+		
+		vec2 coord = texcoord.st - velocity * (3.5 + bayer64(gl_FragCoord.xy));
+		for (int i = 0; i < MOTION_BLUR_SAMPLES; ++i, coord += velocity){
+			vec2 coordb = clamp(coord, pixel, 1.0-pixel);
+			vec3 temp = texture2DLod(colortex0, coordb, 0).rgb;
+			mblur += temp;
+			mbwg += 1.0;
+		}
+		mblur /= mbwg;
+
+		return mblur;
+	}
+	else return color;
+}
+
 void main(){
 vec3 color = texture2D(colortex0, texcoord).rgb;
+float hand = float(texture2D(depthtex1,texcoord.xy).r < 0.56);
+
 float depth0 = texture2D(depthtex0, texcoord).x;
 
 vec3 screenspace = vec3(texcoord, depth0);
@@ -138,11 +173,12 @@ for (int i = -1; i <= 1; ++i) {
     }
 }
 
+#ifdef Motion_Blur
+color = motionBlur(color,hand);
+#endif
 
-
-vec3 antiAliased = mix(texture2D(colortex0, texcoord).rgb, clamp(texture2DLod(colortex6, prevCoord, 0.0).rgb, limits[0], limits[1]), sqrt(weight) * 0.5 + inversesqrt(weight * 2.0 + 4.0)); 
-
-colortex0write = vec4(toSRGB(SeishinBloom()) * 0.09, 1.0);
+vec3 antiAliased = mix(color, clamp(texture2DLod(colortex6, prevCoord, 0.0).rgb, limits[0], limits[1]), sqrt(weight) * 0.5 + inversesqrt(weight * 2.0 + 4.0)); 
+colortex0write = vec4(toSRGB(SeishinBloom()) * 0.1, 1.0);
 colortex6write = vec4(antiAliased, 1.0);
 
 }
