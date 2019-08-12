@@ -116,3 +116,5 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 #define CLOUD_COVERAGE_2D 0.5  // [0.3 0.4 0.5 0.6 0.7]
 #define CLOUD_SPEED_2D    1.00 // [0.25 0.50 1.00 2.00 4.00]
 #define CloudFBM22
+
+#define Sky_Steps 2 //[1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]

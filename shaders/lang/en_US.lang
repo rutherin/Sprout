@@ -173,6 +173,7 @@ option.CLOUD_COVERAGE_2D=Coverage
 option.CLOUD_SPEED_2D=Speed
 option.CloudFBM22=Second Layer
 option.shadowMapResolution=Shadow Resolution
+option.Sky_Steps=Atmosphere Marches
 
 profile.Very_Low=Very Low
 profile.Low=Low

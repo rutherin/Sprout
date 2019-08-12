@@ -146,7 +146,7 @@ vec3 GetMoonColorZom() {
 
 vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVector, vec3 moonVector, vec3 sunIlluminance, vec3 moonIlluminance, const int iSteps, inout vec3 transmittance, vec3 ambientColor) {
 	//const int iSteps = 25; // For very high quality: 50 is enough, could get away with less if mie scale height was lower
-	const int jSteps = 2;  // For very high quality: 10 is good, can probably get away with less
+	const int jSteps = Sky_Steps;  // For very high quality: 10 is good, can probably get away with less
 
 	vec3 viewPosition = (atmosphere_planetRadius + cameraPosition.y) * upVector;
 

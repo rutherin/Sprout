@@ -240,7 +240,7 @@ void generateStars(inout vec3 color, in vec3 worldVector, in const float freq, i
     const float tempRange = maxTemp - minTemp;
     const float frequency = freq;
 
-    const float res = 0.5;
+    const float res = 0.8;
 
     vec3 p  = worldVector * res;
     vec3 id = floor(p);
