@@ -281,7 +281,7 @@ vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
 #ifdef Depth_Of_Field
 calculateDepthOfField(color, newTC);
 #endif
-calculateBloom(color, newTC);
+//calculateBloom(color, newTC);
 
 //calculateExposure(color);
 calculateNightEye(color);

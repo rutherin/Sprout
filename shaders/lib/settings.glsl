@@ -6,7 +6,7 @@
 
 #define shadowBias 0.9
 #define shadowZstretch 2.5
-const int   noiseTextureResolution  = 64;
+const int   noiseTextureResolution  = 16;
 const float noiseResInverse         = 1.0 / noiseTextureResolution;
 
 #define Parallax_Occlusion

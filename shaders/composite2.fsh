@@ -165,7 +165,7 @@ for (int i = -1; i <= 1; ++i) {
 
 vec3 antiAliased = mix(texture2D(colortex0, texcoord).rgb, clamp(texture2DLod(colortex6, prevCoord, 0.0).rgb, limits[0], limits[1]), sqrt(weight) * 0.5 + inversesqrt(weight * 2.0 + 4.0)); 
 
-colortex0write = vec4(calculateBloomTiles(), 1.0);
-colortex6write = vec4(antiAliased, calculateAverageLuminance());
+//colortex0write = vec4(calculateBloomTiles(), 1.0);
+colortex6write = vec4(antiAliased, 1.0);
 
 }

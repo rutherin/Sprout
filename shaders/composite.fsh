@@ -34,6 +34,8 @@ uniform sampler2D colortex3;
 uniform sampler2D depthtex0;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
+uniform sampler2D noisetex;
+
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
@@ -47,6 +49,7 @@ uniform int frameCounter;
 uniform int isEyeInWater;
 uniform vec3 skyColor;
 uniform float near, far;
+uniform float frameTimeCounter;
 
 
 
@@ -337,6 +340,9 @@ float hgPhase(float cosTheta, const float g) {
 	return p1 * p2;
 }
 
+#include "/lib/Compute2DClouds.fsh"
+
+
 void main(){
 
 vec3 color = toLinear(texture2D(colortex0, texcoord).rgb);
@@ -396,6 +402,9 @@ float visibility = 0.0;
 vec3 colormult2 = vec3(1.0, 1.0, 1.0);
 if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 1.6) * 3;
 float multiplier = 1.0;
+
+float cloudAlpha = 0.0;
+
 if (depth0 >= 1.0) {
      color = vec3(0.0);
 	 generateStars(color, worldspace, 0.05, visibility);
@@ -403,6 +412,8 @@ if (depth0 >= 1.0) {
      color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor;
      color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientColor) * 0.5;
      color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 0.5)) * 0.5 * multiplier * (colormult2 * 2);
+     Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
+
      #ifdef Volumetric_Light
      color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 0.33) + (MoonColor * 5)) * 0.2 * multiplier * colormult2 * 0.8;
      #endif
