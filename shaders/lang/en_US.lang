@@ -25,6 +25,9 @@ screen.Filter_Settings=Advanced Filter
 screen.Screen_Dither=LowQ
 screen.Ambient_Occlusion=Ambient Occlusion
 
+option.About1=Sprout by Silvia! v
+value.About1.0=0.75
+
 #Settings
 option.White_World=White World
 option.Resource_Pack_Emitters=Resource Pack Emitters
@@ -164,12 +167,18 @@ option.Cell_Shading = Outline
 option.Cell_Outline_Thickness = Outline Weight
 option.Water_Parallax_Depth=Parallax Depth
 option.Water_Parallax_Iterations=Parallax Iterations
+option.CLOUDS_2D=2D Cloud Toggle
+option.CLOUD_HEIGHT_2D=Altitude
+option.CLOUD_COVERAGE_2D=Coverage
+option.CLOUD_SPEED_2D=Speed
+option.CloudFBM22=Second Layer
+option.shadowMapResolution=Shadow Resolution
 
-profile.Low=Low (1060)
-profile.Medium=Medium (1070)
-profile.High=High (1080)
-profile.Very_High=Very High (1080ti)
-profile.Extreme=Extreme (?)
+profile.Very_Low=Very Low
+profile.Low=Low
+profile.Medium=Default
+profile.High=High
+profile.Higher=Higher
 
 option.About=pixel effect by
 value.About.0=http://maple.pet/

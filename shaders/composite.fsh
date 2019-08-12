@@ -411,11 +411,11 @@ if (depth0 >= 1.0) {
      color += CalculateSunSpot(dot(viewvec, sunvec)) * SunColor * 150.0;
      color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor;
      color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientColor) * 0.5;
-     color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 0.5)) * 0.5 * multiplier * (colormult2 * 2);
+     color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2 * 2);
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
 
      #ifdef Volumetric_Light
-     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 0.33) + (MoonColor * 5)) * 0.2 * multiplier * colormult2 * 0.8;
+     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 0.33) + (MoonColor * 8)) * 0.2 * multiplier * colormult2 * 0.8;
      #endif
 }
 

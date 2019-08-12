@@ -16,6 +16,7 @@ const bool colortex6MipmapEnabled = true;
 layout (location = 0) out vec4 outColor;
 
 #define About 0 //[0]
+#define About1 0 //[0] Clouds and underwater! lots of things fixed and rebalanced~
 
 varying vec2 texcoord;
 uniform sampler2D depthtex1;
