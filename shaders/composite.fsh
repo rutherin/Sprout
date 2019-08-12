@@ -417,7 +417,11 @@ lighting += pow2(lightmaps.y) * ambientColor * 0.5 * vec3(0.7, 0.9, 1.1) * AO;
 
 	vec3 torchLightmap = (torchMap + emissive * emitter * (1.0 - transparent) * 14.0) * vec3(1.0, 0.8, 0.1);
 
-if (emitter <= 0.5) lighting += (lightmaps.x * vec3(1.4, 0.4, 0.1) * 10.5);
+if (isEyeInWater > 0.0) {
+    lighting += (lightmaps.x * vec3(0.3, 0.5, 1.3) * 3);
+}
+else if (emitter <= 0.5) lighting += (lightmaps.x * vec3(1.4, 0.4, 0.1) * 10.5);
+
 lighting += torchLightmap;
 
 

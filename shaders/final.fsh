@@ -95,11 +95,9 @@ float ld(float depth) {
     return (2.0 * near) / (far + near - depth * (far - near));
 }
 
-
+#ifdef Depth_Of_Field
 void calculateDepthOfField(inout vec3 color, in vec2 coord) {
-#ifndef Depth_Of_Field
-return;
-#endif
+
     float ditherSizeSq = pow(viewWidth, 2.0);
     float dither       = pow(noiseSmooth(gl_FragCoord.xy * noiseResInverse).b, 2.2) * ditherSizeSq;
 
@@ -145,6 +143,7 @@ return;
 
     color = depthOfField / DepthOfFieldQuality;
 }
+#endif
 
 void calculateNightEye(inout vec3 color) {
     float luminance  = dot(color, lumaCoeff);
