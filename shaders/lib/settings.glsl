@@ -34,7 +34,7 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 
 //#define Normal_Debug
 
-#define Bloom_Brightness 1.0
+#define Bloom_Brightness 0.0
 
 #define Volumetric_Light
 #define VL_Steps 4 //[1 2 3 4 5 6 7 8 9 10 20 50 100]
