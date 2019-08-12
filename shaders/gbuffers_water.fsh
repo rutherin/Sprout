@@ -82,6 +82,11 @@ float waterlayer(vec2 uv)
     ret += circ(uv, vec2(0.0623365, 0.896713), 0.0236203);
     ret += circ(uv, vec2(0.980482, 0.473849), 0.00573439);
     ret += circ(uv, vec2(0.647463, 0.654349), 0.0188713);
+    ret += circ(uv, vec2(0.173781, 0.631155), 0.00049917);
+    ret += circ(uv, vec2(0.173781, 0.631155), 0.019917);
+
+    	
+
 	return max(1.0 - ret, 0.0);
 }
 
@@ -95,11 +100,11 @@ vec3 water(vec2 uv) {
 	d1 = frameTimeCounter * 0.07 + d1;
 	d2 = frameTimeCounter * 0.5 + d2;
 	vec2 dist = vec2(
-		sin(d1) * 0.15 + sin(d2) * 0.195,
+		sin(d1) * 0.15 + sin(d2) * 0.05,
 		cos(d1) * 0.15 + cos(d2) * 0.15
 	);
   
-  float depth = length(worldspace - cameraPosition) / 25.0;
+  float depth = length(worldspace - cameraPosition) / 3.0;
 	
 	vec3 waterCol  = vec3(0.0, 0.4453, 0.7305);
 	vec3 waterCol2 = vec3(0.0, 0.4180, 0.6758);

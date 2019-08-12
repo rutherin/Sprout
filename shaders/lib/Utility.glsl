@@ -107,3 +107,24 @@ float bayer2(vec2 a){
 #define bayer64(a)  (bayer32(.5*(a))*.25+bayer2(a))
 #define bayer128(a) (bayer64(.5*(a))*.25+bayer2(a))
 #define bayer256(a) (bayer128(.5*(a))*.25+bayer2(a))
+
+#define circlemap(p) (vec2(cos((p).y*TAU), sin((p).y*TAU)) * fsqrt(p.x))
+#define semicirclemap(p) (vec2(cos((p).y*PI), sin((p).y*PI)) * fsqrt(p.x) )
+
+#define hammersley(i, N) vec2( float(i) / float(N), float( bitfieldReverse(i) ) * 2.3283064365386963e-10 )
+
+vec2 lattice(int i, int N){
+	float sn = fsqrt(float(N));
+	return vec2(mod( float(i) * PI, sn ) / sn, float(i) / float(N));
+}
+
+int bayer64x64(ivec2 p){
+    return
+         g(p>>5&1)    +
+        (g(p>>4&1)<<2)+
+        (g(p>>3&1)<<4)+
+        (g(p>>2&1)<<6)+
+        (g(p>>1&1)<<8)+
+        (g(p   &1)<<10)
+    ;
+}

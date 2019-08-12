@@ -104,21 +104,66 @@ vec3 calculateShadowSpace(vec3 worldSpace) {
     return shadowSpace * 0.5 + 0.5;
 }
 
-float distortionfactor(vec2 shadowspace){
-float dist = length(abs(shadowspace * 1.165));
-float distortion = ((1.0 - shadowBias) + dist * shadowBias) * 0.97;
-return distortion;
+vec3 toShadowSpace(vec3 p3){
+	vec4 p4 = vec4(p3, 1.0);
+
+    p4 = gbufferModelViewInverse * p4;
+    p4 = shadowModelView         * p4;
+    p4 = shadowProjection        * p4;
+
+    p4.xyz = p4.xyz * 0.5 + 0.5;
+
+    return p4.xyz;
 }
 
-float calculateShadow(sampler2D shadow, vec3 shadowSpace) {
-    if (floor(shadowSpace.xy) != vec2(0.0) || shadowSpace.z > 1.0) return 1.0;
-    return step(shadowSpace.z - 0.0002, texture2D(shadow, shadowSpace.xy).x);
+float distortionfactor(vec2 shadowSpace) {
+  vec2  coord = abs(shadowSpace * 1.165);
+  float dist = length(coord);
+	return ((1.0 - 0.9) + dist * 0.9) * 0.97;
 }
 
-float calculateShadowDepth(vec3 shadowspace) {
-    return 0.0;
+void biasShadow(inout vec3 shadowSpace) {
+  shadowSpace    = shadowSpace * 2.0 - 1.0;
+  shadowSpace.xy = shadowSpace.xy / distortionfactor(shadowSpace.xy);
+  shadowSpace    = shadowSpace * vec3(0.5,0.5,0.2) + 0.5;
+}
 
+float shadowStep(sampler2D shadow, vec3 sPos) {
+	return clamp01(1.0 - max(sPos.z - texture2D(shadow, sPos.xy).x, 0.0) * float(shadowMapResolution));
+}
 
+float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap) {
+//	if (land + transparent < 0.5 || isEyeInWater > 0.5 || lightmap < 0.1) return 0.0;
+	if (lightmap < 0.1) return 0.0;
+	
+	float inverseShadowRes = 1.0 / float(shadowMapResolution);
+	
+	vec3 shadowSpace = toShadowSpace(viewSpace);
+	
+	vec4 lightColor  = vec4(0.0);
+	float shadow0 	 = 0.0;
+	float shadow1 	 = 0.0;
+	float shadowMask = 0.0;
+	vec3 directLight = vec3(0.0);
+	
+	int samples = Shadow_Filter_Samples;
+	float size = 0.2;
+	
+	for(int i = 0; i < samples; i++) {
+		vec2 point = circlemap(
+			lattice(i * (ditherSize*ditherSize) + index , (ditherSize*ditherSize) * samples)
+		) * size * inverseShadowRes;
+		
+		vec3 shadowCoord = shadowSpace + vec3(point, 0.0);
+		biasShadow(shadowCoord);
+		
+		shadow0 += shadowStep(shadowtex0, shadowCoord);
+	}
+	
+	shadow0 /= float(samples);
+	shadow0  = smoothstep(0.4, 0.5, shadow0);
+	
+	return shadow0;
 }
 
 float dither5x3()
@@ -324,7 +369,7 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.1, 1.05, 1.0) * 4.5;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.5, 1.18, 1.0) * 4.5;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
 vec3 LightColor = SunColor + MoonColor;
 
@@ -351,8 +396,13 @@ shadowspacedistorted = shadowscreenspace * 2.0 - 1.0;
 shadowspacedistorted = shadowspacedistorted / vec3(vec2(distortionfactor(shadowspacedistorted.xy)), shadowZstretch);
 shadowspacedistorted = shadowspacedistorted * 0.5 + 0.5;
 
+ivec2 dither64 = ivec2(
+	bayer64x64(ivec2(gl_FragCoord.st)),
+	64
+);
 
-float shadow = calculateShadow(shadowtex0, shadowspacedistorted);
+
+float shadow = getShadows(viewspace, dither64.x, dither64.y, lightmaps.y);
 
 vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLightPosition))) * (SunColor + MoonColor);
 
@@ -407,8 +457,11 @@ if (depth0 >= 1.0) {
          color *= 0.3;
          color = color * vec3(0.3, 0.8, 1.0) * ((SunColor * 0.27) + MoonColor);
      }
+     
+     color += hgPhase(dot(lightvec, viewvec), 0.999) * 0.0002 * ((SunColor * 2.0 * vec3(1.0, 0.8, 0.3)) + (MoonColor * 60));
+
      #ifdef Volumetric_Light
-     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 0.46) + (MoonColor * 8)) * 0.2 * multiplier * colormult2 * 0.8;
+     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 0.46 * watermultiplier) + (MoonColor * 8)) * 0.2 * multiplier * colormult2 * 0.8;
      #endif
 }
 

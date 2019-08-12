@@ -64,10 +64,6 @@ vec3 getColor(vec2 coord) {
 #define PHI sqrt(5.0) * 0.5 + 0.5
 #define GOLDEN_ANGLE TAU / PHI / PHI
 
-vec2 circlemap(vec2 p) {
-	p.y *= TAU;
-	return vec2(cos(p.y), sin(p.y)) * sqrt(p.x);
-}
 
 #define cubicSmooth(x) (x * x) * (3.0 - 2.0 * x)
 
@@ -75,10 +71,6 @@ vec2 circlemap(vec2 p) {
 float calculateViewSpaceZ(float depth) {
 	depth = depth * 2.0 - 1.0;
 	return -1.0 / (depth * gbufferProjectionInverse[2][3] + gbufferProjectionInverse[3][3]);
-}
-
-vec2 hammersley(int i, int N) {
-	return vec2(float(i) / float(N), float(bitfieldReverse(i)) * 2.3283064365386963e-10);
 }
 
 vec4 noiseSmooth(vec2 coord) {

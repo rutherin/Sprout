@@ -24,7 +24,7 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 
 #define Focal_Length 35.0 
 #define Depth_Of_Field
-#define DepthOfFieldQuality 8 // [8 10 12 14 16 18 20 22 24 26 28 30]
+#define DepthOfFieldQuality 8 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30]
 
 #define FStop 5.6 // [1.4 2.0 4.0 5.6 8.1]
 
@@ -37,8 +37,8 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 #define Bloom_Brightness 0.0
 
 #define Volumetric_Light
-#define VL_Steps 4 //[1 2 3 4 5 6 7 8 9 10 20 50 100]
-#define VL_Distance 1000 //[250 500 1000 1500 2000 3000 4000 5000 10000]
+#define VL_Steps 4 //[0 1 2 3 4 5 6 7 8 9 10 20 50 100]
+#define VL_Distance 1000 //[0 250 500 1000 1500 2000 3000 4000 5000 10000]
 
 #define Ambient_Occlusion
 
@@ -101,8 +101,8 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 #define GOLDEN_ANGLE TAU / PHI / PHI
 
 #define DBAO
-#define DBAO_Loops 3 //[1 2 3 4 5 6 7 8 9 10]
-#define DBAO_Samples 4 //[1 2 3 4 5 6 7 8 9 10]
+#define DBAO_Loops 3 //[0 1 2 3 4 5 6 7 8 9 10]
+#define DBAO_Samples 4 //[0 1 2 3 4 5 6 7 8 9 10]
 #define DBAO_Radius 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0 4.0 5.0 10.0]
 
 #define Minecraft_AO
@@ -120,4 +120,6 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 #define Sky_Steps 2 //[1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
 
 #define Motion_Blur
-#define MOTION_BLUR_SAMPLES 9
+#define MOTION_BLUR_SAMPLES 9 //[0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
+
+#define Shadow_Filter_Samples 7 //[1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30 35 40 45 50 100]

@@ -178,6 +178,7 @@ option.Sky_Steps=Atmosphere Marches
 option.Motion_Blur=Toggle
 option.MOTION_BLUR_SAMPLES=Loops
 option.MotionBlurStrength=Strength
+option.Shadow_Filter_Samples=Shadow Filter Loops
 
 profile.Very_Low=Very Low
 profile.Low=Low
