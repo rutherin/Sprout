@@ -103,7 +103,7 @@ vec3 water(vec2 uv) {
 	
 	vec3 waterCol  = vec3(0.0, 0.4453, 0.7305);
 	vec3 waterCol2 = vec3(0.0, 0.4180, 0.6758);
-	vec3 foamCol   = vec3(0.8125, 0.9609, 0.9648);
+	vec3 foamCol   = vec3(0.9625, 0.9609, 0.9648) * 2;
   
 	vec3 ret = mix(waterCol, waterCol2, waterlayer(uv + dist.xy));
 	ret = mix(ret, foamCol, waterlayer(vec2(1.0) - uv - dist.yx) / (1.0 + depth));
