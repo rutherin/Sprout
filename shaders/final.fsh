@@ -1,6 +1,7 @@
 #version 450 compatibility
 
 #include "/lib/Settings.glsl"
+#include "/lib/Utility.glsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
@@ -230,29 +231,27 @@ vec4 bicubicTexture(sampler2D tex, vec2 coord) {
   return mix( mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
 }
 
+vec2 pixelSize = 1.0 / vec2(viewWidth, viewHeight);
 
-vec2 calculateBlurTileOffset(const int id) {
-	const vec2 idMult = floor(id * 0.5 + vec2(0.0, 0.5));
-	const vec2 offset = vec2(1.0, 2.0) * (1.0 - exp2(-2.0 * idMult)) / 3.0;
-
-	const vec2 paddingPixels = vec2(2.0, 9.0);
-	const vec2 paddingAccum  = idMult * paddingPixels;
-
-	return offset + paddingAccum * pixel;
+vec3 SeishinBloomTile(const float lod, vec2 offset) {
+	return toLinear(bicubicTexture(colortex0, texcoord / exp2(lod) + offset - pixelSize * 0.5).rgb * 10.0);
 }
 
-void calculateBloom(inout vec3 color, in vec2 coord) {
-    vec3 bloom = toLinear(bicubicTexture(colortex0, coord * exp2(-1.0) + calculateBlurTileOffset(0)).rgb);
-    float totalWeight = 0.0;
-    for (int i = 1; i < 6; ++i) {
-        float tileWeight = 1.0 / (i + 1.0);
-        bloom += toLinear(bicubicTexture(colortex0, coord * exp2(-i - 1.0) + calculateBlurTileOffset(i)).rgb) * tileWeight;
-        totalWeight += tileWeight;
-    }
-    bloom /= totalWeight;
-
-    color = mix(color, bloom * 35.0, 0.2 * Bloom_Brightness);
+void SeishinBloom(inout vec3 color) {
+	
+	vec3 bloom = vec3(0.0);
+	bloom += SeishinBloomTile(2.0, vec2(0.0                         ,                        0.0)) * 0.475;
+	bloom += SeishinBloomTile(3.0, vec2(0.0                         , 0.25   + pixelSize.y * 2.0)) * 0.625;
+	bloom += SeishinBloomTile(4.0, vec2(0.125    + pixelSize.x * 2.0, 0.25   + pixelSize.y * 2.0)) * 0.750;
+	bloom += SeishinBloomTile(5.0, vec2(0.1875   + pixelSize.x * 4.0, 0.25   + pixelSize.y * 2.0)) * 0.850;
+	bloom += SeishinBloomTile(6.0, vec2(0.125    + pixelSize.x * 2.0, 0.3125 + pixelSize.y * 4.0)) * 0.925;
+	bloom += SeishinBloomTile(7.0, vec2(0.140625 + pixelSize.x * 4.0, 0.3125 + pixelSize.y * 4.0)) * 0.975;
+	
+	bloom /= 5.0;
+	
+	color = mix(color, bloom, 0.2);
 }
+
 
 void ditherScreen(inout vec3 color) {
     vec3 lestynRGB = vec3(dot(vec2(171.0, 231.0), gl_FragCoord.xy));
@@ -260,10 +259,6 @@ void ditherScreen(inout vec3 color) {
 
     color += lestynRGB.rgb / 255.0;
 }
-#define max3(x,y,z)       max(x,max(y,z))
-#define min3(a,b,c)       min(min(a,b),c)
-#define clamp01(x) clamp(x, 0.0, 1.0)
-#define max0(x) max(x, 0.0)
 
 #include "/lib/ACES_Main.glsl"
 
@@ -272,6 +267,7 @@ void ditherScreen(inout vec3 color) {
 void main() {
 int pixelCOMB = (pixelX * pixelY) / 2;
 
+
 #ifdef Pixelizer
 vec2 newTC = pixelize(texcoord, pixelCOMB);
 #else
@@ -279,6 +275,7 @@ vec2 newTC = texcoord;
 #endif
 
 vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
+
 #ifdef Depth_Of_Field
 calculateDepthOfField(color, newTC);
 #endif
@@ -296,13 +293,16 @@ color = Vibrance(color);
 color = Saturation(color);
 color = Contrast(color);
 color = LiftGammaGain(color);
+SeishinBloom(color);
 
 #ifdef Big_Dither
 color = dither8x8(newTC, color, pixelCOMB);
 #endif
 
+
+
 #ifndef Color_Compression
-color          = toSRGB(color);
+color          = toSRGB(color * 1.2);
 #endif
 ditherScreen(color);
 

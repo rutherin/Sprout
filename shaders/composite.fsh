@@ -1,5 +1,6 @@
 #version 450 compatibility
 #include "/lib/Settings.glsl"
+#include "/lib/Utility.glsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
@@ -32,6 +33,8 @@ uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
+
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D noisetex;
@@ -57,18 +60,12 @@ uniform float frameTimeCounter;
 
 uniform ivec2 eyeBrightnessSmooth;
 
-#define LOG2 log(2.0) 
-#define rLOG2 1/LOG2
-#define clamp01(x) clamp(x, 0, 1)
-
 #include "/lib/Sky.fsh"
 
-#define pow2(x) (x * x)
-#define pow3(x) pow2(x) * x
-#define pow4(x) pow2(pow2(x))
-#define pow5(x) pow2(pow2(x)) * x
-
 float depth0 = texture2D(depthtex0, texcoord.st).x;
+float depth1 = texture2D(depthtex1, texcoord.st).x;
+
+float transparent = float(depth0 < depth1);
 
 float bayer2(vec2 a){
     a = floor(a);
@@ -389,7 +386,19 @@ vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLight
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
 lighting += pow2(lightmaps.y) * ambientColor * 0.5 * vec3(0.7, 0.9, 1.1) * AO;
-lighting += (lightmaps.x + pow((length(color * 0.8)), 5.7) * 150 * emitter) * vec3(1.4, 0.4, 0.1) * 10.5;
+	float torchMap  = lightmaps.x;
+		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
+		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.7, emitter * (1.0 - transparent)), 3.0)) - 1.0;
+
+    float emissive = emitter * pow(flength(color), 5.0);
+
+	vec3 torchLightmap = (torchMap + emissive * emitter * (1.0 - transparent) * 14.0) * vec3(1.0, 0.8, 0.1);
+
+lighting += (lightmaps.x * vec3(1.4, 0.4, 0.1) * 10.5);
+lighting += torchLightmap;
+
+
+
 lighting += specular.b * color * 50;
 
 color *= lighting;

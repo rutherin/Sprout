@@ -146,11 +146,11 @@ void calculateMatIDs(out int materialIDs) {
 
 		// Waving leaves / tall flowers
 		if ( mc_Entity.x == LEAVES || mc_Entity.x == LEAVES2 || mc_Entity.x == NEWFLOWERS )
-			position.xyz += waving;
+			position.xyz += waving * 0.5;
 
 		// Waving plants
 		if ( mc_Entity.x == VINES )
-			position.xyz += waving;
+			position.xyz += waving * 0.1;
 
 		// Waving cobwebs
 		if ( mc_Entity.x == COBWEB )
@@ -160,7 +160,7 @@ void calculateMatIDs(out int materialIDs) {
 		if (istopv) {
 			if ( mc_Entity.x == TALLGRASS || mc_Entity.x == DANDELION || mc_Entity.x == ROSE || mc_Entity.x == WHEAT || mc_Entity.x == FIRE ||
 					 mc_Entity.x == NETHER_WART || mc_Entity.x == DEAD_BUSH || mc_Entity.x == CARROT || mc_Entity.x == POTATO)
-				position.xyz += waving;
+				position.xyz += waving * 1.5;
 		}
 	}
 

@@ -1,5 +1,6 @@
 #version 450 compatibility
 #include "/lib/Settings.glsl"
+#include "/lib/Utility.glsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
@@ -28,14 +29,6 @@ uniform float viewWidth, viewHeight;
 uniform int frameCounter;
 
 vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
-
-#define diagonal2(mat) vec2((mat)[0].x, (mat)[1].y)
-#define diagonal3(mat) vec3((mat)[0].x, (mat)[1].y, mat[2].z)
-
-#define transMAD(mat, v) (     mat3(mat) * (v) + (mat)[3].xyz)
-#define  projMAD(mat, v) (diagonal3(mat) * (v) + (mat)[3].xyz)
-
-#define lumaCoeff vec3(0.2125, 0.7254, 0.0721)
 
 vec3 toSRGB(vec3 color) {
 	return mix(color * 12.92, 1.055 * pow(color, vec3(1.0 / 2.4)) - 0.055, vec3(greaterThan(color, vec3(0.0031308))));
@@ -73,59 +66,43 @@ vec2 computeCameraVelocity(in vec3 worldSpace) {
     return (texcoord - projection.xy);
 }
 
-vec2 calculateBlurTileOffset(const int id) {
-	// offsets approximately follows a multiple of this: (1 - 4⁻ˣ) / 3
+vec2 pixelSize = 1.0 / vec2(viewWidth, viewHeight);
 
-	const vec2 idMult = floor(id * 0.5 + vec2(0.0, 0.5));
-	const vec2 offset = vec2(1.0, 2.0) * (1.0 - exp2(-2.0 * idMult)) / 3.0;
 
-	const vec2 paddingPixels = vec2(2.0, 9.0); // Set as needed
-	const vec2 paddingAccum  = idMult * paddingPixels;
-
-	return offset + paddingAccum * pixel;
-}
-
-vec3 calculateBloomTile(vec2 coord, const float lod) {
-	coord *= exp2(lod);
-
-	if (clamp(coord, 0, 1) != coord) return vec3(0.0);
-
-    vec2 resolution = pixel * exp2(lod);
-
-    vec3  bloom       = vec3(0.0);
+vec3 SeishinBloomTile(const float lod, vec2 offset) {
+	vec2 coord = (texcoord - offset) * exp2(lod);
+	vec2 scale = pixelSize * exp2(lod);
+	
+	if (any(greaterThanEqual(abs(coord - 0.5), scale + 0.5)))
+		return vec3(0.0);
+	
+	vec3  bloom       = vec3(0.0);
 	float totalWeight = 0.0;
 	
 	for (int y = -3; y <= 3; y++) {
 		for (int x = -3; x <= 3; x++) {
-			float weight  = clamp(1.0 - length(vec2(x, y)) / 4.0, 0 , 1);
+			float weight  = clamp01(1.0 - length(vec2(x, y)) / 4.0) * 1.1;
 			      weight *= weight;
 			
-			bloom += toLinear(texture2DLod(colortex0, coord + vec2(x, y) * resolution, lod).rgb) * 1.2 * weight;
+			bloom += toLinear(texture2DLod(colortex0, coord + vec2(x, y) * scale, lod).rgb) * weight;
 			totalWeight += weight;
 		}
 	}
 	
-	return bloom / totalWeight * 0.2;
+	return bloom / totalWeight;
 }
 
-vec3 calculateBloomTiles() {
-    vec3 blurTiles = calculateBloomTile(texcoord - calculateBlurTileOffset(0), 1);
-		for (int i = 1; i < 6; blurTiles += calculateBloomTile(texcoord - calculateBlurTileOffset(i), ++i));
-
-    return toSRGB(blurTiles / 10.0);
+vec3 SeishinBloom() {
+	vec3 bloom = vec3(0.0);
+	bloom += SeishinBloomTile(2.0, vec2(0.0                         ,                        0.0));
+	bloom += SeishinBloomTile(3.0, vec2(0.0                         , 0.25   + pixelSize.y * 2.0));
+	bloom += SeishinBloomTile(4.0, vec2(0.125    + pixelSize.x * 2.0, 0.25   + pixelSize.y * 2.0));
+	bloom += SeishinBloomTile(5.0, vec2(0.1875   + pixelSize.x * 4.0, 0.25   + pixelSize.y * 2.0));
+	bloom += SeishinBloomTile(6.0, vec2(0.125    + pixelSize.x * 2.0, 0.3125 + pixelSize.y * 4.0));
+	bloom += SeishinBloomTile(7.0, vec2(0.140625 + pixelSize.x * 4.0, 0.3125 + pixelSize.y * 4.0));
+	
+	return bloom;
 }
-
-float calculateAverageLuminance() {
-    float avglod = int(exp2(min(viewWidth, viewHeight))) - 1;
-	float averagePrevious = texture2DLod(colortex6, vec2(0.0) + pixel * 0.5, 0.0).a;
-    float averageCurrent  = clamp(dot(texture2DLod(colortex0, vec2(0.5), avglod).rgb, lumaCoeff), 0.002, 0.25);
-    float exposureDecay   = 0.08;
-
-    float luminanceSmooth = mix(averagePrevious, averageCurrent, exposureDecay);
-
-    return luminanceSmooth;
-}
-
 
 void main(){
 vec3 color = texture2D(colortex0, texcoord).rgb;
@@ -165,7 +142,7 @@ for (int i = -1; i <= 1; ++i) {
 
 vec3 antiAliased = mix(texture2D(colortex0, texcoord).rgb, clamp(texture2DLod(colortex6, prevCoord, 0.0).rgb, limits[0], limits[1]), sqrt(weight) * 0.5 + inversesqrt(weight * 2.0 + 4.0)); 
 
-//colortex0write = vec4(calculateBloomTiles(), 1.0);
+colortex0write = vec4(toSRGB(SeishinBloom()) * 0.11, 1.0);
 colortex6write = vec4(antiAliased, 1.0);
 
 }
