@@ -448,7 +448,7 @@ color = normals * 0.5 + 0.5;
 #endif
 #ifdef Fog
 if (depth0 < 1.0) {
-color += AerialPerspective(length(viewspace)) * ((SunColor * 0.8) + (MoonColor * 3)) * 0.5 * multiplier * (colormult2);
+color += AerialPerspective(length(viewspace)) * ((SunColor * 1.8) + (MoonColor * 3)) * 0.5 * multiplier * (colormult2);
 #ifdef Volumetric_Light
 color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 1.3) + (MoonColor * 10)) * 0.2 * multiplier * colormult2 * 0.8 * watermultiplier;
 #endif

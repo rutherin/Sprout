@@ -40,3 +40,10 @@ float flength(vec4 x) {
 #define  projMAD(mat, v) (diagonal3(mat) * (v) + (mat)[3].xyz)
 
 #define lumaCoeff vec3(0.2125, 0.7254, 0.0721)
+
+mat2 rotate(float rad) {
+	return mat2(
+	vec2(cos(rad), -sin(rad)),
+	vec2(sin(rad), cos(rad))
+	);
+}
