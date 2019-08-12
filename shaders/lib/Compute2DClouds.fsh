@@ -6,7 +6,7 @@ const float noiseScale = 256.0 / noiseRes;
 #define CLOUD_COVERAGE_2D 0.5  // [0.3 0.4 0.5 0.6 0.7]
 #define CLOUD_SPEED_2D    1.00 // [0.25 0.50 1.00 2.00 4.00]
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.5, 1.2, 0.7) * 0.7;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.5, 1.2, 1.05) * 2.5;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
 vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor);
 vec3 lightColor = SunColor + MoonColor;
@@ -62,7 +62,7 @@ float CloudFBM1(vec2 coord, out mat4x2 c, vec3 weights, float weight) {
 	cloud += GetNoise(c[3] * 3.0 + time) * 0.022;
 	cloud += GetNoise(c[3] * 9.0 + time * 3.0) * 0.014;
 	
-	return cloud * 0.62;
+	return cloud * 0.65;
 }
 
 float CloudFBM2(vec2 coord, out mat4x2 c, vec3 weights, float weight) {
@@ -92,7 +92,7 @@ float CloudFBM2(vec2 coord, out mat4x2 c, vec3 weights, float weight) {
 	cloud += GetNoise(c[3] * 3.0 + time) * 0.022;
 	cloud += GetNoise(c[3] * 9.0 + time * 3.0) * 0.014;
 	
-	return cloud * 0.70;
+	return cloud * 0.77;
 }
 
 void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float sunglow) {
@@ -100,16 +100,17 @@ void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float s
 	return;
 #endif
 	
+
 	const float cloudHeight = CLOUD_HEIGHT_2D;
 	
 	vec3 rayPos = cameraPosition;
 	
-	float visibility = 0.01;
+	float visibility = 0.2;
 	
 	if (ray.y <= 0.0 != rayPos.y >= cloudHeight) return;
 	
 	
-	const float coverage = CLOUD_COVERAGE_2D * 1.66;
+	const float coverage = CLOUD_COVERAGE_2D * 1.16;
 	const vec3  weights  = vec3(0.5, 0.135, 0.075);
 	const float weight   = weights.x + weights.y + weights.z;
 	
@@ -120,12 +121,17 @@ void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float s
 	mat4x2 coords2;
 
 	// Start of code for second cloud layer, done first so it mixes correctly
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	
 	cloudAlpha = CloudFBM1(coord2, coords2, weights, weight);
 	cloudAlpha = GetCoverage2D(cloudAlpha, coverage);
-	cloudAlpha = pow(cloudAlpha, 0.1);
+	cloudAlpha = pow(cloudAlpha, 1.2);
 
-	vec2 lightOffset = vec2(0.5, 0.6);
+	
+	vec2 lightOffset = vec2(0.0, 0.2);
 	
 	float sunlight;
 	sunlight  = -GetNoise(coords2[0] + lightOffset)            ;
@@ -133,24 +139,27 @@ void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float s
 	sunlight +=  GetNoise(coords2[2] + lightOffset) * weights.y;
 	sunlight +=  GetNoise(coords2[3] + lightOffset) * weights.z;
 	sunlight  = GetCoverage2D(weight - sunlight, coverage);
-	sunlight  = pow(1.3 - sunlight, 1.5);
+	sunlight  = pow(1.3 - sunlight, 5.5);
 	sunlight *= mix(pow(cloudAlpha, 1.6) * 2.5, 2.0, sunglow);
-	sunlight *= mix(10.0, 1.0, sqrt(sunglow));
+	sunlight *= mix(1.0, 1.0, sqrt(sunglow));
 	
-	vec3 direct  = lightColor * 0.5;
-	     direct *= 1.0 + pow(sunglow, 10.0) * 10.0 / (sunlight * 0.8 + 0.2);
-	     direct *= vec3(0.4, 0.5, 0.6) * 3.0 * (SunColor + MoonColor);
+	vec3 direct  = lightColor;
 	
 	vec3 ambient = mix(ambientColor, direct, 0.15) * 0.05;
 	
-	vec3 cloud = mix(ambient, direct, sunlight);
+	vec3 cloud = mix(ambient, direct, sunlight) * 20.0;
 	
 	color = mix(color, cloud, cloudAlpha * visibility);
 
 	// Start of code for first cloud layer
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	cloudAlpha = CloudFBM2(coord1, coords1, weights, weight);
 	cloudAlpha = GetCoverage2D(cloudAlpha, coverage);
+	cloudAlpha = pow(cloudAlpha, 1.2);
+
 
 	sunlight  = 0.0;
 	sunlight  = -GetNoise(coords1[0] + lightOffset)            ;
@@ -160,15 +169,14 @@ void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float s
 	sunlight  = GetCoverage2D(weight - sunlight, coverage);
 	sunlight  = pow(1.3 - sunlight, 5.5);
 	sunlight *= mix(pow(cloudAlpha, 1.6) * 2.5, 2.0, sunglow);
-	sunlight *= mix(10.0, 1.0, sqrt(sunglow));
+	sunlight *= mix(1.0, 1.0, sqrt(sunglow));
 	
 	     direct  = lightColor;
-	     direct *= 1.0 + pow(sunglow, 10.0) / (sunlight * 0.8 + 0.2);
 	     direct *= vec3(0.4, 0.5, 0.6) * 3.0 * (SunColor + MoonColor);
 	
 	ambient = mix(ambientColor, direct, 0.15) * 0.05;
 	
-	cloud = mix(ambient, direct, sunlight) * 1.0;
+	cloud = mix(ambient, direct, sunlight) * 20.0;
 	
 	color = mix(color, cloud, cloudAlpha * 0.1);
 }
