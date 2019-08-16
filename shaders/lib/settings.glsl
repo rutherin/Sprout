@@ -22,6 +22,8 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 //#define Tilt_Shift
 //#define Distance_Blur
 
+#define Color_Downscale 1.0
+
 #define Focal_Length 35.0 
 #define Depth_Of_Field
 #define DepthOfFieldQuality 8 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30]
@@ -34,7 +36,7 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 
 //#define Normal_Debug
 
-#define Bloom_Brightness 0.0
+#define Bloom_Brightness 1.5
 
 #define Volumetric_Light
 #define VL_Steps 4 //[0 1 2 3 4 5 6 7 8 9 10 20 50 100]
@@ -123,3 +125,8 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 #define MOTION_BLUR_SAMPLES 9 //[0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
 
 #define Shadow_Filter_Samples 7 //[1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30 35 40 45 50]
+
+#define Subsurface_Scattering //Effect of light passing through transluscents such as leaves or plants
+
+#define Night_Eye
+#define Night_Eye_Strength 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0 4.0 5.0 10.0]

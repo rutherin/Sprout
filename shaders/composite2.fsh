@@ -62,39 +62,46 @@ vec2 computeCameraVelocity(in vec3 worldSpace) {
 vec2 pixelSize = 1.0 / vec2(viewWidth, viewHeight);
 
 
-vec3 SeishinBloomTile(const float lod, vec2 offset) {
-	vec2 coord = (texcoord - offset) * exp2(lod);
-	vec2 scale = pixelSize * exp2(lod);
-	
-	if (any(greaterThanEqual(abs(coord - 0.5), scale + 0.5)))
-		return vec3(0.0);
-	
-	vec3  bloom       = vec3(0.0);
+vec2 calculateBlurTileOffset(const int id) {
+	// offsets approximately follows a multiple of this: (1 - 4⁻ˣ) / 3
+
+	const vec2 idMult = floor(id * 0.5 + vec2(0.0, 0.5));
+	const vec2 offset = vec2(1.0, 2.0) * (1.0 - exp2(-2.0 * idMult)) / 3.0;
+
+	const vec2 paddingPixels = vec2(2.0, 9.0); // Set as needed
+	const vec2 paddingAccum  = idMult * paddingPixels;
+
+	return offset + paddingAccum * pixel;
+}
+
+vec3 calculateBloomTile(vec2 coord, const float lod) {
+	coord *= exp2(lod);
+
+	if (clamp(coord, 0, 1) != coord) return vec3(0.0);
+
+    vec2 resolution = pixel * exp2(lod);
+
+    vec3  bloom       = vec3(0.0);
 	float totalWeight = 0.0;
 	
 	for (int y = -3; y <= 3; y++) {
 		for (int x = -3; x <= 3; x++) {
-			float weight  = clamp01(1.0 - length(vec2(x, y)) / 4.0) * 1.1;
+			float weight  = clamp(1.0 - length(vec2(x, y)) / 4.0, 0 , 1);
 			      weight *= weight;
 			
-			bloom += toLinear(texture2DLod(colortex0, coord + vec2(x, y) * scale, lod).rgb) * weight;
+			bloom += toLinear(texture2DLod(colortex0, coord + vec2(x, y) * resolution, lod).rgb) * Color_Downscale * weight;
 			totalWeight += weight;
 		}
 	}
 	
-	return bloom / totalWeight;
+	return bloom / totalWeight * 0.2;
 }
 
-vec3 SeishinBloom() {
-	vec3 bloom = vec3(0.0);
-	bloom += SeishinBloomTile(2.0, vec2(0.0                         ,                        0.0));
-	bloom += SeishinBloomTile(3.0, vec2(0.0                         , 0.25   + pixelSize.y * 2.0));
-	bloom += SeishinBloomTile(4.0, vec2(0.125    + pixelSize.x * 2.0, 0.25   + pixelSize.y * 2.0));
-	bloom += SeishinBloomTile(5.0, vec2(0.1875   + pixelSize.x * 4.0, 0.25   + pixelSize.y * 2.0));
-	bloom += SeishinBloomTile(6.0, vec2(0.125    + pixelSize.x * 2.0, 0.3125 + pixelSize.y * 4.0));
-	bloom += SeishinBloomTile(7.0, vec2(0.140625 + pixelSize.x * 4.0, 0.3125 + pixelSize.y * 4.0));
-	
-	return bloom;
+vec3 calculateBloomTiles() {
+    vec3 blurTiles = calculateBloomTile(texcoord - calculateBlurTileOffset(0), 1);
+		for (int i = 1; i < 6; blurTiles += calculateBloomTile(texcoord - calculateBlurTileOffset(i), ++i));
+
+    return toSRGB(blurTiles / Color_Downscale);
 }
 
 #define MotionBlurStrength 5.00 //[1.00 2.00 3.00 4.00 5.00 6.00 7.00 8.00 9.00 10.00]
@@ -178,7 +185,7 @@ color = motionBlur(color,hand);
 #endif
 
 vec3 antiAliased = mix(color, clamp(texture2DLod(colortex6, prevCoord, 0.0).rgb, limits[0], limits[1]), sqrt(weight) * 0.5 + inversesqrt(weight * 2.0 + 4.0)); 
-colortex0write = vec4(toSRGB(SeishinBloom()) * 0.1, 1.0);
+colortex0write = vec4(calculateBloomTiles(), 1.0);
 colortex6write = vec4(antiAliased, 1.0);
 
 }
