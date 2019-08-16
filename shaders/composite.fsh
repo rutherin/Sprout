@@ -133,7 +133,7 @@ float shadowStep(sampler2D shadow, vec3 sPos) {
 }
 
 float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap) {
-//	if (land + transparent < 0.5 || isEyeInWater > 0.5 || lightmap < 0.1) return 0.0;
+	if (isEyeInWater > 0.5 || lightmap < 0.1) return 0.0;
 	if (lightmap < 0.1) return 0.0;
 	
 	float inverseShadowRes = 1.0 / float(shadowMapResolution);
@@ -145,9 +145,16 @@ float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap
 	float shadow1 	 = 0.0;
 	float shadowMask = 0.0;
 	vec3 directLight = vec3(0.0);
-	
+	vec3 lightmaps = texture2D(colortex1, texcoord).xyz;
+	float matIDs = lightmaps.z * 10;
+
 	int samples = Shadow_Filter_Samples;
 	float size = 0.2;
+	if ((matIDs >= 1.5 &&  matIDs < 2.5)) size = 4.0;
+
+
+
+	//if (mat)
 	
 	for(int i = 0; i < samples; i++) {
 		vec2 point = circlemap(
@@ -371,7 +378,7 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.5, 1.18, 1.0) * 4.5;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(2.2, 1.28, 1.0) * 3.5;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
 vec3 LightColor = SunColor + MoonColor;
 
@@ -384,6 +391,7 @@ vec3 lightmaps = texture2D(colortex1, texcoord).xyz;
 lightmaps.xy = pow(lightmaps.xy, vec2(2.0));
 float matIDs = lightmaps.z * 10;
 float emitter = float(matIDs >= 2.5 &&  matIDs < 3.5);
+float transluscent = float(matIDs >= 1.5 &&  matIDs < 2.5);
 vec3 screenspace = vec3(texcoord, depth0);
 
 vec3 viewspace = calculateViewSpace(screenspace);
@@ -410,7 +418,7 @@ ivec2 dither64 = ivec2(
 float shadow = getShadows(viewspace, dither64.x, dither64.y, lightmaps.y);
 
 vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLightPosition))) * (SunColor + MoonColor);
-
+vec3 SSS            = shadow * powf(color, 0.5) * (SunColor + MoonColor) / 3.14 * 0.84 * transluscent;
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
 lighting += pow2(lightmaps.y) * ambientColor * 0.5 * vec3(0.7, 0.9, 1.1) * AO;
@@ -430,7 +438,9 @@ if (blindness >= 0.5) lighting *= 0.05;
 
 lighting += torchLightmap;
 
+if ((matIDs >= 1.5 &&  matIDs < 2.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.11) + (MoonColor * 0.01));
 
+lighting += SSS;
 
 lighting += specular.b * color * 50;
 

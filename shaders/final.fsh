@@ -298,6 +298,6 @@ color = dither8x8(newTC, color, pixelCOMB);
 color          = toSRGB(color * 1.2);
 #endif
 ditherScreen(color);
-//color = color * vec3(0.95, 0.9, 1.0);
+//color = color * vec3(1.05, 0.96, 0.95);
 gl_FragColor   = vec4(color, 1.0);
 }
