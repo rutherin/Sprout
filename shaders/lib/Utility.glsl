@@ -45,8 +45,13 @@ vec2 powf(vec2 a, float b) { return pow(a, vec2(b)); }
 
 #define lumaCoeff vec3(0.2125, 0.7254, 0.0721)
 
-#define toLinear(x) powf(x, 2.2)
-#define toSRGB(x) powf(x, 1.0 / 2.2)
+vec3 toSRGB(vec3 color) {
+	return mix(color * 12.92, 1.055 * pow(color, vec3(1.0 / 2.4)) - 0.055, vec3(greaterThan(color, vec3(0.0031308))));
+}
+
+vec3 toLinear(vec3 color) {
+	return mix(color / 12.92, pow((color + 0.055) / 1.055, vec3(2.4)), vec3(greaterThan(color, vec3(0.04045))));
+}
 
 mat2 rotate(float rad) {
 	return mat2(

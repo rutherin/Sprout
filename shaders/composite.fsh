@@ -1,5 +1,5 @@
 #version 450 compatibility
-#include "/lib/Settings.glsl"
+#include "/lib/settings.glsl"
 #include "/lib/Utility.glsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ uniform sampler2D depthtex1;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D noisetex;
-
+uniform float blindness;
 
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
@@ -314,6 +314,8 @@ vec3 AerialPerspective(float dist) {
 	    if (isEyeInWater > 0.0) colormult = vec3(0.3, 1.8, 1.6) * 0.01;
 		if (isEyeInWater > 0.0) indoors = 1.0;
 
+        if (blindness >= 0.5) factor = pow(dist, 1.0) * 1.9 * Fog_Amount * (1.0 + isEyeInWater * 1);
+	    if (blindness >= 0.5) colormult = vec3(0.2, 0.15, 0.1) * 0.3;
 
 
     return pow(vec3(0.2, 0.3, 1.25) * colormult, vec3(1.3 - clamp01(factor) * 0.4)) * factor * 2 * indoors;
@@ -375,6 +377,9 @@ vec3 LightColor = SunColor + MoonColor;
 
 vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor) * 0.33;
 
+if (blindness >= 0.5) SunColor *= 0.01;
+if (blindness >= 0.5) ambientColor *= 0.01;
+
 vec3 lightmaps = texture2D(colortex1, texcoord).xyz;
 lightmaps.xy = pow(lightmaps.xy, vec2(2.0));
 float matIDs = lightmaps.z * 10;
@@ -415,12 +420,13 @@ lighting += pow2(lightmaps.y) * ambientColor * 0.5 * vec3(0.7, 0.9, 1.1) * AO;
 
     float emissive = emitter * pow(flength(color), 5.0);
 
-	vec3 torchLightmap = (torchMap + emissive * emitter * (1.0 - transparent) * 14.0) * vec3(1.0, 0.8, 0.1);
+	vec3 torchLightmap = (torchMap + emissive * emitter * (1.0 - transparent) * 14.0) * vec3(1.0, 0.3, 0.1);
 
 if (isEyeInWater > 0.0) {
     lighting += (lightmaps.x * vec3(0.3, 0.5, 1.3) * 3);
 }
 else if (emitter <= 0.5) lighting += (lightmaps.x * vec3(1.4, 0.4, 0.1) * 10.5);
+if (blindness >= 0.5) lighting *= 0.05;
 
 lighting += torchLightmap;
 
@@ -439,8 +445,9 @@ vec3 colormult2 = vec3(1.0, 1.0, 1.0);
 if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 1.6);
 float multiplier = 1.0;
 float watermultiplier = 1.0;
+float blindnessmult = 1.0;
 if (isEyeInWater > 0.0) watermultiplier = 2.0;
-
+if (blindness >= 0.5) blindnessmult = 0.0;
 float cloudAlpha = 0.0;
 #ifdef Cell_Shading
 celshade(color);
@@ -451,8 +458,10 @@ if (depth0 >= 1.0) {
 	 generateStars(color, worldspace, 0.05, visibility);
      color += CalculateSunSpot(dot(viewvec, sunvec)) * SunColor * 1.0;
      color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor;
-     color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientColor) * 0.5;
+     color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientColor) * 0.5 * blindnessmult;
      color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2 * 2);
+     if (blindness >= 0.5)  color += AerialPerspective(length(viewspace)) * ((SunColor * 5) + (MoonColor * 5)) * 0.5 * multiplier * (colormult2 * 2) * 0.02;
+
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
      if (isEyeInWater > 0.0) {
          color = vec3(0.1, 0.4, 0.9) * 0.3 * pow(far, 0.4);

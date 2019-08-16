@@ -1,6 +1,6 @@
 #version 450 compatibility
 
-#include "/lib/Settings.glsl"
+#include "/lib/settings.glsl"
 #include "/lib/Utility.glsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,7 @@ uniform int frameCounter;
 uniform float centerDepthSmooth;
 uniform float aspectRatio;
 uniform float frameTimeCounter;
+uniform float blindness;
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferPreviousProjection;
 uniform mat4 gbufferPreviousModelView;
@@ -116,6 +117,7 @@ void calculateDepthOfField(inout vec3 color, in vec2 coord) {
     #endif
 
     if (isEyeInWater >= 0.5) CoC += smoothstep(0.1, 0.3, ld(expDepth)) * 0.4;
+    if (blindness >= 0.5) CoC += smoothstep(0.1, 0.3, ld(expDepth)) * 0.9;
 
     #ifdef Tilt_Shift
           CoC          = (coord.y - 0.5) * 0.5;
@@ -226,7 +228,7 @@ vec4 bicubicTexture(sampler2D tex, vec2 coord) {
 vec2 pixelSize = 1.0 / vec2(viewWidth, viewHeight);
 
 vec3 SeishinBloomTile(const float lod, vec2 offset) {
-	return toLinear(bicubicTexture(colortex0, texcoord / exp2(lod) + offset - pixelSize * 0.5).rgb * 10.0);
+	return toLinear(bicubicTexture(colortex0, texcoord / exp2(lod) + offset - pixelSize * 0.5).rgb);
 }
 
 void SeishinBloom(inout vec3 color) {
@@ -277,7 +279,7 @@ calculateDepthOfField(color, newTC);
 calculateNightEye(color);
 //tonemap_filmic(color);
 
-color = (color * sRGB_2_AP0) * 1.0;
+color = (color * sRGB_2_AP0) * 1.05;
 FilmToneMap(color);
 
 color = WhiteBalance(color);
@@ -296,6 +298,6 @@ color = dither8x8(newTC, color, pixelCOMB);
 color          = toSRGB(color * 1.2);
 #endif
 ditherScreen(color);
-
+//color = color * vec3(0.95, 0.9, 1.0);
 gl_FragColor   = vec4(color, 1.0);
 }
