@@ -299,9 +299,9 @@ color = LiftGammaGain(color);
 color = dither8x8(newTC, color, pixelCOMB);
 #endif
 //color = floor(color * Color_Downscale) / Color_Downscale;
-color = floor(color * vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B)) / vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B);
+//color = floor(color * vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B)) / vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B);
 #ifndef Color_Compression
-color          = toSRGB(color * 1.2);
+color          = toSRGB(color);
 #endif
 ditherScreen(color);
 

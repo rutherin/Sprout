@@ -9,7 +9,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
-const int colortex0Format = RGBA16;
+const int colortex0Format = RGB8;
+const int colortex1Format = RGB8;
 */
 
 /* DRAWBUFFERS:0 */
