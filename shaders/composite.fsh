@@ -8,11 +8,6 @@
 /////////////////////redistribution of any kind requires explicit permission.///////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-const int colortex0Format = RGB8;
-const int colortex1Format = RGB8;
-*/
-
 /* DRAWBUFFERS:0 */
 
 const float sunPathRotation = -50;
