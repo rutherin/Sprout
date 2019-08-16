@@ -89,7 +89,8 @@ vec3 calculateBloomTile(vec2 coord, const float lod) {
 			float weight  = clamp(1.0 - length(vec2(x, y)) / 4.0, 0 , 1);
 			      weight *= weight;
 			
-			bloom += toLinear(texture2DLod(colortex0, coord + vec2(x, y) * resolution, lod).rgb) * Color_Downscale * weight;
+			bloom += toLinear(texture2DLod(colortex0, coord + vec2(x, y) * resolution, lod).rgb) * 1.0 * weight;
+			//bloom = bloom / 1000 * 1000;
 			totalWeight += weight;
 		}
 	}
@@ -101,7 +102,7 @@ vec3 calculateBloomTiles() {
     vec3 blurTiles = calculateBloomTile(texcoord - calculateBlurTileOffset(0), 1);
 		for (int i = 1; i < 6; blurTiles += calculateBloomTile(texcoord - calculateBlurTileOffset(i), ++i));
 
-    return toSRGB(blurTiles / Color_Downscale);
+    return toSRGB(blurTiles);
 }
 
 #define MotionBlurStrength 5.00 //[1.00 2.00 3.00 4.00 5.00 6.00 7.00 8.00 9.00 10.00]

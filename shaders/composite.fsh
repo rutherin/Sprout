@@ -423,7 +423,7 @@ vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLight
 vec3 SSS            = shadow * powf(color, 0.5) * (SunColor + MoonColor) / 3.14 * 0.84 * transluscent;
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
-lighting += pow(lightmaps.y, 2.35) * ambientColor * 0.5 * vec3(0.7, 0.9, 1.1) * AO;
+lighting += pow(lightmaps.y, 1.6) * ambientColor * 0.5 * vec3(0.7, 0.9, 1.1) * AO;
 	float torchMap  = lightmaps.x;
 		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
 		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.8, emitter * (1.0 - transparent)), 3.0)) - 1.0;
@@ -508,6 +508,6 @@ color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColo
 #endif
 
 
-gl_FragData[0] = vec4(toSRGB(color / Color_Downscale), 1.0);
+gl_FragData[0] = vec4(toSRGB(color), 1.0);
 
 }

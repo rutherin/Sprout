@@ -247,7 +247,7 @@ void calculateBloom(inout vec3 color, in vec2 coord) {
     }
     bloom /= totalWeight;
 
-    color = mix(color, bloom * Color_Downscale, 0.2 * Bloom_Brightness);
+    color = mix(color, bloom * 1.0, 0.2 * Bloom_Brightness);
 }
 
 void ditherScreen(inout vec3 color) {
@@ -276,15 +276,14 @@ vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
 #ifdef Depth_Of_Field
 calculateDepthOfField(color, newTC);
 #endif
+calculateBloom(color, newTC);
 
 //calculateExposure(color);
 //tonemap_filmic(color);
-color *= Color_Downscale;
 #ifdef Night_Eye
 calculateNightEye(color);
 #endif
 
-//calculateBloom(color, newTC);
 
 color = (color * sRGB_2_AP0) * 1.05;
 FilmToneMap(color);
@@ -299,7 +298,8 @@ color = LiftGammaGain(color);
 #ifdef Big_Dither
 color = dither8x8(newTC, color, pixelCOMB);
 #endif
-
+//color = floor(color * Color_Downscale) / Color_Downscale;
+color = floor(color * vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B)) / vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B);
 #ifndef Color_Compression
 color          = toSRGB(color * 1.2);
 #endif

@@ -22,7 +22,11 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 //#define Tilt_Shift
 //#define Distance_Blur
 
-#define Color_Downscale 1.0
+#define Color_Downscale 2048 //[8 16 32 64 128 256 512 1024 2048]
+
+#define Color_Downscale_Values_R 2048 //[8 16 32 64 128 256 512 1024 2048]
+#define Color_Downscale_Values_G 2048 //[8 16 32 64 128 256 512 1024 2048]
+#define Color_Downscale_Values_B 2048 //[8 16 32 64 128 256 512 1024 2048]
 
 #define Focal_Length 35.0 
 #define Depth_Of_Field
