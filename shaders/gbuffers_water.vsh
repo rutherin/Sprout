@@ -44,7 +44,11 @@ vec2 haltonSequence(vec2 i, vec2 b) {
 
 vec2 temporalJitter() {
     vec2 scale = 2.0 / vec2(viewWidth, viewHeight);
+	#ifdef TAA
     return haltonSequence(vec2(frameCounter % 16), vec2(2.0, 3.0)) * scale + (-0.5 * scale);
+	#else
+	return vec2(0.0);
+	#endif
 }
 
 mat2 rotate(float rad) {

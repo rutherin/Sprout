@@ -48,7 +48,11 @@ vec2 haltonSequence(vec2 i, vec2 b) {
 
 vec2 temporalJitter() {
     vec2 scale = 2.0 / vec2(viewWidth, viewHeight);
+	#ifdef TAA
     return haltonSequence(vec2(frameCounter % 16), vec2(2.0, 3.0)) * scale + (-0.5 * scale);
+	#else
+	return vec2(0.0);
+	#endif
 }
 
 vec2 computeCameraVelocity(in vec3 worldSpace) {
@@ -187,6 +191,10 @@ color = motionBlur(color,hand);
 
 vec3 antiAliased = mix(color, clamp(texture2DLod(colortex6, prevCoord, 0.0).rgb, limits[0], limits[1]), sqrt(weight) * 0.5 + inversesqrt(weight * 2.0 + 4.0)); 
 colortex0write = vec4(calculateBloomTiles(), 1.0);
+#ifdef TAA
 colortex6write = vec4(antiAliased, 1.0);
+#else
+colortex6write = vec4(color, 1.0);
+#endif
 
 }

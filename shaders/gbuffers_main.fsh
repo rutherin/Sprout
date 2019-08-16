@@ -71,7 +71,7 @@ vec2 parallax_calculateCoordinate(vec2 textureCoordinates, mat2 textureCoordinat
     vec3 position = vec3((textureCoordinates - atlasTileOffset) / atlasTileSize, 1.0);
     float height;
 
-    for (int i = 0; i < 1024; ++i) {
+    for (int i = 0; i < 256; ++i) {
         #ifdef Smooth_POM
             height = textureSmoothGrad(normals, fract(position.st) * atlasTileSize + atlasTileOffset, atlasSize, textureCoordinateDerivatives).a;
         #else
