@@ -52,7 +52,7 @@ vec4 textureSmoothGrad(sampler2D t, vec2 x, vec2 textureSize, mat2 derivatives) 
 }
 
 vec2 parallax_calculateCoordinate(vec2 textureCoordinates, mat2 textureCoordinateDerivatives, vec3 tangentViewVector, inout float parallaxShadow) {
-    #if !defined Parallax_Occlusion || !defined GBUFFERS_TERRAIN
+    #ifndef Parallax_Occlusion
         return textureCoordinates;
     #endif
 

@@ -103,6 +103,8 @@ void calculateMatIDs(out int materialIDs) {
     if (id == TORCH || id == FIRE || id == LAVAFLOWING || id == LAVASTILL || id == GLOWSTONE ||
         id == SEA_LANTERN || id == LAMP_ON || id == BEACON || id == END_ROD) IDs = 3;
 
+    if (id == LEAVES || id == LEAVES2) IDs = 4;
+
     materialIDs = IDs;
 }
 

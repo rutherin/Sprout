@@ -147,7 +147,7 @@ float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap
 	int samples = Shadow_Filter_Samples;
 	float size = 0.2;
 	#ifdef Subsurface_Scattering
-	if ((matIDs >= 1.5 &&  matIDs < 2.5)) size = 4.0;
+	if ((matIDs >= 3.5 &&  matIDs < 4.5)) size = 4.0;
 	#endif
 
 
@@ -438,10 +438,11 @@ lighting += torchLightmap;
 
 #ifdef Subsurface_Scattering
 if ((matIDs >= 1.5 &&  matIDs < 2.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.11) + (MoonColor * 0.01));
+if ((matIDs >= 3.5 &&  matIDs < 4.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.41) + (MoonColor * 0.01));
 lighting += SSS;
 #endif
 
-lighting += specular.b * color * 50;
+lighting += specular.b * color * 50 * Resource_Emitter_Brightness;
 
 color *= lighting;
 
