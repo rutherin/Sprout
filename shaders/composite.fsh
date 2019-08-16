@@ -422,7 +422,7 @@ float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 lighting += pow(lightmaps.y, 1.6) * ambientColor * 0.5 * vec3(0.7, 0.9, 1.1) * AO;
 	float torchMap  = lightmaps.x;
 		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
-		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.8, emitter * (1.0 - transparent)), 3.0)) - 1.0;
+		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.96, emitter * (1.0 - transparent)), 3.0)) - 1.0;
 
     float emissive = emitter * pow(flength(color), 5.0);
 
@@ -465,7 +465,7 @@ celshade(color);
 if (depth0 >= 1.0) {
      color = vec3(0.0);
 	 generateStars(color, worldspace, 0.05, visibility);
-     color += CalculateSunSpot(dot(viewvec, sunvec)) * SunColor * 1.0;
+     color += CalculateSunSpot(dot(viewvec, sunvec)) * SunColor * 0.1;
      color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor;
      color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientColor) * 0.5 * blindnessmult;
      color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2 * 2);
@@ -480,7 +480,7 @@ if (depth0 >= 1.0) {
          color = color * vec3(0.3, 0.8, 1.0) * ((SunColor * 0.27) + MoonColor);
      }
      
-     color += hgPhase(dot(lightvec, viewvec), 0.999) * 0.0002 * ((SunColor * 2.0 * vec3(1.0, 0.8, 0.3)) + (MoonColor * 60));
+     //color += hgPhase(dot(lightvec, viewvec), 0.999) * 0.0002 * ((SunColor * 2.0 * vec3(1.0, 0.8, 0.3)) + (MoonColor * 60));
 
      #ifdef Volumetric_Light
      color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 0.46 * watermultiplier) + (MoonColor * 8)) * 0.2 * multiplier * colormult2 * 0.8;
