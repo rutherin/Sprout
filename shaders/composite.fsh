@@ -133,8 +133,8 @@ float shadowStep(sampler2D shadow, vec3 sPos) {
 }
 
 float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap) {
-	if (isEyeInWater > 0.5 || lightmap < 0.1) return 0.0;
-	if (lightmap < 0.1) return 0.0;
+	if (isEyeInWater > 0.5) return 0.0;
+	//if (lightmap < 0.1) return 0.0;
 	
 	float inverseShadowRes = 1.0 / float(shadowMapResolution);
 	
