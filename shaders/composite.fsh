@@ -75,7 +75,7 @@ vec2 haltonSequence(vec2 i, vec2 b) {
 
 vec2 temporalJitter() {
     vec2 scale = 2.0 / vec2(viewWidth, viewHeight);
-	#ifdef TAA
+	#if defined TAA && !defined Color_Compression
     return haltonSequence(vec2(frameCounter % 16), vec2(2.0, 3.0)) * scale + (-0.5 * scale);
 	#else
 	return vec2(0.0);
@@ -432,7 +432,7 @@ vec3 SSS            = shadow * powf(color, 0.5) * (SunColor + MoonColor) / 3.14 
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
 lighting += pow(lightmaps.y, 1.6) * ambientColor * 0.5 * vec3(0.63, 0.7, 1.18) * AO;
-	float torchMap  = lightmaps.x;
+	float torchMap  = lightmaps.x * AO;
 		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
 		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.96, emitter * (1.0 - transparent)), 3.0)) - 1.0;
 
@@ -446,7 +446,7 @@ if (isEyeInWater > 0.0) {
 else if (emitter <= 0.5) lighting += (lightmaps.x * vec3(1.4, 0.4, 0.1) * 10.5);
 if (blindness >= 0.5) lighting *= 0.05;
 
-lighting += torchLightmap;
+lighting += torchLightmap * AO;
 
 #ifdef Subsurface_Scattering
 if ((matIDs >= 1.5 &&  matIDs < 2.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.11) + (MoonColor * 0.01));

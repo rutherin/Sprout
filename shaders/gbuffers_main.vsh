@@ -84,7 +84,7 @@ vec2 haltonSequence(vec2 i, vec2 b) {
 
 vec2 temporalJitter() {
     vec2 scale = 2.0 / vec2(viewWidth, viewHeight);
-	#ifdef TAA
+	#if defined TAA && !defined Color_Compression
     return haltonSequence(vec2(frameCounter % 16), vec2(2.0, 3.0)) * scale + (-0.5 * scale);
 	#else
 	return vec2(0.0);
@@ -146,10 +146,14 @@ void calculateMatIDs(out int materialIDs) {
 
 		float wavyMult  = 1.5;
 
-        #ifndef Waving_Plants
+        #if !defined Waving_Plants
         wavyMult *= 0.0;
         #endif
 
+        #ifdef Color_Compression
+        wavyMult *= 0.0;
+        #endif
+        
 		vec3 worldpos = position.xyz + cameraPosition;
 
 		// Waving vines / cobwebs / plants

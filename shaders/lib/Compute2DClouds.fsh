@@ -31,7 +31,11 @@ float GetCoverage2D(float clouds, float coverage) {
 }
 
 float CloudFBM1(vec2 coord, out mat4x2 c, vec3 weights, float weight) {
-	float time = CLOUD_SPEED_2D * frameTimeCounter * 0.01;
+	float cmult = 1.0;
+	#ifdef Color_Compression
+	cmult *= 0.0;
+    #endif
+	float time = CLOUD_SPEED_2D * cmult * frameTimeCounter * 0.01;
 	
 	c[0]    = coord * 0.007;
 	c[0]   += GetNoise2D(c[0]) * 0.3 - 0.15;
@@ -61,7 +65,11 @@ float CloudFBM1(vec2 coord, out mat4x2 c, vec3 weights, float weight) {
 }
 
 float CloudFBM2(vec2 coord, out mat4x2 c, vec3 weights, float weight) {
-	float time = CLOUD_SPEED_2D * frameTimeCounter * 0.01;
+	float cmult = 1.0;
+	#ifdef Color_Compression
+	cmult *= 0.0;
+    #endif
+	float time = CLOUD_SPEED_2D * cmult * frameTimeCounter * 0.01;
 	
 	c[0]    = coord * 0.007;
 	c[0]   += GetNoise2D(c[0]) * 0.3 - 0.15;
