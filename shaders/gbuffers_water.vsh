@@ -101,7 +101,7 @@ worldspace = (gbufferModelViewInverse * (gl_ModelViewMatrix * gl_Vertex)).xyz + 
 
 normals = gl_NormalMatrix * gl_Normal;
 
-gl_Position = ftransform();
+//gl_Position = ftransform();
 
 gl_Position.xy = temporalJitter() * gl_Position.w + gl_Position.xy;
 

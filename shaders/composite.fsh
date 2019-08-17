@@ -166,7 +166,7 @@ float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap
 		vec3 shadowCoord = shadowSpace + vec3(point, 0.0);
 		biasShadow(shadowCoord);
 		
-		shadow0 += shadowStep(shadowtex0, shadowCoord);
+		shadow0 += shadowStep(shadowtex1, shadowCoord);
 	}
 	
 	shadow0 /= float(samples);
