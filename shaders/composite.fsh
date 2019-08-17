@@ -379,7 +379,6 @@ vec3 color = toLinear(texture2D(colortex0, texcoord).rgb);
 float depth0 = texture2D(depthtex0, texcoord).x;
 vec3 normals = texture2D(colortex2, texcoord).rgb * 2.0 - 1.0;
 vec3 specular = texture2D(colortex3, texcoord).rgb;
-float hand = float(texture2D(depthtex1,texcoord.xy).r < 0.56);
 
 vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
@@ -440,7 +439,6 @@ lighting += pow(lightmaps.y, 1.6) * ambientColor * 0.5 * vec3(0.63, 0.7, 1.18) *
     float emissive = emitter * pow(flength(color), 5.0);
 
 	vec3 torchLightmap = (torchMap + emissive * emitter * (1.0 - transparent) * 14.0) * vec3(1.0, 0.3, 0.1);
-	torchLightmap *= hand;
 
 if (isEyeInWater > 0.0) {
     lighting += (lightmaps.x * vec3(0.3, 0.5, 1.3) * 3);
