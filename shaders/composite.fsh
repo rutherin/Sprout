@@ -388,7 +388,11 @@ vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(2.2, 1.28, 1.0) * 3.5;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
 vec3 LightColor = SunColor + MoonColor;
 
-vec3 ambientColor = vec3(0.8, 0.9, 1.2);
+vec3 scatteringAmbient = vec3(0.0);
+
+
+vec3 ambientColor = vec3(0.8, 0.9, 1.2) * ((SunColor * vec3(0.4, 0.55, 1.0) * 0.5) + MoonColor) * 1.3;
+
 
 if (blindness >= 0.5) SunColor *= 0.01;
 if (blindness >= 0.5) ambientColor *= 0.01;
