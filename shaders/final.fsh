@@ -116,7 +116,8 @@ void calculateDepthOfField(inout vec3 color, in vec2 coord) {
           CoC         += smoothstep(0.1, 1.8, ld(expDepth)) * 1.4;
     #endif
 
-    if (isEyeInWater >= 0.5) CoC += smoothstep(0.1, 0.3, ld(expDepth)) * 0.4;
+    if (isEyeInWater >= 0.5 && isEyeInWater <= 1.5) CoC += smoothstep(0.1, 0.3, ld(expDepth)) * 0.4;
+    if (isEyeInWater >= 1.5) CoC += smoothstep(0.01, 0.1, ld(expDepth)) * 1.0;
     if (blindness >= 0.5) CoC += smoothstep(0.1, 0.3, ld(expDepth)) * 0.9;
 
     #ifdef Tilt_Shift

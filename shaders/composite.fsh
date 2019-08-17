@@ -134,7 +134,7 @@ float shadowStep(sampler2D shadow, vec3 sPos) {
 
 float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap) {
 	if (isEyeInWater > 0.5) return 0.0;
-	//if (lightmap < 0.1) return 0.0;
+	//if (lightmap < 0.01) return 0.0;
 	
 	float inverseShadowRes = 1.0 / float(shadowMapResolution);
 	
@@ -319,9 +319,13 @@ vec3 AerialPerspective(float dist) {
     float indoors       = 1.0 - clamp01((-eyeBrightnessSmooth.y + 230) / 100.0);
 
     float factor  = pow(dist, 1.0) * 0.0008 * Fog_Amount * (1.0 + isEyeInWater * 4);
-	    if (isEyeInWater > 0.0) factor *= 15.0;
-	    if (isEyeInWater > 0.0) colormult = vec3(0.3, 1.8, 1.6) * 0.01;
-		if (isEyeInWater > 0.0) indoors = 1.0;
+	    if (isEyeInWater > 0.0 && isEyeInWater < 1.5) factor *= 15.0;
+	    if (isEyeInWater > 0.0 && isEyeInWater < 1.5) colormult = vec3(0.3, 1.8, 1.6) * 0.01;
+		if (isEyeInWater > 0.0 && isEyeInWater < 1.5) indoors = 1.0;
+
+		if (isEyeInWater > 1.5)  colormult = vec3(13.3, 0.7, 0.1) * 2;
+		if (isEyeInWater > 1.5)  factor *= 15.0;
+		if (isEyeInWater > 1.5)  indoors = 1.0;
 
         if (blindness >= 0.5) factor = pow(dist, 1.0) * 1.9 * Fog_Amount * (1.0 + isEyeInWater * 1);
 	    if (blindness >= 0.5) colormult = vec3(0.2, 0.15, 0.1) * 0.3;
