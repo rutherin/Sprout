@@ -100,15 +100,15 @@ vec3 water(vec2 uv) {
 	d1 = frameTimeCounter * 0.25 + d1;
 	d2 = frameTimeCounter * 0.5 + d2;
 	vec2 dist = vec2(
-		(sin(d1) + sin(2.2 * uv.y + 5.52) + sin(2.9 * uv.x + 0.93) + sin(4.6 * uv.x + 8.94)) / 4,
-		(cos(d1) + cos(1.2 * uv.x + 1.52) + cos(5.9 * uv.y + 0.23) + cos(1.6 * uv.x + 2.94)) / 16
+		(sin(d1) + sin(2.2 * uv.y + 5.52) + sin(2.9 * uv.x + 0.93) + sin(4.6 * uv.x + 8.94)) / 4 * Water_Distortion_Multiplier,
+		(cos(d1) + cos(1.2 * uv.x + 1.52) + cos(5.9 * uv.y + 0.23) + cos(1.6 * uv.x + 2.94)) / 16 * Water_Distortion_Multiplier
 
 	);
   
   float depth = length(worldspace - cameraPosition) / 3.0;
 	
-	vec3 waterCol  = vec3(0.0, 0.4453, 0.7305);
-	vec3 waterCol2 = vec3(0.0, 0.4180, 0.6758);
+	vec3 waterCol  = vec3(0.0, 0.4453, 0.7305) * Water_Brightness;
+	vec3 waterCol2 = vec3(0.0, 0.4180, 0.6758) * Water_Brightness;
 	vec3 foamCol   = vec3(0.9625, 0.9609, 0.9648) * 2;
   
 	vec3 ret = mix(waterCol, waterCol2, waterlayer(uv + dist.xy));
