@@ -341,7 +341,7 @@ vec4 VL() {
     vec4 startPos = shadowProjection * shadowModelView * gbufferModelViewInverse * vec4(0.0, 0.0, 0.0, 1.0);
     vec4 dir = normalize(endPos - startPos);
     
-    vec4 increment = dir * distance(endPos, startPos) / 5;
+    vec4 increment = dir * distance(endPos, startPos) / VL_Steps;
     startPos -= increment * bayer128(gl_FragCoord.xy);
     vec4 curPos = startPos;
 
@@ -350,7 +350,7 @@ vec4 VL() {
     float lengthOfIncrement = length(increment);
 
     vec4 result = vec4(0.0);
-    for (int j = 0; j < 5; j++) {
+    for (int j = 0; j < VL_Steps; j++) {
         curPos += increment;
         vec3 shadowPos = (curPos.xyz / vec3(vec2(distortionfactor(curPos.xy)), shadowZstretch)) * 0.5 + 0.5;
         float shadowTransparent = float(texture2D(shadowtex1, shadowPos.st).r > shadowPos.p - 0.00008);
