@@ -191,7 +191,7 @@ color = motionBlur(color,hand);
 
 vec3 antiAliased = mix(color, clamp(texture2DLod(colortex6, prevCoord, 0.0).rgb, limits[0], limits[1]), sqrt(weight) * 0.5 + inversesqrt(weight * 2.0 + 4.0)); 
 colortex0write = vec4(calculateBloomTiles(), 1.0);
-#if defined TAA && !defined Color_Compression
+#ifdef TAA
 colortex6write = vec4(antiAliased, 1.0);
 #else
 colortex6write = vec4(color, 1.0);
