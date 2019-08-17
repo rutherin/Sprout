@@ -97,11 +97,12 @@ vec3 water(vec2 uv) {
 	// Texture distortion
 	float d1 = mod(uv.x + uv.y, TAU);
 	float d2 = mod((uv.x + uv.y + 0.25) * 1.3, TAU * 3);
-	d1 = frameTimeCounter * 0.07 + d1;
+	d1 = frameTimeCounter * 0.25 + d1;
 	d2 = frameTimeCounter * 0.5 + d2;
 	vec2 dist = vec2(
-		sin(d1) * 0.15 + sin(d2) * 0.05,
-		cos(d1) * 0.15 + cos(d2) * 0.15
+		(sin(d1) + sin(2.2 * uv.y + 5.52) + sin(2.9 * uv.x + 0.93) + sin(4.6 * uv.x + 8.94)) / 4,
+		(cos(d1) + cos(1.2 * uv.x + 1.52) + cos(5.9 * uv.y + 0.23) + cos(1.6 * uv.x + 2.94)) / 16
+
 	);
   
   float depth = length(worldspace - cameraPosition) / 3.0;
