@@ -384,7 +384,7 @@ vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(2.2, 1.28, 1.0) * 3.5;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
 vec3 LightColor = SunColor + MoonColor;
 
-vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor) * 0.33;
+vec3 ambientColor = vec3(0.8, 0.9, 1.2);
 
 if (blindness >= 0.5) SunColor *= 0.01;
 if (blindness >= 0.5) ambientColor *= 0.01;
@@ -423,7 +423,7 @@ vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLight
 vec3 SSS            = shadow * powf(color, 0.5) * (SunColor + MoonColor) / 3.14 * 0.84 * transluscent;
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
-lighting += pow(lightmaps.y, 1.6) * ambientColor * 0.5 * vec3(0.63, 0.7, 1.55) * AO;
+lighting += pow(lightmaps.y, 1.6) * ambientColor * 0.5 * vec3(0.63, 0.7, 1.18) * AO;
 	float torchMap  = lightmaps.x;
 		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
 		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.96, emitter * (1.0 - transparent)), 3.0)) - 1.0;
