@@ -146,6 +146,10 @@ void calculateMatIDs(out int materialIDs) {
 
 		float wavyMult  = 1.5;
 
+        #ifndef Waving_Plants
+        wavyMult *= 0.0;
+        #endif
+
 		vec3 worldpos = position.xyz + cameraPosition;
 
 		// Waving vines / cobwebs / plants

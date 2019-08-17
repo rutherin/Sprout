@@ -128,6 +128,7 @@ option.Shadow_Filter_Samples=Shadow Filter Loops
 option.Subsurface_Scattering=Subsurface Scattering (SSS)
 option.Night_Eye=Night Eye
 option.Night_Eye_Strength=Night Eye Threshold
+option.Waving_Plants=Waving Vegetation
 
 profile.Very_Low=Very Low
 profile.Low=Low
