@@ -7,6 +7,7 @@
 /*
 const int colortex0Format = RGBA16F;
 const int colortex1Format = RGBA16;
+const int colortex3Format = RGBA16;
 */
 
 #define shadowBias 0.9

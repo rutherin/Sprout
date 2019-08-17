@@ -442,13 +442,13 @@ lighting += torchLightmap;
 
 #ifdef Subsurface_Scattering
 if ((matIDs >= 1.5 &&  matIDs < 2.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.11) + (MoonColor * 0.01));
-if ((matIDs >= 3.5 &&  matIDs < 4.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.41) + (MoonColor * 0.01));
+if ((matIDs >= 3.5 &&  matIDs < 4.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.21) + (MoonColor * 0.01));
 lighting += SSS;
 #endif
 
 lighting += specular.b * color * 50 * Resource_Emitter_Brightness;
 
-color *= lighting;
+color *= lighting + specular.b;
 
 vec3 transmittance = vec3(1.0);
 
