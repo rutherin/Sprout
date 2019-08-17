@@ -27,6 +27,8 @@ uniform sampler2D texture;
 uniform sampler2D specular;
 uniform sampler2D normals;
 uniform ivec2 atlasSize;
+uniform vec4 entityColor;
+
 
 #define atlasTileOffset     atlasTileInfo[0]
 #define atlasTileSize       atlasTileInfo[1]
@@ -117,8 +119,7 @@ vec4 albedo = texture2D(texture, coord);
 vec4 speculartex = texture2D(specular, coord);
 vec4 normalTex   = texture2D(normals, coord) * 2.0 - 1.0;
 
-albedo.rgb *= color.rgb;
-
+albedo.rgb *= (color.rgb + entityColor.rgb);
 colortex0write = albedo;
 #ifdef Minecraft_AO
 colortex1write = vec4(vertexlightmaps * (color.a * 1.2), matIDs * 0.1, 1);

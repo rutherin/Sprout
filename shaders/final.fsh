@@ -289,7 +289,7 @@ calculateNightEye(color);
 #endif
 
 
-color = (color * sRGB_2_AP0) * 1.05;
+color = (color * sRGB_2_AP0) * 1.00;
 FilmToneMap(color);
 
 color = WhiteBalance(color);
