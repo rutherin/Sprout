@@ -196,3 +196,64 @@ vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVec
 
 	return background * transmittance + scattering * (2 * PI) * multiplier;
 }
+
+vec3 sky_atmosphereA(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVector, vec3 moonVector, vec3 sunIlluminance, vec3 moonIlluminance, const int iSteps, inout vec3 transmittance, vec3 ambientColor) {
+	//const int iSteps = 25; // For very high quality: 50 is enough, could get away with less if mie scale height was lower
+	const int jSteps = Sky_Steps;  // For very high quality: 10 is good, can probably get away with less
+
+	vec3 viewPosition = (atmosphere_planetRadius + cameraPosition.y) * upVector;
+
+	vec2 aid = rsi(viewPosition, viewVector, atmosphere_atmosphereRadius);
+	if (aid.y < 0.0) return background;
+	vec2 pid = rsi(viewPosition, viewVector, atmosphere_planetRadius * 0.998);
+
+	bool pi = pid.y >= 0.0;
+
+	vec2 sd = vec2((pi && pid.x < 0.0) ? pid.y : max(aid.x, 0.0), (pi && pid.x > 0.0) ? pid.x : aid.y);
+
+	float stepSize  = (sd.y - sd.x) / iSteps;
+	vec3  increment = viewVector * stepSize;
+	vec3  position  = viewVector * sd.x + (increment * 0.3 + viewPosition);
+
+	vec2 phaseSun  = sky_phase(dot(viewVector, sunVector ), atmosphere_mieg);
+	vec2 phaseMoon = sky_phase(dot(viewVector, moonVector), atmosphere_mieg);
+
+	vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(2.2, 1.28, 1.0) * 3.9;
+	vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
+	vec3 LightColor = SunColor + MoonColor;
+
+
+	vec3 scatteringSun  = vec3(0.0);
+	vec3 scatteringMoon = vec3(0.0);
+	vec3 scatteringAmbient = vec3(0.0);
+		 transmittance = vec3(1.0);
+
+	float multiplier = 1.0;
+	#ifdef Color_Compression
+	multiplier = 0.8;
+	#endif
+    SunColor *= ambientColor * vec3(0.25, 0.5, 1.0) * 2;
+	moonIlluminance *= MoonColor;
+	sunIlluminance *= SunColor;
+
+	for (int i = 0; i < iSteps; ++i, position += increment) {
+		vec3 density          = sky_atmosphereDensity(length(position));
+		if (density.y > 1e35) break;
+		vec3 stepAirmass      = density * stepSize;
+		vec3 stepOpticalDepth = atmosphere_coefficientsAttenuation * stepAirmass;
+
+		vec3 stepTransmittance       = exp2(-stepOpticalDepth * rLOG2);
+		vec3 stepTransmittedFraction = clamp((stepTransmittance - 1.0) / -stepOpticalDepth, 0.0, 1.0);
+		vec3 stepScatteringVisible   = transmittance * stepTransmittedFraction;
+
+		scatteringSun  += (atmosphere_coefficientsScattering * (stepAirmass.xy * phaseSun )) * stepScatteringVisible * sky_atmosphereTransmittance(position, sunVector,  jSteps);
+		scatteringMoon += (atmosphere_coefficientsScattering * (stepAirmass.xy * phaseMoon)) * stepScatteringVisible * sky_atmosphereTransmittance(position, moonVector, jSteps) * 2;
+		scatteringAmbient += (atmosphere_coefficientsScattering * (stepAirmass.xy * phaseg0)) * stepScatteringVisible;
+
+		transmittance  *= stepTransmittance;
+	}
+
+	vec3 scattering = scatteringSun * sunIlluminance + scatteringMoon * moonIlluminance + scatteringAmbient / 3.14 * ambientColor;
+
+	return (ambientColor * (2 * PI) * (ambientColor * (sunIlluminance * 0.05) * (ambientColor * 10) * 0.043) + (moonIlluminance * 10));
+}
