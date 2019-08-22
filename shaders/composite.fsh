@@ -50,13 +50,9 @@ uniform vec3 skyColor;
 uniform float near, far;
 uniform float frameTimeCounter;
 
-
-
-
+#include "lib/Sky.fsh"
 
 uniform ivec2 eyeBrightnessSmooth;
-
-#include "/lib/Sky.fsh"
 
 float depth0 = texture2D(depthtex0, texcoord.st).x;
 float depth1 = texture2D(depthtex1, texcoord.st).x;
@@ -384,14 +380,14 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(2.2, 1.28, 1.0) * 3.5;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.7, 1.18, 1.0) * 3.9;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
 vec3 LightColor = SunColor + MoonColor;
 
 vec3 scatteringAmbient = vec3(0.0);
 
+vec3 transmittance = vec3(1.0);
 
-vec3 ambientColor = vec3(0.8, 0.9, 1.2) * ((SunColor * vec3(0.4, 0.55, 1.0) * 0.5) + MoonColor) * 1.3;
 
 
 if (blindness >= 0.5) SunColor *= 0.01;
@@ -424,6 +420,8 @@ ivec2 dither64 = ivec2(
 	64
 );
 
+vec3 ambientColor = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 0.5;
+//vec3 ambientColor = vec3(1.0);
 
 float shadow = getShadows(viewspace, dither64.x, dither64.y, lightmaps.y);
 
@@ -457,8 +455,6 @@ lighting += SSS;
 lighting += specular.b * color * 50 * Resource_Emitter_Brightness;
 
 color *= lighting + specular.b;
-
-vec3 transmittance = vec3(1.0);
 
 float visibility = 0.0;
 
