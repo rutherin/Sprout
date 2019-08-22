@@ -147,7 +147,7 @@ void calculateDepthOfField(inout vec3 color, in vec2 coord) {
     color = depthOfField / DepthOfFieldQuality;
 }
 #endif
-
+/*
 void calculateNightEye(inout vec3 color) {
     float luminance  = dot(color, lumaCoeff);
     float lows       = exp(-luminance * 250.0) * Night_Eye_Strength;
@@ -156,7 +156,17 @@ void calculateNightEye(inout vec3 color) {
 
     color = mix(luminance * tint, color, saturation);
 }
+*/
 
+vec3 lowlight_desaturate(inout vec3 color) {
+    const vec3 rod_response = vec3(0.15, 0.50, 0.35);
+
+    float rod_color = dot(color * rod_response, vec3(0.1, 0.5, 3.0));
+    float desaturated = dot(color, rod_response);
+    color = mix(color, vec3(rod_color), exp2((-115.0  * Night_Eye_Strength) * desaturated));
+
+    return color;
+}
 
 vec2 haltonSequence(vec2 i, vec2 b) {
     vec2 f = vec2(1.0), r = vec2(0.0);
@@ -277,7 +287,6 @@ vec2 newTC = texcoord;
 #endif
 
 vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
-
 #ifdef Depth_Of_Field
 calculateDepthOfField(color, newTC);
 #endif
@@ -285,9 +294,7 @@ calculateBloom(color, newTC);
 
 //calculateExposure(color);
 //tonemap_filmic(color);
-#ifdef Night_Eye
-calculateNightEye(color);
-#endif
+
 
 
 color = (color * sRGB_2_AP0) * 1.00;
@@ -305,6 +312,13 @@ color = dither8x8(newTC, color, pixelCOMB);
 #endif
 //color = floor(color * Color_Downscale) / Color_Downscale;
 //color = floor(color * vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B)) / vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B);
+
+
+#ifdef Night_Eye
+//calculateNightEye(color);
+lowlight_desaturate(color);
+#endif
+
 #ifndef Color_Compression
 color          = toSRGB(color);
 #endif
