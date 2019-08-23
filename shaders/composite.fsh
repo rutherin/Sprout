@@ -390,7 +390,7 @@ vec3 transmittance = vec3(1.0);
 
 float indoors       = 1.0 - clamp01((-eyeBrightnessSmooth.y + 230) / 100.0);
 
-lightColor *= indoors;
+SunColor  *= indoors;
 
 if (blindness >= 0.5) SunColor *= 0.01;
 if (blindness >= 0.5) ambientColor *= 0.01;
