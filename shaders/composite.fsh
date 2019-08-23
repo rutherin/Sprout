@@ -53,6 +53,8 @@ uniform float frameTimeCounter;
 #include "lib/Sky.fsh"
 
 uniform ivec2 eyeBrightnessSmooth;
+uniform ivec2 eyeBrightness;
+
 
 float depth0 = texture2D(depthtex0, texcoord.st).x;
 float depth1 = texture2D(depthtex1, texcoord.st).x;
@@ -113,9 +115,15 @@ vec3 toShadowSpace(vec3 p3){
 }
 
 float distortionfactor(vec2 shadowSpace) {
-  vec2  coord = abs(shadowSpace * 1.165);
+float ShadowDistC = 0.97;
+
+  if (eyeBrightness.y <= 200) {
+  	ShadowDistC = 1.165;
+  }
+
+  vec2  coord = abs(shadowSpace);
   float dist = length(coord);
-	return ((1.0 - 0.9) + dist * 0.9) * 0.97;
+	return ((1.0 - shadowBias) + dist * shadowBias);
 }
 
 void biasShadow(inout vec3 shadowSpace) {
@@ -380,7 +388,7 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.7, 1.18, 1.0) * 3.9;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * 3.9;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3) * 2;
 vec3 LightColor = SunColor + MoonColor;
 
@@ -390,7 +398,7 @@ vec3 transmittance = vec3(1.0);
 
 float indoors       = 1.0 - clamp01((-eyeBrightnessSmooth.y + 230) / 100.0);
 
-SunColor  *= indoors;
+//SunColor  *= indoors;
 
 if (blindness >= 0.5) SunColor *= 0.01;
 if (blindness >= 0.5) ambientColor *= 0.01;

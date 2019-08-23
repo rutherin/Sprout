@@ -1,5 +1,6 @@
 #version 450 compatibility
 #include "/lib/settings.glsl"
+#include "/lib/Utility.glsl"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
@@ -10,12 +11,26 @@
 
 varying vec2 texcoord;
 varying vec3 color;
+uniform ivec2 eyeBrightnessSmooth;
+uniform ivec2 eyeBrightness;
 
-float distortionfactor(vec2 shadowspace){
-float dist = length(abs(shadowspace * 1.165));
-float distortion = ((1.0 - shadowBias) + dist * shadowBias) * 0.97;
-return distortion;
+float indoors       = 1.0 - clamp01((-eyeBrightnessSmooth.y + 230) / 100.0);
+
+
+float ShadowBiasC = shadowBias;
+
+float distortionfactor(vec2 shadowSpace) {
+float ShadowDistC = 1.165;
+
+  if (eyeBrightness.y <= 200) {
+  	ShadowDistC = 1.0;
+  }
+
+  vec2  coord = abs(shadowSpace);
+  float dist = length(coord);
+	return ((1.0 - shadowBias) + dist * shadowBias);
 }
+
 
 void main() {
 
