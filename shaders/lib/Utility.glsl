@@ -4,6 +4,9 @@
 /////////////////////redistribution of any kind requires explicit permission.///////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+uniform float far;
+uniform float near;
+
 #define fsqrt(x) intBitsToFloat(0x1FBD1DF5 + (floatBitsToInt(x) >> 1)) // Error of 1.42%
 
 float flength(vec2 x) {
@@ -132,4 +135,10 @@ int bayer64x64(ivec2 p){
         (g(p>>1&1)<<8)+
         (g(p   &1)<<10)
     ;
+}
+
+#define mDot(x, y) max(dot(x, y), 0.0)
+
+float ld(float depth) {
+   return (2.0 * near) / (far + near - depth * (far - near));
 }

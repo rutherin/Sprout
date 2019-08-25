@@ -46,7 +46,6 @@ uniform vec3 cameraPosition, previousCameraPosition;
 
 
 uniform float viewWidth, viewHeight;
-uniform float near, far;
 vec2 pixel = 1.0 / vec2(viewWidth, viewHeight);
 
 float depth0 = texture2D(depthtex0, texcoord.st).x;
@@ -92,9 +91,6 @@ vec2 calculateDistortion() {
     return coord;
 }
 
-float ld(float depth) {
-    return (2.0 * near) / (far + near - depth * (far - near));
-}
 
 #ifdef Depth_Of_Field
 void calculateDepthOfField(inout vec3 color, in vec2 coord) {
