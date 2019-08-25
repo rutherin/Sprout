@@ -149,7 +149,7 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 
 #define Water_Distortion_Multiplier 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0 4.0 5.0 10.0]
 
-#define GI
+//#define GI
 #define GI_QUALITY 15 //[1 5 10 15 20 30 50 100]
 
 #define Variable_GI_Samples
