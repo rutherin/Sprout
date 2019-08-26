@@ -313,7 +313,7 @@ color = clamp01(color);
 #ifdef Big_Dither
 color = dither8x8(newTC, color, pixelCOMB);
 #endif
-//color = floor(color * Color_Downscale) / Color_Downscale;
+color = floor(color * Color_Downscale) / Color_Downscale;
 //color = floor(color * vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B)) / vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B);
 
 

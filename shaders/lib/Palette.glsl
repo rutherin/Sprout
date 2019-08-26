@@ -1176,6 +1176,37 @@ vec3 palette[] = vec3[33](
 );
 #endif
 
+#if (GBPreset == 32) //Lili25
+int paletteSize = 25;
+vec3 palette[] = vec3[25](
+	vec3(0.314, 0.847, 0.282),
+	vec3(0.392, 0.706, 0.733),
+	vec3(0.875, 0.847, 0.541),
+	vec3(1.0, 1.0, 1.0),
+	vec3(0.129, 0.447, 0.784),
+	vec3(0.18, 0.482, 0.451),
+	vec3(0.808, 0.686, 0.322),
+	vec3(0.314, 0.753, 0.565),
+	vec3(0.247, 0.459, 0.749),
+	vec3(0.98, 0.957, 0.824),
+	vec3(0.518, 0.529, 0.49),
+	vec3(0.831, 0.835, 0.663),
+	vec3(0.675, 0.525, 0.137),
+	vec3(0.369, 0.918, 0.58),
+	vec3(0.424, 0.42, 0.42),
+	vec3(0.973, 0.757, 0.957),
+	vec3(0.11, 0.639, 0.918),
+	vec3(0.00392, 0.184, 0.314),
+	vec3(0.973, 0.298, 0.325),
+	vec3(0.416, 0.769, 0.863),
+	vec3(0.576, 0.482, 0.302),
+	vec3(0.251, 0.447, 0.612),
+	vec3(0.976, 0.769, 0.643),
+	vec3(0.824, 0.639, 0.573),
+	vec3(0.902, 0.729, 0.00784)
+);
+#endif
+
 const int bayer8p[64] = int[](
   0, 32,  8, 40,  2, 34, 10, 42, /* 8x8 Bayer ordered dithering */
 	48, 16, 56, 24, 50, 18, 58, 26, /* pattern. Each input pixel */
@@ -1309,6 +1340,9 @@ vec3 levels(vec3 color, float brightness, float contrast, vec3 gamma) {
 	#endif
 	#if (GBPreset == 31)
 	value = (color - 0.576) * contrast + 0.58;
+	#endif
+	#if (GBPreset == 32)
+	value = (color - 0.476) * contrast + 0.45;
 	#endif
 	value = clamp(value + brightness, 0.0, 1.0);
 	return clamp(vec3(pow(abs(value.r), gamma.x),pow(abs(value.g), gamma.y),pow(abs(value.b), gamma.z)), 0.0, 1.0);
