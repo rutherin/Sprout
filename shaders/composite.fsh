@@ -136,7 +136,8 @@ float shadowStep(sampler2D shadow, vec3 sPos) {
     biasShadow(shadowSpaceDistorted);
     float shadow = shadowStep(shadowtex0, shadowSpaceDistorted);
     
-    if (shadow > 0.5) return vec3(0.0);
+    float multiplier = 1.0;
+    if (shadow > 0.5) multiplier *= 0.15;
 
     int steps = (GI_QUALITY);
   
@@ -177,7 +178,7 @@ float shadowStep(sampler2D shadow, vec3 sPos) {
   		weight++;
     }
 	
-    return light * 5115.0 / steps;
+    return light * 5115.0 / steps * multiplier;
   }
 #endif
 
@@ -189,11 +190,11 @@ void main() {
 	vec3 viewspace = calculateViewSpace(screenspace);
 	vec3 lighting = vec3(1.0);
 	
-	if (depth1 >= 1.0) {
+	/*if (depth1 >= 1.0) {
 		gl_FragData[0] = vec4(0.0, 0.0, 0.0, 1.0);
 		return;
 	}
-	
+	*/
 	float ao = 1.0;
 	vec3 gi = vec3(1.0);
 	

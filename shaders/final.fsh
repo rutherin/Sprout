@@ -258,7 +258,7 @@ void calculateBloom(inout vec3 color, in vec2 coord) {
     }
     bloom /= totalWeight;
 
-    color = mix(color, bloom * 1.0, 0.2 * Bloom_Brightness);
+    color = mix(color, bloom * 1.0, 0.05 * Bloom_Brightness * 0.1);
 }
 
 void ditherScreen(inout vec3 color) {
