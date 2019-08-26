@@ -633,6 +633,16 @@ vec3 palette[] = vec3[119](
 );
 #endif
 
+#if (GBPreset == 20) //Virtual Boy
+int paletteSize = 4;
+vec3 palette[] = vec3[4](
+	vec3(0.941, 0.0, 0.0),
+	vec3(0.565, 0.0, 0.0),
+	vec3(0.282, 0.0, 0.0),
+	vec3(0.0, 0.0, 0.0)
+);
+#endif
+
 const int bayer8p[64] = int[](
   0, 32,  8, 40,  2, 34, 10, 42, /* 8x8 Bayer ordered dithering */
 	48, 16, 56, 24, 50, 18, 58, 26, /* pattern. Each input pixel */
@@ -730,6 +740,9 @@ vec3 levels(vec3 color, float brightness, float contrast, vec3 gamma) {
 	#endif
     #if (GBPreset == 17)
 	value = (color - 0.63) * contrast + 0.71;
+	#endif
+	#if (GBPreset == 20)
+	value = (color - 0.52) * contrast + 0.48;
 	#endif
 	value = clamp(value + brightness, 0.0, 1.0);
 	return clamp(vec3(pow(abs(value.r), gamma.x),pow(abs(value.g), gamma.y),pow(abs(value.b), gamma.z)), 0.0, 1.0);

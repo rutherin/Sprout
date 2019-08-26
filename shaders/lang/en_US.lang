@@ -29,7 +29,7 @@ screen.Lighting_and_Shadows=Lighting and Shadows
 screen.Screen_Space=Screen Space Effects
 
 option.About1=Sprout by Silvia! v
-value.About1.0=0.82
+value.About1.0=0.87
 
 #Settings
 option.White_World=White World
@@ -164,3 +164,4 @@ value.GBPreset.16=NT1H-26
 value.GBPreset.17=Pastel 15
 value.GBPreset.18=Mugeneko
 value.GBPreset.19=Harpy Gaiden
+value.GBPreset.20=Virtual Boy

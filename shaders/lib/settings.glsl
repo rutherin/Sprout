@@ -102,7 +102,7 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 
 #define Preset 1 // [1 2 3 4 5]
 
-#define GBPreset 1 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
+#define GBPreset 1 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 
 #define PI    radians(180.0)
 #define HPI   PI * 0.5
