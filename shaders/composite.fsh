@@ -178,7 +178,7 @@ float shadowStep(sampler2D shadow, vec3 sPos) {
   		weight++;
     }
 	
-    return light * 5115.0 / steps * multiplier;
+    return light * 4115.0 / steps * multiplier;
   }
 #endif
 
