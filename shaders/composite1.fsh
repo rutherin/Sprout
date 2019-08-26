@@ -495,7 +495,7 @@ lighting += torchLightmap * AO;
 
 #ifdef Subsurface_Scattering
 if ((matIDs >= 1.5 &&  matIDs < 2.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.11) + (MoonColor * 0.01)) * 0.8;
-if ((matIDs >= 3.5 &&  matIDs < 4.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.21) + (MoonColor * 0.01));
+if ((matIDs >= 3.5 &&  matIDs < 4.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.21) + (MoonColor * 0.01)) * 1.2;
 lighting += SSS;
 #endif
 
@@ -532,8 +532,8 @@ if (depth0 >= 1.0) {
 
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
      if (isEyeInWater > 0.0) {
-         color = vec3(0.1, 0.4, 0.9) * 0.3 * pow(far, 0.4);
-         color += hgPhase(dot(lightvec, viewvec), 0.5);
+         color = vec3(0.1, 0.4, 0.9) * 0.9 * pow(far, 0.4);
+         color += hgPhase(dot(lightvec, viewvec), 0.5) * 4;
          color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2 * 2) * 0.1 * pow(far, 0.15);
          color *= 0.3;
          color = color * vec3(0.3, 0.8, 1.0) * ((SunColor * 0.27) + MoonColor);
@@ -557,7 +557,7 @@ color = normals * 0.5 + 0.5;
 #endif
 #ifdef Fog
 if (depth0 < 1.0) {
-color += AerialPerspective(length(viewspace)) * ((SunColor * 0.13) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2);
+color += AerialPerspective(length(viewspace)) * ((SunColor * 0.13) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2) * (watermultiplier * 5);
 #ifdef Volumetric_Light
 color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 2.3) + (MoonColor * 5)) * 0.2 * multiplier * colormult2 * 0.8 * watermultiplier;
 #endif
