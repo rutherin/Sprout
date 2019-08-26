@@ -426,7 +426,7 @@ vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
 vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.1, 0.94, 0.7) * 4.9;
-vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3) * 2;
+vec3 MoonColor = GetMoonColorZom() * vec3(0.3, 1.1, 2.3) * 1;
 vec3 LightColor = SunColor + MoonColor;
 
 vec3 scatteringAmbient = vec3(0.0);
@@ -527,7 +527,7 @@ if (depth0 >= 1.0) {
      color += CalculateSunSpot(dot(viewvec, sunvec)) * SunColor * 0.1;
      color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor;
      color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientColor) * 0.5 * blindnessmult;
-     color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2 * 2);
+     color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 0.05)) * 0.5 * multiplier * (colormult2 * 2);
      if (blindness >= 0.5)  color += AerialPerspective(length(viewspace)) * ((SunColor * 5) + (MoonColor * 5)) * 0.5 * multiplier * (colormult2 * 2) * 0.02;
 
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
@@ -539,10 +539,10 @@ if (depth0 >= 1.0) {
          color = color * vec3(0.3, 0.8, 1.0) * ((SunColor * 0.27) + MoonColor);
      }
      
-     //color += hgPhase(dot(lightvec, viewvec), 0.999) * 0.0002 * ((SunColor * 2.0 * vec3(1.0, 0.8, 0.3)) + (MoonColor * 60));
+     color += hgPhase(dot(lightvec, viewvec), 0.999) * 0.0002 * ((SunColor * 2.0 * vec3(1.0, 0.8, 0.3)) + (MoonColor * 20));
 
      #ifdef Volumetric_Light
-     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.4) * VL_Strength * ((SunColor * 0.66 * watermultiplier) + (MoonColor * 4)) * 0.2 * multiplier * colormult2 * 0.8;
+     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.4) * VL_Strength * ((SunColor * 0.66 * watermultiplier) + (MoonColor * 6)) * 0.2 * multiplier * colormult2 * 0.8;
      #endif
 }
 
