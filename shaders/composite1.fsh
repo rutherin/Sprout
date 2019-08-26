@@ -425,7 +425,7 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.1, 0.94, 0.7) * 4.9;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.1, 0.94, 0.7) * 4.9 * Sunlight_Brightness;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.3, 1.1, 2.3) * 1;
 vec3 LightColor = SunColor + MoonColor;
 
@@ -467,7 +467,7 @@ ivec2 dither64 = ivec2(
 	64
 );
 
-vec3 ambientColor = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 0.5;
+vec3 ambientColor = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 0.5 * Ambient_Brightness;
 //vec3 ambientColor = vec3(1.0, 1.04, 1.2);
 
 float shadow = getShadows(viewspace, dither64.x, dither64.y, lightmaps.y);
@@ -479,9 +479,9 @@ float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 lighting += pow(lightmaps.y, 1.6) * ambientColor * 0.5 * vec3(0.63, 0.7, 1.18) * AO;
 	float torchMap  = lightmaps.x * AO;
 		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
-		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.81, emitter * (1.0 - transparent)), 3.0)) - 1.0;
+		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.98, emitter * (1.0 - transparent)), 3.0)) - 1.0;
 
-    float emissive = emitter * pow(flength(color), 8.0);
+    float emissive = emitter * pow(flength(color), 7.3);
 
 	vec3 torchLightmap = (torchMap + emissive * emitter * (1.0 - transparent) * 14.0) * vec3(1.0, 0.3, 0.1);
 
