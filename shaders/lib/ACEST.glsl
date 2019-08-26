@@ -1,10 +1,4 @@
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
-/////Anyone downloading this has permission to edit anything within for personal use, but //////////
-/////////////////////redistribution of any kind requires explicit permission.///////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 const mat3 sRGB_2_XYZ_MAT = mat3( // Linear sRGB to XYZ color space
 	vec3(0.4124564, 0.3575761, 0.1804375),
 	vec3(0.2126729, 0.7151522, 0.0721750),
@@ -42,7 +36,7 @@ const mat3 AP0_2_XYZ_MAT = mat3( // ACEScg to XYZ Color Space
 );
 
 const mat3 XYZ_2_AP1_MAT = mat3( // XYZ to ACEStoning Color Space
-	vec3(1.6300233797, -0.3248032942, -0.2364246952),
+	vec3(1.6410233797, -0.3248032942, -0.2364246952),
 	vec3(-0.6636628587,  1.6153315917,  0.0167563477),
 	vec3(0.0117218943, -0.0082844420,  0.9883948585)
 );

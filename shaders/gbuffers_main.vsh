@@ -71,6 +71,7 @@ uniform float frameTimeCounter;
     #define BEACON      138.0
     #define END_ROD     198.0
     #define LANTERN     221.0
+    #define MAGMA_BLOCK 213.0
 
 vec2 haltonSequence(vec2 i, vec2 b) {
     vec2 f = vec2(1.0), r = vec2(0.0);
@@ -106,7 +107,7 @@ void calculateMatIDs(out int materialIDs) {
 
     // Emitters
     if (id == TORCH || id == FIRE || id == LAVAFLOWING || id == LAVASTILL || id == GLOWSTONE ||
-        id == SEA_LANTERN || id == LAMP_ON || id == BEACON || id == END_ROD || id == LANTERN) IDs = 3;
+        id == SEA_LANTERN || id == LAMP_ON || id == BEACON || id == END_ROD || id == LANTERN || id == MAGMA_BLOCK) IDs = 3;
 
     if (id == LEAVES || id == LEAVES2) IDs = 4;
 

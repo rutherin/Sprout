@@ -1,13 +1,6 @@
-#include "/lib/ACES_Transform.glsl"
-#include "/lib/ACES_Spline.glsl"
+#define log10(x) log(x) / log(10.0)
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////ORIGINAL SHADER SPROUT BY SILVIA//////////////////////////////////
-/////Anyone downloading this has permission to edit anything within for personal use, but //////////
-/////////////////////redistribution of any kind requires explicit permission.///////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct ColorCorrection {
+    struct ColorCorrection {
 	float saturation;
 	float vibrance;
 	vec3 lum;
@@ -34,8 +27,7 @@ float rgb_2_saturation(vec3 rgb) {
 	return (max(maxrgb, 1e-10) - max(minrgb, 1e-10)) / max(maxrgb, 1e-2);
 }
 
-float rgb_2_yc(vec3 rgb) { // Converts RGB to a luminance proxy, here called YC. YC is ~ Y + K * Chroma.
-    float ycRadiusWeight = 1.75;
+float rgb_2_yc(vec3 rgb, float ycRadiusWeight = 1.75) { // Converts RGB to a luminance proxy, here called YC. YC is ~ Y + K * Chroma.
 	float r = rgb[0]; float g = rgb[1]; float b = rgb[2];
 	float chroma = sqrt(b * (b - g) + g * (g - r) + r * (r - b));
 
@@ -200,7 +192,7 @@ vec3 WhiteBalance(vec3 LinearColor) {
 	mat3x3 WhiteBalanceMat = ChromaticAdaptation( SrcWhite, D65White );
 	WhiteBalanceMat = (sRGB_2_XYZ_MAT * WhiteBalanceMat) * XYZ_2_sRGB_MAT;
 
-	return LinearColor * WhiteBalanceMat;
+	return LinearColor * WhiteBalanceMat * 1.0;
 }
 
 /*******************************************************************************
@@ -216,7 +208,7 @@ const float FilmWhiteClip = White_Clip;
 const float BlueCorrection = Blue_Correction;
 const float ExpandGamut = Gamut_Expansion;
 
-void FilmToneMap(inout vec3 LinearColor) {
+vec3 FilmToneMap(vec3 LinearColor) {
 	const mat3 AP0_2_sRGB = (AP0_2_XYZ_MAT * D60_2_D65_CAT) * XYZ_2_sRGB_MAT;
 	const mat3 AP1_2_sRGB = (AP1_2_XYZ_MAT * D60_2_D65_CAT) * XYZ_2_sRGB_MAT;
 	
@@ -269,12 +261,12 @@ void FilmToneMap(inout vec3 LinearColor) {
 	float saturation = rgb_2_saturation(ColorAP0);
 	float ycIn = rgb_2_yc(ColorAP0);
 	float s = sigmoid_shaper((saturation - 0.4) * 5.0);
-	float addedGlow = 1.0 + glow_fwd(ycIn, RRT_GLOW_GAIN * s, RRT_GLOW_MID);
+	float addedGlow = 1.0 + glow_fwd(ycIn, RRT_GLOW_GAIN * s, RRT_GLOW_MID) * 3;
 	ColorAP0 *= addedGlow;
 
 	// --- Red modifier --- //
-	const float RRT_RED_SCALE = 0.82;
-	const float RRT_RED_PIVOT = 0.02;
+	const float RRT_RED_SCALE = 0.99;
+	const float RRT_RED_PIVOT = 0.22;
 	const float RRT_RED_HUE   = 0.15;
 	const float RRT_RED_WIDTH = 135.0;
 	float hue = rgb_2_hue(ColorAP0);
@@ -284,8 +276,8 @@ void FilmToneMap(inout vec3 LinearColor) {
 	ColorAP0.r += hueWeight * saturation * (RRT_RED_PIVOT - ColorAP0.r) * (1.0 - RRT_RED_SCALE);
 	
 	// Use ACEScg primaries as working space
-	vec3 WorkingColor = ColorAP0 * AP0_2_AP1_MAT;
-	     WorkingColor = max(vec3(0.0), WorkingColor);
+	vec3 WorkingColor = ColorAP0 * AP0_2_AP1_MAT * 1.2;
+	     WorkingColor = max(vec3(0.0), WorkingColor) * 1.1;
 	     WorkingColor = mix(vec3(dot(WorkingColor, AP1_RGB2Y)), WorkingColor, 0.96); // Pre desaturate
 	
 	const float ToeScale      = 1.0 + FilmBlackClip - FilmToe;
@@ -314,7 +306,7 @@ void FilmToneMap(inout vec3 LinearColor) {
 	vec3 ToeColor		= (-FilmBlackClip) + (2.0 * ToeScale) / (1.0 + exp((-2.0 * FilmSlope / ToeScale) * (LogColor - ToeMatch)));
 	vec3 ShoulderColor	= (1.0 + FilmWhiteClip) - (2.0 * ShoulderScale) / (1.0 + exp(( 2.0 * FilmSlope / ShoulderScale) * (LogColor - ShoulderMatch)));
 	
-	for(int i = 0; i < 3; ++i) {
+	for(int i = 0; i < 1; ++i) {
 		ToeColor[i] = LogColor[i] < ToeMatch ? ToeColor[i] : StraightColor[i];
 		ShoulderColor[i] = LogColor[i] > ShoulderMatch ? ShoulderColor[i] : StraightColor[i];
 	}
@@ -329,29 +321,29 @@ void FilmToneMap(inout vec3 LinearColor) {
 	ToneColor = mix(ToneColor, ToneColor * BlueCorrectInvAP1, BlueCorrection);
 
 	// Returning positive AP1 values
-	LinearColor = max(vec3(0.0), ToneColor * AP1_2_sRGB);
+	return max(vec3(0.0), ToneColor * AP1_2_sRGB);
 }
 
-vec3 Saturation(vec3 color) {
-	float grey = dot(color, lumaCoeff);
-	return grey + (1.0 + SAT_MOD) * (color - grey);
+vec3 Saturation(vec3 color, ColorCorrection m) {
+	float grey = dot(color, m.lum);
+	return grey + m.saturation * (color - grey);
 }
 
-vec3 Vibrance(vec3 color) {
+vec3 Vibrance(vec3 color, ColorCorrection m) {
 	float maxColor = max3(color.r, color.g, color.b);
 	float minColor = min3(color.r, color.g, color.b);
 
 	float colorSaturation = maxColor - minColor;
 
-	float grey = dot(color, lumaCoeff);
-	color = mix(vec3(grey), color, 1.0 + VIB_MOD * (1.0 - sign(VIB_MOD) * colorSaturation));
+	float grey = dot(color, m.lum);
+	color = mix(vec3(grey), color, 1.0 + m.vibrance * (1.0 - sign(m.vibrance) * colorSaturation));
 
 	return color;
 }
 
-vec3 LiftGammaGain(vec3 v) {
-	vec3 lerpV = clamp01(pow(v, vec3(1.0, 1.0, 1.0)));
-	return vec3(1.0 + GAIN_MOD) * lerpV + LIFT_MOD * 0.1 * (1.0 - lerpV);
+vec3 LiftGammaGain(vec3 v, ColorCorrection m) {
+	vec3 lerpV = clamp01(pow(v, m.InvGamma));
+	return m.gain * lerpV + m.lift * (1.0 - lerpV);
 }
 
 float LogContrast(float x, const float eps, float logMidpoint, float contrast) {
@@ -361,13 +353,29 @@ float LogContrast(float x, const float eps, float logMidpoint, float contrast) {
 	return max0(exp2(adjX) - eps);
 }
 
-vec3 Contrast(vec3 color) {
+vec3 Contrast(vec3 color, ColorCorrection m) {
 	const float contrastEpsilon = 1e-5;
 
 	vec3 ret;
-	     ret.x = LogContrast(color.x, contrastEpsilon, log2(CONT_MIDPOINT), 1.0 - CONT_MOD);
-		 ret.y = LogContrast(color.y, contrastEpsilon, log2(CONT_MIDPOINT), 1.0 - CONT_MOD);
-		 ret.z = LogContrast(color.z, contrastEpsilon, log2(CONT_MIDPOINT), 1.0 - CONT_MOD);
+	     ret.x = LogContrast(color.x, contrastEpsilon, log2(0.18), m.contrast);
+		 ret.y = LogContrast(color.y, contrastEpsilon, log2(0.18), m.contrast);
+		 ret.z = LogContrast(color.z, contrastEpsilon, log2(0.18), m.contrast);
 
 	return ret;
+}
+
+vec3 srgbToLinear(vec3 srgb) {
+    return mix(
+        srgb * 0.07739938080495356, // 1.0 / 12.92 = ~0.07739938080495356
+        pow(0.947867 * srgb + 0.0521327, vec3(2.4)),
+        step(0.04045, srgb)
+    );
+}
+
+vec3 linearToSrgb(vec3 linear) {
+    return mix(
+        linear * 12.92,
+        pow(linear, vec3(0.416666666667)) * 1.055 - 0.055, // 1.0 / 2.4 = ~0.416666666667
+        step(0.0031308, linear)
+    );
 }

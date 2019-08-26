@@ -66,47 +66,39 @@ vec2 computeCameraVelocity(in vec3 worldSpace) {
 vec2 pixelSize = 1.0 / vec2(viewWidth, viewHeight);
 
 
-vec2 calculateBlurTileOffset(const int id) {
-	// offsets approximately follows a multiple of this: (1 - 4⁻ˣ) / 3
-
-	const vec2 idMult = floor(id * 0.5 + vec2(0.0, 0.5));
-	const vec2 offset = vec2(1.0, 2.0) * (1.0 - exp2(-2.0 * idMult)) / 3.0;
-
-	const vec2 paddingPixels = vec2(2.0, 9.0); // Set as needed
-	const vec2 paddingAccum  = idMult * paddingPixels;
-
-	return offset + paddingAccum * pixel;
-}
-
-vec3 calculateBloomTile(vec2 coord, const float lod) {
-	coord *= exp2(lod);
-
-	if (clamp(coord, 0, 1) != coord) return vec3(0.0);
-
-    vec2 resolution = pixel * exp2(lod);
-
-    vec3  bloom       = vec3(0.0);
+vec3 calculateBloomTile(const float lod, vec2 offset) {
+	vec2 coord = (texcoord - offset) * exp2(lod);
+	vec2 scale = pixel * exp2(lod);
+	
+	if (any(greaterThanEqual(abs(coord - 0.5), scale + 0.5)))
+		return vec3(0.0);
+	
+	vec3  bloom       = vec3(0.0);
 	float totalWeight = 0.0;
 	
 	for (int y = -3; y <= 3; y++) {
 		for (int x = -3; x <= 3; x++) {
-			float weight  = clamp(1.0 - length(vec2(x, y)) / 4.0, 0 , 1);
+			float weight  = clamp01(1.0 - length(vec2(x, y)) / 4.0);
 			      weight *= weight;
 			
-			bloom += toLinear(texture2DLod(colortex0, coord + vec2(x, y) * resolution, lod).rgb) * 1.0 * weight;
-			//bloom = bloom / 1000 * 1000;
+			bloom += texture2DLod(colortex0, coord + vec2(x, y) * scale, lod).rgb * weight;
 			totalWeight += weight;
 		}
 	}
 	
-	return bloom / totalWeight * 0.2;
+	return bloom / totalWeight;
 }
 
-vec3 calculateBloomTiles() {
-    vec3 blurTiles = calculateBloomTile(texcoord - calculateBlurTileOffset(0), 1);
-		for (int i = 1; i < 6; blurTiles += calculateBloomTile(texcoord - calculateBlurTileOffset(i), ++i));
+vec3 calculateBloom() {
+	vec3 bloom = vec3(0.0);
+	bloom += calculateBloomTile(2.0, vec2(0.0                     ,                    0.0));
+	bloom += calculateBloomTile(3.0, vec2(0.0                     , 0.25   + pixel.y * 2.0));
+	bloom += calculateBloomTile(4.0, vec2(0.125    + pixel.x * 2.0, 0.25   + pixel.y * 2.0));
+	bloom += calculateBloomTile(5.0, vec2(0.1875   + pixel.x * 4.0, 0.25   + pixel.y * 2.0));
+	bloom += calculateBloomTile(6.0, vec2(0.125    + pixel.x * 2.0, 0.3125 + pixel.y * 4.0));
+	bloom += calculateBloomTile(7.0, vec2(0.140625 + pixel.x * 4.0, 0.3125 + pixel.y * 4.0));
 
-    return toSRGB(blurTiles);
+	return bloom;
 }
 
 #define MotionBlurStrength 5.00 //[1.00 2.00 3.00 4.00 5.00 6.00 7.00 8.00 9.00 10.00]
@@ -190,7 +182,7 @@ color = motionBlur(color,hand);
 #endif
 
 vec3 antiAliased = mix(color, clamp(texture2DLod(colortex6, prevCoord, 0.0).rgb, limits[0], limits[1]), sqrt(weight) * 0.5 + inversesqrt(weight * 2.0 + 4.0)); 
-colortex0write = vec4(calculateBloomTiles(), 1.0);
+colortex0write = vec4(calculateBloom(), 1.0);
 #ifdef TAA
 colortex6write = vec4(antiAliased, 1.0);
 #else

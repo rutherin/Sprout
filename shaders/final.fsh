@@ -159,7 +159,7 @@ vec3 lowlight_desaturate(inout vec3 color) {
 
     float rod_color = dot(color * rod_response, vec3(0.1, 0.5, 3.0));
     float desaturated = dot(color, rod_response);
-    color = mix(color, vec3(rod_color), exp2((-115.0  * Night_Eye_Strength) * desaturated));
+    color = mix(color, vec3(rod_color), exp2((-135.0  * Night_Eye_Strength) * desaturated));
 
     return color;
 }
@@ -238,27 +238,22 @@ vec4 bicubicTexture(sampler2D tex, vec2 coord) {
 
 vec2 pixelSize = 1.0 / vec2(viewWidth, viewHeight);
 
-vec2 calculateBlurTileOffset(const int id) {
-	const vec2 idMult = floor(id * 0.5 + vec2(0.0, 0.5));
-	const vec2 offset = vec2(1.0, 2.0) * (1.0 - exp2(-2.0 * idMult)) / 3.0;
-
-	const vec2 paddingPixels = vec2(2.0, 9.0);
-	const vec2 paddingAccum  = idMult * paddingPixels;
-
-	return offset + paddingAccum * pixel;
+vec3 calculateBloomTile(vec2 coord, const float lod, vec2 offset) {
+	return bicubicTexture(colortex0, coord / exp2(lod) + offset - pixel * 0.5).rgb;
 }
 
 void calculateBloom(inout vec3 color, in vec2 coord) {
-    vec3 bloom = toLinear(bicubicTexture(colortex0, coord * exp2(-1.0) + calculateBlurTileOffset(0)).rgb);
-    float totalWeight = 0.0;
-    for (int i = 1; i < 6; ++i) {
-        float tileWeight = 1.0 / (i + 1.0);
-        bloom += toLinear(bicubicTexture(colortex0, coord * exp2(-i - 1.0) + calculateBlurTileOffset(i)).rgb) * tileWeight;
-        totalWeight += tileWeight;
-    }
-    bloom /= totalWeight;
+	vec3 bloom = vec3(0.0);
+	bloom += calculateBloomTile(coord, 2.0, vec2(0.0                     ,                    0.0));
+	bloom += calculateBloomTile(coord, 3.0, vec2(0.0                     , 0.25   + pixel.y * 2.0));
+	bloom += calculateBloomTile(coord, 4.0, vec2(0.125    + pixel.x * 2.0, 0.25   + pixel.y * 2.0));
+	bloom += calculateBloomTile(coord, 5.0, vec2(0.1875   + pixel.x * 4.0, 0.25   + pixel.y * 2.0));
+	bloom += calculateBloomTile(coord, 6.0, vec2(0.125    + pixel.x * 2.0, 0.3125 + pixel.y * 4.0));
+	bloom += calculateBloomTile(coord, 7.0, vec2(0.140625 + pixel.x * 4.0, 0.3125 + pixel.y * 4.0));
+	
+	bloom /= 7.0;
 
-    color = mix(color, bloom * 1.0, 0.05 * Bloom_Brightness * 0.1);
+	color = mix(color, bloom, 0.05) * Bloom_Brightness;
 }
 
 void ditherScreen(inout vec3 color) {
@@ -268,8 +263,9 @@ void ditherScreen(inout vec3 color) {
     color += lestynRGB.rgb / 255.0;
 }
 
-#include "/lib/ACES_Main.glsl"
-
+#include "/lib/ACEST.glsl"
+#include "/lib/ACESSPL.glsl"
+#include "/lib/ACES.glsl"
 
 
 void main() {
@@ -291,16 +287,27 @@ calculateBloom(color, newTC);
 //calculateExposure(color);
 //tonemap_filmic(color);
 
+ColorCorrection m;
+m.lum = vec3(0.2125, 0.7154, 0.0721);
+m.saturation = 0.95 + SAT_MOD;
+m.vibrance = VIB_MOD;
+m.contrast = 1.0 - CONT_MOD;
+m.contrastMidpoint = CONT_MIDPOINT;
 
+m.gain = vec3(1.1, 1.0, 1.0) + GAIN_MOD; //Tint Adjustment
+m.lift = vec3(0.0, 0.0, 0.0) + LIFT_MOD * 0.01; //Tint Adjustment
+m.InvGamma = vec3(1.0, 1.0, 1.0);
 
 color = (color * sRGB_2_AP0) * 1.00;
 FilmToneMap(color);
 
 color = WhiteBalance(color);
-color = Vibrance(color);
-color = Saturation(color);
-color = Contrast(color);
-color = LiftGammaGain(color);
+color = Vibrance(color, m);
+color = Saturation(color, m);
+color = Contrast(color, m);
+color = LiftGammaGain(color, m);
+//color = linearToSrgb(color);
+color = clamp01(color);
 
 
 #ifdef Big_Dither

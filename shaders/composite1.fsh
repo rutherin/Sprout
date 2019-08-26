@@ -473,15 +473,15 @@ vec3 ambientColor = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3
 float shadow = getShadows(viewspace, dither64.x, dither64.y, lightmaps.y);
 
 vec3 lighting = shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLightPosition))) * (SunColor + MoonColor);
-vec3 SSS            = shadow * powf(color, 0.5) * (SunColor + MoonColor) / 3.14 * 0.84 * transluscent;
+vec3 SSS            = shadow * powf(color, 0.5) * (SunColor + MoonColor) / 3.14 * 0.84 * transluscent * 0.7;
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
 lighting += pow(lightmaps.y, 1.6) * ambientColor * 0.5 * vec3(0.63, 0.7, 1.18) * AO;
 	float torchMap  = lightmaps.x * AO;
 		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
-		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.96, emitter * (1.0 - transparent)), 3.0)) - 1.0;
+		torchMap  = inversesqrt(1.0 - pow(mix(torchMap * 0.99, 0.81, emitter * (1.0 - transparent)), 3.0)) - 1.0;
 
-    float emissive = emitter * pow(flength(color), 5.0);
+    float emissive = emitter * pow(flength(color), 8.0);
 
 	vec3 torchLightmap = (torchMap + emissive * emitter * (1.0 - transparent) * 14.0) * vec3(1.0, 0.3, 0.1);
 
@@ -494,7 +494,7 @@ if (blindness >= 0.5) lighting *= 0.05;
 lighting += torchLightmap * AO;
 
 #ifdef Subsurface_Scattering
-if ((matIDs >= 1.5 &&  matIDs < 2.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.11) + (MoonColor * 0.01));
+if ((matIDs >= 1.5 &&  matIDs < 2.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.11) + (MoonColor * 0.01)) * 0.8;
 if ((matIDs >= 3.5 &&  matIDs < 4.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.21) + (MoonColor * 0.01));
 lighting += SSS;
 #endif
