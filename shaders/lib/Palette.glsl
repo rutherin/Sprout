@@ -643,6 +643,28 @@ vec3 palette[] = vec3[4](
 );
 #endif
 
+#if (GBPreset == 21) //Steam 16
+int paletteSize = 16;
+vec3 palette[] = vec3[16](
+	vec3(0.129, 0.231, 0.145),
+	vec3(0.227, 0.376, 0.29),
+	vec3(0.31, 0.467, 0.329),
+	vec3(0.631, 0.624, 0.486),
+	vec3(0.467, 0.455, 0.31),
+	vec3(0.467, 0.361, 0.31),
+	vec3(0.376, 0.231, 0.227),
+	vec3(0.231, 0.129, 0.216),
+	vec3(0.0902, 0.0549, 0.098),
+	vec3(0.184, 0.129, 0.231),
+	vec3(0.263, 0.227, 0.376),
+	vec3(0.31, 0.322, 0.467),
+	vec3(0.396, 0.451, 0.549),
+	vec3(0.486, 0.58, 0.631),
+	vec3(0.627, 0.725, 0.729),
+	vec3(0.753, 0.82, 0.8)
+);
+#endif
+
 const int bayer8p[64] = int[](
   0, 32,  8, 40,  2, 34, 10, 42, /* 8x8 Bayer ordered dithering */
 	48, 16, 56, 24, 50, 18, 58, 26, /* pattern. Each input pixel */
@@ -743,6 +765,9 @@ vec3 levels(vec3 color, float brightness, float contrast, vec3 gamma) {
 	#endif
 	#if (GBPreset == 20)
 	value = (color - 0.52) * contrast + 0.48;
+	#endif
+	#if (GBPreset == 21)
+	value = (color - 0.52) * contrast + 0.52;
 	#endif
 	value = clamp(value + brightness, 0.0, 1.0);
 	return clamp(vec3(pow(abs(value.r), gamma.x),pow(abs(value.g), gamma.y),pow(abs(value.b), gamma.z)), 0.0, 1.0);
