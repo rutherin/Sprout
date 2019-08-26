@@ -255,5 +255,5 @@ vec3 sky_atmosphereA(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVe
 
 	vec3 scattering = scatteringSun * sunIlluminance + scatteringMoon * moonIlluminance + scatteringAmbient / 3.14 * ambientColor;
 
-	return (ambientColor * (2 * PI) * (ambientColor * ((sunIlluminance * 0.05) * vec3(0.8, 1.0, 1.0) * (ambientColor * 10)) * 0.043) + (moonIlluminance * 110));
+	return (ambientColor * (2 * PI) * (ambientColor * ((sunIlluminance * 0.05) * vec3(0.8, 1.0, 1.0) * (ambientColor * 10)) * 0.043) + (moonIlluminance * 20));
 }

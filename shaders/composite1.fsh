@@ -426,7 +426,10 @@ vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
 vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.1, 0.94, 0.7) * 4.9 * Sunlight_Brightness;
-vec3 MoonColor = GetMoonColorZom() * vec3(0.3, 1.1, 2.3) * 1;
+vec3 MoonColor = GetMoonColorZom() * vec3(0.3, 1.1, 2.3) * 0.8;
+#ifdef Color_Compression
+MoonColor *= (MoonColor * 24);
+#endif
 vec3 LightColor = SunColor + MoonColor;
 
 vec3 scatteringAmbient = vec3(0.0);
@@ -557,7 +560,7 @@ color = normals * 0.5 + 0.5;
 #endif
 #ifdef Fog
 if (depth0 < 1.0) {
-color += AerialPerspective(length(viewspace)) * ((SunColor * 0.13) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2) * (watermultiplier * 5);
+color += AerialPerspective(length(viewspace)) * ((SunColor * 0.13) + (MoonColor * 0.1)) * 0.5 * multiplier * (colormult2) * (watermultiplier * 5);
 #ifdef Volumetric_Light
 color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 2.3) + (MoonColor * 5)) * 0.2 * multiplier * colormult2 * 0.8 * watermultiplier;
 #endif
