@@ -501,7 +501,7 @@ lighting += SSS;
 
 #ifdef GI
 	if (shadow < 0.5 || lightmaps.y < 0.1 || isEyeInWater > 0.5)
-	bounce = bilateralUpsample(colortex4, ld(depth1), normals, 2.0).rgb;
+	bounce = bilateralUpsample(colortex4, ld(depth1), normals, 3.0).rgb;
 #endif
 
 lighting += bounce;
