@@ -422,7 +422,7 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * 3.3 * Sunlight_Brightness;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * 4.3 * Sunlight_Brightness;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.3, 1.1, 2.3) * 0.8;
 #ifdef Color_Compression
 MoonColor *= (MoonColor * 24);
@@ -511,7 +511,7 @@ lighting += bounce;
 
 lighting += specular.b * color * 20 * Resource_Emitter_Brightness;
 
-color *= lighting + specular.b;
+color *= lighting;
 
 float visibility = 0.0;
 

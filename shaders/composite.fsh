@@ -20,7 +20,8 @@ uniform sampler2D colortex4;
 uniform sampler2D shadowtex0;
 uniform sampler2DShadow shadowcolor0;
 uniform sampler2D shadowcolor1;
-
+uniform vec3 sunPosition;
+uniform vec3 cameraPosition;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 
@@ -40,6 +41,9 @@ uniform float viewHeight;
 uniform int isEyeInWater;
 uniform int frameCounter;
 uniform ivec2 eyeBrightness;
+
+#include "lib/Sky.fsh"
+
 
 
 vec4 aux1 = texture2D(colortex1, texcoord.st);
@@ -119,6 +123,10 @@ float shadowStep(sampler2D shadow, vec3 sPos) {
 	return clamp01(1.0 - max(sPos.z - texture2D(shadow, sPos.xy).x, 0.0) * float(shadowMapResolution));
 }
 
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * 4.3 * Sunlight_Brightness;
+vec3 MoonColor = GetMoonColorZom() * vec3(0.3, 1.1, 2.3) * 0.8;
+vec3 LightColor = SunColor + MoonColor;
+
 #ifdef GI
   vec3 getGI(vec3 viewSpace) {
     //if (frameCounter % 2 == 0) return vec3(0.0);
@@ -138,7 +146,9 @@ float shadowStep(sampler2D shadow, vec3 sPos) {
     float shadow = shadowStep(shadowtex0, shadowSpaceDistorted);
     
     float multiplier = 1.0;
-    if (shadow > 0.5) multiplier *= 0.15;
+    #ifdef GI_SunlightCalc
+    if (shadow > 0.5) multiplier *= 0.0;
+    #endif
 
     int steps = (GI_QUALITY);
   
@@ -179,7 +189,7 @@ float shadowStep(sampler2D shadow, vec3 sPos) {
   		weight++;
     }
 	
-    return light * 4115.0 / steps * multiplier;
+    return light * 15.0 / steps * multiplier * (GI_Brightness) * 2 * (SunColor + (MoonColor * 0.0));
   }
 #endif
 

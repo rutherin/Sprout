@@ -27,6 +27,7 @@ screen.Ambient_Occlusion=Ambient Occlusion
 screen.Motion_Blur=Motion Blur
 screen.Lighting_and_Shadows=Lighting and Shadows
 screen.Screen_Space=Screen Space Effects
+screen.Global_Illumintion=Global Illumination
 
 option.About1=Sprout by Silvia! v
 value.About1.0=0.87
@@ -129,6 +130,11 @@ option.Subsurface_Scattering=Subsurface Scattering (SSS)
 option.Night_Eye=Night Eye
 option.Night_Eye_Strength=Night Eye Threshold
 option.Waving_Plants=Waving Vegetation
+option.GI=Toggle
+option.GI_QUALITY=Quality
+option.GI_Brightness=Brightness
+option.Variable_GI_Samples=Variable Samples
+option.GI_SunlightCalc=Sunlight Optimization
 
 profile.Very_Low=Very Low
 profile.Low=Low
