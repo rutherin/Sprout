@@ -188,5 +188,4 @@ colortex6write = vec4(antiAliased, 1.0);
 #else
 colortex6write = vec4(color, 1.0);
 #endif
-
 }

@@ -193,30 +193,16 @@ vec3 LightColor = SunColor + MoonColor;
   }
 #endif
 
-/* DRAWBUFFERS:04 */
+/* DRAWBUFFERS:4 */
 
 void main() {
-	vec3 color = toLinear(texture2D(colortex0, texcoord).rgb);
 	vec3 screenspace = vec3(texcoord, depth0);
-	vec3 viewspace = calculateViewSpace(screenspace);
-	vec3 beep = toLinear(texture2D(colortex4, texcoord).rgb);
-	vec3 lighting = vec3(1.0);
-	
-	/*if (depth1 >= 1.0) {
-		gl_FragData[0] = vec4(0.0, 0.0, 0.0, 1.0);
-		return;
-	}
-	*/
-	float ao = 1.0;
+	vec3 viewspace = calculateViewSpace(screenspace);	
 	vec3 gi = vec3(1.0);
 	
 	#ifdef GI
 		gi = getGI(viewspace);
 	#endif
-	
-	beep *= gi;
 
-	//color *= lighting;
-	gl_FragData[0] = vec4(toSRGB(color), 1.0);
-	gl_FragData[1] = vec4(toSRGB(gi), 1.0);
+	gl_FragData[0] = vec4(toSRGB(gi), 1.0);
 }
