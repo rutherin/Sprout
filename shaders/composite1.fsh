@@ -8,7 +8,7 @@
 /////////////////////redistribution of any kind requires explicit permission.///////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:04 */
 
 const float sunPathRotation = -50;
 
@@ -28,6 +28,7 @@ uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
+uniform sampler2D colortex4;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 
@@ -413,10 +414,6 @@ vec3 color = toLinear(texture2D(colortex0, texcoord).rgb);
 
 vec3 bounce = vec3(1.0);
 
-#ifdef GI
-bounce = bilateralUpsample(colortex0, ld(depth1), normals, 2.0).rgb;
-#endif
-
 float depth0 = texture2D(depthtex0, texcoord).x;
 
 vec3 specular = texture2D(colortex3, texcoord).rgb;
@@ -502,8 +499,15 @@ if ((matIDs >= 3.5 &&  matIDs < 4.5)) lighting += (lightmaps.y * 1.6) * ((SunCol
 lighting += SSS;
 #endif
 
+#ifdef GI
+	if (shadow < 0.5 || lightmaps.y < 0.1 || isEyeInWater > 0.5)
+	bounce = bilateralUpsample(colortex4, ld(depth1), normals, 2.0).rgb;
+#endif
 
-//color *= bounce;
+lighting += bounce;
+
+//color = texture2D(colortex4, texcoord.st).rgb;
+
 
 lighting += specular.b * color * 20 * Resource_Emitter_Brightness;
 

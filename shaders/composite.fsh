@@ -15,6 +15,7 @@ varying vec3 downVec;
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
+uniform sampler2D colortex4;
 
 uniform sampler2D shadowtex0;
 uniform sampler2DShadow shadowcolor0;
@@ -182,12 +183,13 @@ float shadowStep(sampler2D shadow, vec3 sPos) {
   }
 #endif
 
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:04 */
 
 void main() {
 	vec3 color = toLinear(texture2D(colortex0, texcoord).rgb);
 	vec3 screenspace = vec3(texcoord, depth0);
 	vec3 viewspace = calculateViewSpace(screenspace);
+	vec3 beep = toLinear(texture2D(colortex4, texcoord).rgb);
 	vec3 lighting = vec3(1.0);
 	
 	/*if (depth1 >= 1.0) {
@@ -202,9 +204,9 @@ void main() {
 		gi = getGI(viewspace);
 	#endif
 	
-	lighting += gi;
+	beep *= gi;
 
-	color *= lighting;
-	
+	//color *= lighting;
 	gl_FragData[0] = vec4(toSRGB(color), 1.0);
+	gl_FragData[1] = vec4(toSRGB(gi), 1.0);
 }
