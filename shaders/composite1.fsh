@@ -412,7 +412,7 @@ vec3 normals = texture2D(colortex2, texcoord).rgb * 2.0 - 1.0;
 
 vec3 color = toLinear(texture2D(colortex0, texcoord).rgb);
 
-vec3 bounce = vec3(1.0);
+vec3 bounce = vec3(0.0);
 
 float depth0 = texture2D(depthtex0, texcoord).x;
 
