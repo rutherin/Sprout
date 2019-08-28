@@ -299,7 +299,7 @@ m.lift = vec3(0.0, 0.0, 0.0) + LIFT_MOD * 0.01; //Tint Adjustment
 m.InvGamma = vec3(1.0, 1.0, 1.0);
 
 color = (color * sRGB_2_AP0) * 1.00;
-FilmToneMap(color);
+//FilmToneMap(color);
 
 color = WhiteBalance(color);
 color = Vibrance(color, m);

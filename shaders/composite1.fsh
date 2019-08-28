@@ -505,7 +505,7 @@ lighting += SSS;
 
 //color *= bounce;
 
-lighting += specular.b * color * 50 * Resource_Emitter_Brightness;
+lighting += specular.b * color * 10 * Resource_Emitter_Brightness;
 
 color *= lighting + specular.b;
 

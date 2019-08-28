@@ -38,7 +38,7 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 #define Depth_Of_Field
 #define DepthOfFieldQuality 8 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30]
 
-#define FStop 5.6 // [1.4 2.0 4.0 5.6 8.1]
+#define FStop 8.1 // [1.4 2.0 4.0 5.6 8.1 10.0 12.5]
 
 #define Fog_Amount 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0 10.0]
 
