@@ -27,7 +27,8 @@ float rgb_2_saturation(vec3 rgb) {
 	return (max(maxrgb, 1e-10) - max(minrgb, 1e-10)) / max(maxrgb, 1e-2);
 }
 
-float rgb_2_yc(vec3 rgb, float ycRadiusWeight = 1.75) { // Converts RGB to a luminance proxy, here called YC. YC is ~ Y + K * Chroma.
+float rgb_2_yc(vec3 rgb) { // Converts RGB to a luminance proxy, here called YC. YC is ~ Y + K * Chroma.
+ 	float ycRadiusWeight = 1.75;
 	float r = rgb[0]; float g = rgb[1]; float b = rgb[2];
 	float chroma = sqrt(b * (b - g) + g * (g - r) + r * (r - b));
 
@@ -259,7 +260,7 @@ vec3 FilmToneMap(vec3 LinearColor) {
 	const float RRT_GLOW_MID = 0.08;
 
 	float saturation = rgb_2_saturation(ColorAP0);
-	float ycIn = rgb_2_yc(ColorAP0);
+	float ycIn = rgb_2_yc(vec3(1.0));
 	float s = sigmoid_shaper((saturation - 0.4) * 5.0);
 	float addedGlow = 1.0 + glow_fwd(ycIn, RRT_GLOW_GAIN * s, RRT_GLOW_MID) * 3;
 	ColorAP0 *= addedGlow;
