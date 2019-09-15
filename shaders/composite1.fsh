@@ -422,7 +422,7 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * 4.3 * Sunlight_Brightness;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * 5.6 * Sunlight_Brightness;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.3, 1.1, 2.3) * 0.8;
 #ifdef Color_Compression
 MoonColor *= (MoonColor * 24);
@@ -467,7 +467,7 @@ ivec2 dither64 = ivec2(
 	64
 );
 
-vec3 ambientColor = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 0.5 * Ambient_Brightness;
+vec3 ambientColor = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 0.8 * Ambient_Brightness;
 //vec3 ambientColor = vec3(1.0, 1.04, 1.2);
 
 float shadow = getShadows(viewspace, dither64.x, dither64.y, lightmaps.y);
