@@ -282,7 +282,7 @@ vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
 #ifdef Depth_Of_Field
 calculateDepthOfField(color, newTC);
 #endif
-calculateBloom(color, newTC);
+//calculateBloom(color, newTC);
 
 //calculateExposure(color);
 //tonemap_filmic(color);
@@ -298,7 +298,7 @@ m.gain = vec3(1.1, 1.0, 1.0) + GAIN_MOD; //Tint Adjustment
 m.lift = vec3(0.0, 0.0, 0.0) + LIFT_MOD * 0.01; //Tint Adjustment
 m.InvGamma = vec3(1.0, 1.0, 1.0);
 
-color = (color * sRGB_2_AP0) * 1.00;
+//color = (color * sRGB_2_AP0) * 1.00;
 FilmToneMap(color);
 
 color = WhiteBalance(color);
