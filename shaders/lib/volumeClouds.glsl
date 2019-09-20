@@ -1,14 +1,14 @@
-#define vc_steps 20
-#define vc_altitude 512.0
-#define vc_thickness 384.0
-#define vc_breakThreshold 0.05
+#define vc_steps 18     //[10 12 14 16 18 20 22 24 26 28 30]
+#define vc_altitude 512.0   //[384.0 512.0 768.0 1024.0]
+#define vc_thickness 384.0  //[128.0 192.0 224.0 256.0 288.0 320.0 384.0 448.0 512.0]
+#define vc_breakThreshold 0.05 //[0.2 0.1 0.05 0.025 0.01]
 
 const float vc_highedge     = vc_altitude+vc_thickness;
 
 uniform float eyeAltitude;
 uniform sampler3D colortex7;
 
-float vc_windTick   = frameTimeCounter*0.1;
+float vc_windTick   = frameTimeCounter*0.07;
 const float invLog2 = 1.0/log(2.0);
 
 vec3 planetCurvePosition(in vec3 x) {
@@ -31,11 +31,6 @@ float getNoise3D(vec3 pos) {
 float getSlicedWorley(in vec3 pos) {
     pos /= 64.0;
 
-    return texture(colortex7, fract(pos)).x;
-}
-float getSlicedWorley3x(in vec3 pos) {
-    pos /= 64.0;
-    
     return texture(colortex7, fract(pos)).y;
 }
 
@@ -77,10 +72,10 @@ float vc_getCoverage(vec3 pos) {
         lcoverage   = smoothstep(0.2, 0.9, lcoverage);
 
     float shape     = fbm(pos, wind, 0.5, 2.3, 3);
-        shape      -= 1.45;
+        shape      -= 1.47;
         shape      *= lowFade;
         shape      *= highFade;
-        shape      -= lowErode*0.15*(1.0-lowFade*0.9);
+        shape      -= lowErode*0.15*(1.0-lowFade*0.99);
         shape      -= highErode*0.2;
 
         shape      -= lcoverage*0.25;
@@ -95,15 +90,15 @@ float vc_getShape(vec3 pos, float coverage) {
     float shape     = coverage;
 
     float div   = 0.0;
-    float noise = getSlicedWorley3x(pos*1.0+wind*0.1);    div += 1.0;
+    float noise = getSlicedWorley(pos*1.0+wind);    div += 1.0;
         //pos += shape*2.0;
-        //noise  += getSlicedWorley3x(pos*3.0+wind*0.1)*0.25; div += 0.25;  //idk, didn't feel necessary
+        //noise  += getSlicedWorley(pos*3.0+wind*0.1)*0.25; div += 0.25;  //idk, didn't feel necessary
 
         noise /= div;
 
         shape -= (1.0-noise)*0.12;
 
-    return max(shape, 0.0);
+    return max(shape*0.9, 0.0);
 }
 
 float vc_mie(float x, float g) {
@@ -121,7 +116,7 @@ float vc_getLD(vec3 rpos, const int steps, vec3 lvec) {
     const float density     = 1.0;
 
     vec3 dir    = normalize(mat3(gbufferModelViewInverse)*lvec);
-    float stepSize = (33.3/steps);
+    float stepSize = (24.5/steps);
     vec3 rstep  = dir;
 
     float ld    = 0.0;
@@ -135,7 +130,7 @@ float vc_getLD(vec3 rpos, const int steps, vec3 lvec) {
         if (oD <= 0.0) continue;
 
         ld += oD;
-        stepSize *= 2.2;
+        stepSize *= 2.3;
     }
     return ld * density;
 }
@@ -147,10 +142,10 @@ float vc_getScatter(float ld, float powder, float vdotl, float ldscale, float ph
 }
 
 void vc_multiscatter(inout vec2 scatter, float oD, vec3 rpos, vec3 lvec, float vdotl, float t, float stept, float pmie) {
-    float ld    = vc_getLD(rpos, 6, lvec);
+    float ld    = vc_getLD(rpos, 5, lvec);
     float integral = scatterIntegral(stept, 1.0);
     float powder = exp(-oD -ld);
-        powder  = mix(1.0-powder, 1.0+powder*0.5, pmie);
+        powder  = mix(1.0-powder, 1.0+powder*0.25, pmie);
     
     float s     = 0.0;
     float n     = 0.0;
@@ -239,10 +234,10 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
             transmittance *= stept;
         }
         transmittance   = clamp((transmittance-vc_breakThreshold)/(1.0-vc_breakThreshold), 0.0, 1.0);
-        fade            = clamp01(fade);
+        fade            = clamp01(pow2(fade));
 
-        vec3 color      = sunlight*scatter.x*PI + skylight*scatter.y/PI;
-            color      *= 0.7;
+        vec3 color      = sunlight*scatter.x*PI + skylight*scatter.y*0.5;
+            color      *= 0.66;
 
         transmittance   = mix(1.0, transmittance, fade);
 
