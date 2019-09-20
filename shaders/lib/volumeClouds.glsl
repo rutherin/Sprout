@@ -6,6 +6,7 @@
 const float vc_highedge     = vc_altitude+vc_thickness;
 
 uniform float eyeAltitude;
+uniform sampler3D colortex7;
 
 float vc_windTick   = frameTimeCounter*0.5;
 const float invLog2 = 1.0/log(2.0);
@@ -25,6 +26,17 @@ float getNoise3D(vec3 pos) {
     float r1        = texture(noisetex, c1).r;
     float r2        = texture(noisetex, c2).r;
     return mix(r1, r2, f.z);
+}
+
+float getSlicedWorley(in vec3 pos) {
+    pos /= 64.0;
+
+    return texture(colortex7, fract(pos)).x;
+}
+float getSlicedWorley3x(in vec3 pos) {
+    pos /= 64.0;
+    
+    return texture(colortex7, fract(pos)).y;
 }
 
 float scatterIntegral(float transmittance, const float coeff) {
@@ -61,24 +73,24 @@ float vc_getCoverage(vec3 pos) {
 
     vec3 wind       = vec3(vc_windTick, 0.0, 0.0);
 
-    float lcoverage = GetNoise(pos.xz+wind.xz);
+    float lcoverage = GetNoise(pos.xz*0.1+wind.xz*0.1);
         lcoverage   = smoothstep(0.2, 0.9, lcoverage);
 
     float shape     = fbm(pos, wind, 0.5, 2.0, 4);
-        shape      -= 1.2;
+        shape      -= 1.4;
         shape      *= lowFade;
         shape      *= highFade;
-        shape      -= lowErode*0.5;
-        shape      -= highErode*0.5;
+        shape      -= lowErode*0.25*(1.0-lowFade*0.9);
+        shape      -= highErode*0.25;
 
-        shape      -= lcoverage;
+        shape      -= lcoverage*0.5;
 
-    return max(shape*0.1, 0.0);
+    return max(shape*0.3, 0.0);
 }
 
 float vc_mie(float x, float g) {
     float temp  = 1.0 + pow2(g) - 2.0*g*x;
-    return (1.0 - pow2(g)) / ((4.0*pi) * temp*(temp*0.5+0.5));
+    return (1.0 - pow2(g)) / ((4.0*PI) * temp*(temp*0.5+0.5));
 }
 
 float vc_miePhase(float x, float gmult) {
@@ -104,14 +116,14 @@ float vc_getLD(vec3 rpos, const int steps, vec3 lvec) {
         float oD    = coverage*stepSize;
         if (oD <= 0.0) continue;
 
-        transmittance += oD;
+        ld += oD;
         stepSize *= 2.2;
     }
     return ld * density;
 }
 float vc_getScatter(float ld, float powder, float vdotl, float ldscale, float phaseg) {
     float transmittance     = exp2(-ld*ldscale);
-    float phase             = vc_miePhase(vdotl, phaseg);
+    float phase             = vc_miePhase(vdotl, phaseg)*0.95+0.05;
 
     return max(powder*phase*transmittance*invLog2, 0.0);
 }
@@ -124,9 +136,25 @@ void vc_multiscatter(inout vec2 scatter, float oD, vec3 rpos, vec3 lvec, float v
     
     float s     = 0.0;
     float n     = 0.0;
+
+    float scattercoeff = 1.0;
+
+    for (int i = 0; i<3; i++) {
+        float scoeff    = pow(0.5, float(i));
+        float ldcoeff   = pow(0.15, float(i));
+        float phasecoeff = pow(0.85, float(i));
+
+        scattercoeff *= scoeff;
+
+        s += vc_getScatter(ld, powder, vdotl, ldcoeff, phasecoeff)*scattercoeff;
+        n += scoeff;
+    }
+    s *= 1.0/n;
+
+    scatter.x += s*integral*t;
 }
 
-void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 camerapos, float vdotl, float dither) {
+void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, vec3 camerapos, float vdotl, float dither) {
     vec3 wvec   = mat3(gbufferModelViewInverse)*viewvec;
     vec2 psphere = rsi((atmosphere_planetRadius+eyeAltitude)*upvec, viewvec, atmosphere_planetRadius);
     bool visible = !((eyeAltitude<vc_altitude && psphere.y>0.0) || (eyeAltitude>(vc_altitude+vc_thickness) && wvec.y>0.0));
@@ -166,11 +194,12 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 camerapos, 
         vec3 skylight   = ambientColor;
 
         float oDmult    = sqrt(steps/(rlength*1.73205080757));
+        float powderMie = clamp01(vc_mie(vdotl, 0.2))/0.2;
 
         for (int i = 0; i<steps; ++i, rpos += rstep) {
             if (rpos.y<lowEdge || rpos.y>highEdge || transmittance<vc_breakThreshold) continue;
             float dist  = length(rpos-camerapos);
-            float dfade = clamp((dist-500.0)/40000, 0.0, 1.0);
+            float dfade = clamp01((dist-2000.0)/28000);
             if ((1.0-dfade)<0.01) continue;
 
             float coverage = vc_getCoverage(rpos);
@@ -183,15 +212,19 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 camerapos, 
 
             fade   -= dfade*transmittance;
 
-            //scatter here
+            vc_multiscatter(scatter, oD*oDmult, rpos, lightvec, vdotl, transmittance, stept, powderMie);
 
             transmittance *= stept;
         }
         transmittance   = clamp((transmittance-vc_breakThreshold)/(1.0-vc_breakThreshold), 0.0, 1.0);
+        fade            = clamp01(fade);
 
         vec3 color      = sunlight*scatter.x*PI + skylight*scatter.y/PI;
+            color      *= 1.3;
+
+        transmittance   = mix(1.0, transmittance, fade);
 
         scenecolor     *= transmittance;
-        scenecolor     += sunlight*(1.0-transmittance)*0.5;
+        scenecolor     += color*fade;
     }
 }

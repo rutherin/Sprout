@@ -530,7 +530,7 @@ float cloudAlpha = 0.0;
 celshade(color);
 #endif
 
-float taaDither 	= bayer64x64(ivec2(gl_FragCoord.st));
+float taaDither 	= bayer64(ivec2(gl_FragCoord.st));
 	taaDither 		= fract(taaDither + frameCounter%4);
 
 if (depth0 >= 1.0) {
@@ -544,7 +544,7 @@ if (depth0 >= 1.0) {
 
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
 
-	 vc_render(color, viewvec, upvec, cameraPosition, dot(viewvec, lightvec), taaDither);
+	 vc_render(color, viewvec, upvec, lightvec, cameraPosition, dot(viewvec, lightvec), taaDither);
 
      if (isEyeInWater > 0.0) {
          color = vec3(0.1, 0.4, 0.9) * 0.9 * pow(far, 0.4);
