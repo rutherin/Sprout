@@ -117,7 +117,13 @@ float vc_getScatter(float ld, float powder, float vdotl, float ldscale, float ph
 }
 
 void vc_multiscatter(inout vec2 scatter, float oD, vec3 rpos, vec3 lvec, float vdotl, float t, float stept, float pmie) {
-    float ld    = vc_getLD(rpos, 6, lvec)
+    float ld    = vc_getLD(rpos, 6, lvec);
+    float integral = scatterIntegral(stept, 1.0);
+    float powder = exp(-oD -ld);
+        powder  = mix(1.0-powder, 1.0+powder*0.5, pmie);
+    
+    float s     = 0.0;
+    float n     = 0.0;
 }
 
 void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 camerapos, float vdotl, float dither) {
