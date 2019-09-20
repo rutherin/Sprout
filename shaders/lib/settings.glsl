@@ -12,7 +12,7 @@ const int colortex3Format = RGBA16;
 
 #define shadowBias 0.9 //[0.7 0.8 0.9 1.0]
 #define shadowZstretch 2.5
-const int   noiseTextureResolution  = 16;
+const int   noiseTextureResolution  = 128;
 const float noiseResInverse         = 1.0 / noiseTextureResolution;
 
 //#define Parallax_Occlusion

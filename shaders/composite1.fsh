@@ -375,6 +375,8 @@ float hgPhase(float cosTheta, const float g) {
 
 #include "/lib/Compute2DClouds.fsh"
 
+#include "/lib/volumeClouds.glsl"
+
 vec4 bilateralUpsample(sampler2D sampler, float depth, vec3 normal, float quality) {
 	vec2 recipres = vec2(1.0 / viewWidth, 1.0 / viewHeight);
 
@@ -528,6 +530,9 @@ float cloudAlpha = 0.0;
 celshade(color);
 #endif
 
+float taaDither 	= bayer64x64(ivec2(gl_FragCoord.st));
+	taaDither 		= fract(taaDither + frameCounter%4);
+
 if (depth0 >= 1.0) {
      color = vec3(0.0);
 	 generateStars(color, worldspace, 0.05, visibility);
@@ -538,6 +543,9 @@ if (depth0 >= 1.0) {
      if (blindness >= 0.5)  color += AerialPerspective(length(viewspace)) * ((SunColor * 5) + (MoonColor * 5)) * 0.5 * multiplier * (colormult2 * 2) * 0.02;
 
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
+
+	 vc_render(color, viewvec, upvec, cameraPosition, dot(viewvec, lightvec), taaDither);
+
      if (isEyeInWater > 0.0) {
          color = vec3(0.1, 0.4, 0.9) * 0.9 * pow(far, 0.4);
          color += hgPhase(dot(lightvec, viewvec), 0.5) * 4;
