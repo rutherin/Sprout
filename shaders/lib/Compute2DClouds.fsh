@@ -37,7 +37,7 @@ float CloudFBM1(vec2 coord, out mat4x2 c, vec3 weights, float weight) {
     #endif
 	float time = CLOUD_SPEED_2D * cmult * frameTimeCounter * 0.01;
 	
-	c[0]    = coord * 0.007;
+	c[0]    = coord * 0.007/2;
 	c[0]   += GetNoise2D(c[0]) * 0.3 - 0.15;
 	c[0].x  = c[0].x * 0.35 + time;
 	
@@ -71,7 +71,7 @@ float CloudFBM2(vec2 coord, out mat4x2 c, vec3 weights, float weight) {
     #endif
 	float time = CLOUD_SPEED_2D * cmult * frameTimeCounter * 0.01;
 	
-	c[0]    = coord * 0.007;
+	c[0]    = coord * 0.007/2;
 	c[0]   += GetNoise2D(c[0]) * 0.3 - 0.15;
 	c[0].x  = c[0].x * 0.25 + time;
 	
