@@ -204,11 +204,11 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
 
         vec2 scatter    = vec2(0.0);
         float transmittance = 1.0;
-        float fade      = 1.0;
+        float fade      = 1.3;
 
         vec3 sunlight   = lightColor;
-            sunlight    = vec3(0.4, 0.5, 0.6) * 3.0 * ((SunColor * 0.8) + (MoonColor * 6));
-        vec3 skylight   = ambientColor * vec3(0.7, 0.9, 1.1);
+            sunlight    = vec3(0.4, 0.6, 0.8) * 3.0 * ((SunColor * 0.9) + (MoonColor * 6));
+        vec3 skylight   = ambientColor * vec3(0.7, 0.9, 2.1);
 
         float oDmult    = sqrt(steps/(rlength*1.73205080757));
         float powderMie = clamp01(vc_mie(vdotl, 0.25))/0.25;
