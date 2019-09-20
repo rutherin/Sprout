@@ -3,6 +3,8 @@
 #define vc_thickness 384.0
 #define vc_breakThreshold 0.05
 
+const float vc_highedge     = vc_altitude+vc_thickness;
+
 uniform float eyeAltitude;
 
 float vc_windTick   = frameTimeCounter*0.5;
@@ -57,19 +59,65 @@ float vc_getCoverage(vec3 pos) {
 
     pos *= 0.003;
 
-    vec3 wind       = vec3(-vc_windTick, 0.0, 0.0);
+    vec3 wind       = vec3(vc_windTick, 0.0, 0.0);
 
     float lcoverage = GetNoise(pos.xz+wind.xz);
         lcoverage   = smoothstep(0.2, 0.9, lcoverage);
 
-    float shape     = fbm(pos, wind, 0.5, 2.0, 8);
+    float shape     = fbm(pos, wind, 0.5, 2.0, 4);
         shape      -= 1.2;
-        //shape      -= lcoverage;
-        shape      *= lowFade*highFade;
+        shape      *= lowFade;
+        shape      *= highFade;
         shape      -= lowErode*0.5;
         shape      -= highErode*0.5;
 
-    return max(shape*0.01, 0.0);
+        shape      -= lcoverage;
+
+    return max(shape*0.1, 0.0);
+}
+
+float vc_mie(float x, float g) {
+    float temp  = 1.0 + pow2(g) - 2.0*g*x;
+    return (1.0 - pow2(g)) / ((4.0*pi) * temp*(temp*0.5+0.5));
+}
+
+float vc_miePhase(float x, float gmult) {
+    float mie1  = vc_mie(x, 0.8*gmult);
+    float mie2  = vc_mie(x, -0.5*gmult);
+    return mix(mie1, mie2, 0.38);
+}
+
+float vc_getLD(vec3 rpos, const int steps, vec3 lvec) {
+    const float density     = 1.0;
+
+    vec3 dir    = normalize(mat3(gbufferModelViewInverse)*lvec);
+    float stepSize = (33.3/steps);
+    vec3 rstep  = dir;
+
+    float ld    = 0.0;
+
+    for (int i = 0; i<steps; i++, rpos += dir*stepSize) {
+        if (rpos.y<vc_altitude || rpos.y>vc_highedge) continue;
+        float coverage = vc_getCoverage(rpos);
+        if (coverage <= 0.0) continue;
+
+        float oD    = coverage*stepSize;
+        if (oD <= 0.0) continue;
+
+        transmittance += oD;
+        stepSize *= 2.2;
+    }
+    return ld * density;
+}
+float vc_getScatter(float ld, float powder, float vdotl, float ldscale, float phaseg) {
+    float transmittance     = exp2(-ld*ldscale);
+    float phase             = vc_miePhase(vdotl, phaseg);
+
+    return max(powder*phase*transmittance*invLog2, 0.0);
+}
+
+void vc_multiscatter(inout vec2 scatter, float oD, vec3 rpos, vec3 lvec, float vdotl, float t, float stept, float pmie) {
+    float ld    = vc_getLD(rpos, 6, lvec)
 }
 
 void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 camerapos, float vdotl, float dither) {
@@ -108,8 +156,8 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 camerapos, 
         float transmittance = 1.0;
         float fade      = 1.0;
 
-        vec3 sunlight   = vec3(1.0, 1.0, 1.0)*1.0;
-        vec3 skylight   = vec3(0.2, 0.4, 1.0)*0.2;
+        vec3 sunlight   = lightColor;
+        vec3 skylight   = ambientColor;
 
         float oDmult    = sqrt(steps/(rlength*1.73205080757));
 
