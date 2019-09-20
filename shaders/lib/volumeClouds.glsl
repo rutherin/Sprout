@@ -207,7 +207,7 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         float fade      = 1.3;
 
         vec3 sunlight   = lightColor;
-            sunlight    = vec3(0.4, 0.6, 0.8) * 3.0 * ((SunColor * 0.9) + (MoonColor * 6));
+            sunlight    = vec3(0.4, 0.6, 0.8) * 3.0 * ((SunColor * 0.9) + (MoonColor * 1));
         vec3 skylight   = ambientColor * vec3(0.7, 0.9, 2.1);
 
         float oDmult    = sqrt(steps/(rlength*1.73205080757));
