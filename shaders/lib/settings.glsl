@@ -12,7 +12,7 @@ const int colortex3Format = RGBA16;
 
 #define shadowBias 0.9 //[0.7 0.8 0.9 1.0]
 #define shadowZstretch 2.5
-const int   noiseTextureResolution  = 16;
+const int   noiseTextureResolution  = 128;
 const float noiseResInverse         = 1.0 / noiseTextureResolution;
 
 //#define Parallax_Occlusion
@@ -123,7 +123,7 @@ const int   shadowMapResolution     = 2048;  //[512 1024 2048 4096 6046 8192]
 #define Water_Brightness 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 3.0 4.0 5.0 10.0]
 
 #define CLOUDS_2D
-#define CLOUD_HEIGHT_2D   512  // [384 512 640 768]
+#define CLOUD_HEIGHT_2D   1024  // [384 512 640 768 1024 1536 2048]
 #define CLOUD_COVERAGE_2D 0.5  // [0.3 0.4 0.5 0.6 0.7]
 #define CLOUD_SPEED_2D    1.00 // [0.25 0.50 1.00 2.00 4.00]
 #define CloudFBM22
