@@ -152,7 +152,7 @@ void vc_multiscatter(inout vec2 scatter, float oD, vec3 rpos, vec3 lvec, float v
     float ld    = vc_getLD(rpos, 5, lvec);
     float integral = scatterIntegral(stept, 1.0);
     float powder = exp(-oD -ld);
-        powder  = mix(1.0-powder, 0.0+powder*0.25, pmie);
+        powder  = mix(1.0-powder, 1.0+powder*0.25, pmie);
     
     float s     = 0.0;
     float n     = 0.0;
