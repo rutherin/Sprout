@@ -135,6 +135,13 @@ option.GI_QUALITY=Quality
 option.GI_Brightness=Brightness
 option.Variable_GI_Samples=Variable Samples
 option.GI_SunlightCalc=Sunlight Optimization
+Volumetric_Clouds=
+option.VClouds=Toggle 
+option.vc_thickness=Height and Thickness 
+option.vc_steps=Steps 
+option.VCloud_Quality=Resolution 
+option.vc_altitude=altitude 
+option.vc_breakThreshold=Break Threshold 
 
 profile.Very_Low=Very Low
 profile.Low=Low

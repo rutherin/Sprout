@@ -2,6 +2,8 @@
 #define vc_altitude 512.0   //[384.0 512.0 768.0 1024.0]
 #define vc_thickness 284.0  //[128.0 192.0 224.0 256.0 288.0 320.0 384.0 448.0 512.0]
 #define vc_breakThreshold 0.05 //[0.2 0.1 0.05 0.025 0.01]
+#define VCloud_Quality 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
+#define VClouds
 
 const float vc_highedge     = vc_altitude+vc_thickness;
 
@@ -29,7 +31,7 @@ float getNoise3D(vec3 pos) {
 }
 
 float getSlicedWorley(in vec3 pos) {
-    pos /= 64.0;
+    pos /= 54.0;
 
     return texture(colortex7, fract(pos)).y;
 }
@@ -91,12 +93,16 @@ float vc_getShape(vec3 pos, float coverage) {
 
     float div   = 0.0;
     float noise = getSlicedWorley(pos*1.0+wind);    div += 1.0;
+          noise += getSlicedWorley(pos*1.0+wind);    div += 2.0;
+          noise += getSlicedWorley(pos*1.0+wind);    div += 1.0;
+          noise += getSlicedWorley(pos*1.0+wind);    div += 0.2;
+          noise += getSlicedWorley(pos*1.0+wind);    div += 1.1;
         //pos += shape*2.0;
-        //noise  += getSlicedWorley(pos*3.0+wind*0.1)*0.25; div += 0.25;  //idk, didn't feel necessary
+        //noise  += getSlicedWorley(pos*113.0+wind*0.1)*0.25; div += 0.05;  //idk, didn't feel necessary
 
         noise /= div;
 
-        shape -= (1.0-noise)*0.2;
+        shape -= (1.0-noise)*0.22;
 
     return max(shape*0.9, 0.0);
 }
@@ -145,7 +151,7 @@ void vc_multiscatter(inout vec2 scatter, float oD, vec3 rpos, vec3 lvec, float v
     float ld    = vc_getLD(rpos, 5, lvec);
     float integral = scatterIntegral(stept, 1.0);
     float powder = exp(-oD -ld);
-        powder  = mix(1.0-powder, 1.0+powder*0.25, pmie);
+        powder  = mix(1.0-powder, 0.0+powder*0.25, pmie);
     
     float s     = 0.0;
     float n     = 0.0;
@@ -194,7 +200,7 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         vec3 bstep      = (endpos-startpos)/vc_steps;
         const float blength = vc_thickness/vc_steps;
         float stepsCoeff = length(bstep)/blength;
-            stepsCoeff  = 0.5+clamp(stepsCoeff-1.25, 0.0, 3.0)*0.4;
+            stepsCoeff  = 0.5+clamp(stepsCoeff-1.25, 0.0, 3.0)*0.4 * VCloud_Quality;
         int steps       = int(vc_steps*stepsCoeff);
 
         vec3 rstep  = (endpos-startpos)/steps;
@@ -208,7 +214,7 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
 
         vec3 sunlight   = lightColor;
             sunlight    = vec3(0.4, 0.6, 0.8) * 3.0 * ((SunColor * 3.8) + (MoonColor * 3));
-        vec3 skylight   = ambientColor * vec3(0.7, 0.9, 4.6) * 0.2;
+        vec3 skylight   = ambientColor * vec3(0.7, 0.9, 4.3) * 0.2;
 
         float oDmult    = sqrt(steps/(rlength*1.73205080757));
         float powderMie = clamp01(vc_mie(vdotl, 0.25))/0.25;

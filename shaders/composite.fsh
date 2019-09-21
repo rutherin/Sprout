@@ -543,7 +543,9 @@ if (depth0 >= 1.0) {
 
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
 
+	#ifdef VClouds
 	 vc_render(color, viewvec, upvec, lightvec, cameraPosition, dot(viewvec, lightvec), taaDither);
+	#endif
 	 #ifdef Fog
      color += AerialPerspective(length(viewspace)) * ((SunColor * 0.07) + (MoonColor * 0.05)) * 0.5 * multiplier * (colormult2 * 2);
 	 #endif
@@ -559,7 +561,7 @@ if (depth0 >= 1.0) {
      //color += hgPhase(dot(lightvec, viewvec), 0.999) * 0.0002 * ((SunColor * 2.0 * vec3(1.0, 0.8, 0.3)) + (MoonColor * 20));
 
      #ifdef Volumetric_Light
-     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.4) * VL_Strength * ((SunColor * 0.76 * watermultiplier) + (MoonColor * 6)) * 0.2 * multiplier * colormult2 * 0.8;
+     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.4) * VL_Strength * ((SunColor * 0.96 * watermultiplier) + (MoonColor * 6)) * 0.2 * multiplier * colormult2 * 0.8;
      #endif
 }
 
