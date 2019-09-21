@@ -282,7 +282,7 @@ vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
 #ifdef Depth_Of_Field
 calculateDepthOfField(color, newTC);
 #endif
-//calculateBloom(color, newTC);
+calculateBloom(color, newTC);
 
 //calculateExposure(color);
 //tonemap_filmic(color);
@@ -301,8 +301,8 @@ m.InvGamma = vec3(1.0, 1.0, 1.0);
 //color = (color * sRGB_2_AP0) * 1.00;
 FilmToneMap(color);
 
-color = WhiteBalance(color);
-color = Vibrance(color, m);
+//color = WhiteBalance(color);
+//color = Vibrance(color, m);
 color = Saturation(color, m);
 color = Contrast(color, m);
 color = LiftGammaGain(color, m);

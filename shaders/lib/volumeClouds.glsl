@@ -1,6 +1,6 @@
 #define vc_steps 18     //[10 12 14 16 18 20 22 24 26 28 30]
 #define vc_altitude 512.0   //[384.0 512.0 768.0 1024.0]
-#define vc_thickness 384.0  //[128.0 192.0 224.0 256.0 288.0 320.0 384.0 448.0 512.0]
+#define vc_thickness 284.0  //[128.0 192.0 224.0 256.0 288.0 320.0 384.0 448.0 512.0]
 #define vc_breakThreshold 0.05 //[0.2 0.1 0.05 0.025 0.01]
 
 const float vc_highedge     = vc_altitude+vc_thickness;
@@ -59,7 +59,7 @@ float vc_getCoverage(vec3 pos) {
     const float highEdge    = vc_altitude+vc_thickness;
 
     float lowErode  = 1.0-smoothstep(lowEdge, lowEdge+vc_thickness*0.15, pos.y);
-    float highErode = smoothstep(lowEdge+vc_thickness*0.2, highEdge, pos.y);
+    float highErode = smoothstep(lowEdge+vc_thickness*0.005, highEdge, pos.y);
 
     float lowFade   = smoothstep(lowEdge, lowEdge+vc_thickness*0.08, pos.y);
     float highFade  = 1.0-smoothstep(highEdge-vc_thickness*0.15, highEdge, pos.y);
@@ -71,11 +71,11 @@ float vc_getCoverage(vec3 pos) {
     float lcoverage = GetNoise(pos.xz*0.1+wind.xz*0.1);
         lcoverage   = smoothstep(0.2, 0.9, lcoverage);
 
-    float shape     = fbm(pos, wind, 0.5, 2.3, 3);
+    float shape     = fbm(pos, wind, 0.46, 2.3, 3);
         shape      -= 1.47;
         shape      *= lowFade;
         shape      *= highFade;
-        shape      -= lowErode*0.15*(1.0-lowFade*0.99);
+        shape      -= lowErode*0.15*(1.0-lowFade*0.69);
         shape      -= highErode*0.2;
 
         shape      -= lcoverage*0.25;
@@ -96,20 +96,20 @@ float vc_getShape(vec3 pos, float coverage) {
 
         noise /= div;
 
-        shape -= (1.0-noise)*0.12;
+        shape -= (1.0-noise)*0.2;
 
     return max(shape*0.9, 0.0);
 }
 
 float vc_mie(float x, float g) {
     float temp  = 1.0 + pow2(g) - 2.0*g*x;
-    return (1.0 - pow2(g)) / ((4.0*PI) * temp*(temp*0.5+0.5));
+    return (1.0 - pow2(g)) / ((19.0*PI) * temp*(temp*0.5+0.5));
 }
 
 float vc_miePhase(float x, float gmult) {
     float mie1  = vc_mie(x, 0.8*gmult);
     float mie2  = vc_mie(x, -0.5*gmult);
-    return mix(mie1, mie2, 0.38);
+    return mix(mie1, mie2, 0.88);
 }
 
 float vc_getLD(vec3 rpos, const int steps, vec3 lvec) {
@@ -204,11 +204,11 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
 
         vec2 scatter    = vec2(0.0);
         float transmittance = 1.0;
-        float fade      = 1.3;
+        float fade      = 1.0;
 
         vec3 sunlight   = lightColor;
-            sunlight    = vec3(0.4, 0.6, 0.8) * 3.0 * ((SunColor * 0.9) + (MoonColor * 1));
-        vec3 skylight   = ambientColor * vec3(0.7, 0.9, 2.1);
+            sunlight    = vec3(0.4, 0.6, 0.8) * 3.0 * ((SunColor * 3.8) + (MoonColor * 3));
+        vec3 skylight   = ambientColor * vec3(0.7, 0.9, 4.6) * 0.2;
 
         float oDmult    = sqrt(steps/(rlength*1.73205080757));
         float powderMie = clamp01(vc_mie(vdotl, 0.25))/0.25;
@@ -237,7 +237,7 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         fade            = clamp01(pow2(fade));
 
         vec3 color      = sunlight*scatter.x*PI + skylight*scatter.y*0.5;
-            color      *= 0.66;
+            color      *= 0.57;
 
         transmittance   = mix(1.0, transmittance, fade);
 

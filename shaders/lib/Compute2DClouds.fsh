@@ -1,9 +1,10 @@
 const float noiseRes = float(noiseTextureResolution);
 const float noiseScale = 256.0 / noiseRes;
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.5, 1.2, 1.05) * 2.5;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.5, 1.2, 1.05) * 1.2;
+
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
-vec3 ambientColor = vec3(0.8, 0.9, 1.2) * (SunColor + MoonColor);
+vec3 ambientColor = vec3(0.1) * vec3(0.1, 0.5, 2.0) + ((SunColor * 3.4) + (MoonColor * 0.5));
 vec3 lightColor = SunColor + MoonColor;
 
 
