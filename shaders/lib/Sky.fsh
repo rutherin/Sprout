@@ -191,7 +191,8 @@ vec3 sky_atmosphere(vec3 background, vec3 viewVector, vec3 upVector, vec3 sunVec
 
 		transmittance  *= stepTransmittance;
 	}
-
+	scatteringSun     = clamp(scatteringSun, 0.0, 65535.0);
+    scatteringMoon     = clamp(scatteringMoon, 0.0, 65535.0);
 	vec3 scattering = scatteringSun * sunIlluminance + scatteringMoon * moonIlluminance + scatteringAmbient / 3.14 * ambientColor;
 
 	return background * transmittance + scattering * (2.5 * PI) * multiplier;
