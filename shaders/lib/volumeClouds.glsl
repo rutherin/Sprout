@@ -69,7 +69,7 @@ float vc_getCoverage(vec3 pos) {
     vec3 wind       = vec3(vc_windTick, 0.0, 0.0);
 
     float lcoverage = GetNoise(pos.xz*0.1+wind.xz*0.1);
-        lcoverage   = smoothstep(0.2, 0.9, lcoverage);
+        lcoverage   = smoothstep(0.2, 1.9, lcoverage);
 
     float shape     = fbm(pos, wind, 0.46, 2.3, 3);
         shape      -= 1.47;
