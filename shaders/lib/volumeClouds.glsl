@@ -8,7 +8,7 @@ const float vc_highedge     = vc_altitude+vc_thickness;
 uniform float eyeAltitude;
 uniform sampler3D colortex7;
 
-float vc_windTick   = frameTimeCounter*0.07;
+float vc_windTick   = frameTimeCounter*0.02;
 const float invLog2 = 1.0/log(2.0);
 
 vec3 planetCurvePosition(in vec3 x) {
