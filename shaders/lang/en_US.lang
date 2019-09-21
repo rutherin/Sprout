@@ -31,7 +31,7 @@ screen.Global_Illumintion=Global Illumination
 screen.Volumetric_Clouds=Volumetric Clouds
 
 option.About1=Sprout by Silvia! v
-value.About1.0=0.87
+value.About1.0=0.95
 
 #Settings
 option.White_World=White World
