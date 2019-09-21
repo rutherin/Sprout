@@ -28,6 +28,7 @@ screen.Motion_Blur=Motion Blur
 screen.Lighting_and_Shadows=Lighting and Shadows
 screen.Screen_Space=Screen Space Effects
 screen.Global_Illumintion=Global Illumination
+screen.Volumetric_Clouds=Volumetric Clouds
 
 option.About1=Sprout by Silvia! v
 value.About1.0=0.87
@@ -141,7 +142,8 @@ option.vc_thickness=Height and Thickness
 option.vc_steps=Steps 
 option.VCloud_Quality=Resolution 
 option.vc_altitude=altitude 
-option.vc_breakThreshold=Break Threshold 
+option.vc_breakThreshold=Break Threshold
+option.VC_Octaves=Octaves
 
 profile.Very_Low=Very Low
 profile.Low=Low

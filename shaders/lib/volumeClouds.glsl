@@ -4,6 +4,7 @@
 #define vc_breakThreshold 0.05 //[0.2 0.1 0.05 0.025 0.01]
 #define VCloud_Quality 1.0 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
 #define VClouds
+#define VC_Octaves 2 //[1 2 3 4 5 6 7 8 9 10]
 
 const float vc_highedge     = vc_altitude+vc_thickness;
 
@@ -47,8 +48,8 @@ float fbm(vec3 pos, vec3 offset, const float persistence, const float scale, con
     vec3 shift  = offset;
     float d     = a;
 
-    for (int i = 0; i<octaves; ++i) {
-        n   += getNoise3D(pos + shift*(1.0+(float(i)/octaves)*0.25))*a;
+    for (int i = 0; i<(1 + VC_Octaves); ++i) {
+        n   += getNoise3D(pos + shift*(1.0+(float(i)/(1 + VC_Octaves))*0.25))*a;
         pos *= scale;
         a   *= persistence;
         d   += a;
@@ -73,7 +74,7 @@ float vc_getCoverage(vec3 pos) {
     float lcoverage = GetNoise(pos.xz*0.1+wind.xz*0.1);
         lcoverage   = smoothstep(0.2, 1.9, lcoverage);
 
-    float shape     = fbm(pos, wind, 0.46, 2.3, 3);
+    float shape     = fbm(pos, wind, 0.48, 2.3, 3);
         shape      -= 1.47;
         shape      *= lowFade;
         shape      *= highFade;
@@ -102,7 +103,7 @@ float vc_getShape(vec3 pos, float coverage) {
 
         noise /= div;
 
-        shape -= (1.0-noise)*0.22;
+        shape -= (1.0-noise)*0.16;
 
     return max(shape*0.9, 0.0);
 }
