@@ -1,12 +1,23 @@
 const float noiseRes = float(noiseTextureResolution);
 const float noiseScale = 256.0 / noiseRes;
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.5, 1.2, 1.05) * 1.2;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.2, 1.1, 1.00) * 1.9;
+vec3 color = texture2D(colortex0, texcoord).rgb;
+vec3 upvec = normalize(upPosition);
+vec3 sunvec = normalize(sunPosition);
+vec3 screenspace = vec3(texcoord, depth0);
+
+vec3 viewspace = calculateViewSpace(screenspace);
+
+vec3 viewvec = normalize(viewspace);
+
+vec3 transmittance = vec3(1.0);
+
+vec3 ambientColor = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 1.8 * Ambient_Brightness + vec3(0.0, 0.2, 0.3);
 
 vec3 MoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
-vec3 ambientColor = vec3(0.1) * vec3(0.1, 0.5, 2.0) + ((SunColor * 3.4) + (MoonColor * 0.5));
+//vec3 ambientColor = vec3(0.1) * vec3(0.5, 0.8, 1.0) * 25 + ((SunColor * 0.4) + (MoonColor * 0.5));
 vec3 lightColor = SunColor + MoonColor;
-
 
 float cubesmooth(float x) { return (x * x) * (3.0 - 2.0 * x); }
 vec2 cubesmooth(vec2 x) { return (x * x) * (3.0 - 2.0 * x); }
@@ -104,7 +115,7 @@ void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float s
 	return;
 #endif
 	
-
+	
 	const float cloudHeight = CLOUD_HEIGHT_2D;
 	
 	vec3 rayPos = cameraPosition;
@@ -132,10 +143,14 @@ void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float s
 	float sunlight;
 
 	vec3 direct  = lightColor;
+		 //direct  *= 7.4 * (SunColor + (MoonColor * 10));
+
 	
-	vec3 ambient = mix(ambientColor, direct, 0.15) * 0.05;
+	vec3 ambient = vec3(1.0) * 0.5 * ambientColor;
+	ambient = ambientColor * vec3(1.0, 0.5, 0.2) * 0.4 * (SunColor + (MoonColor * 0.3));
+
 	
-	vec3 cloud = mix(ambient, direct, sunlight) * 20.0;
+	vec3 cloud = mix(ambient, direct, sunlight) * 15.0 * ((SunColor * 2) + MoonColor);
 
 
 	#ifdef CloudFBM22
@@ -178,11 +193,10 @@ void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float s
 	sunlight *= mix(1.0, 1.0, sqrt(sunglow));
 	
 	     direct  = lightColor;
-	     direct *= vec3(0.4, 0.5, 0.6) * 3.0 * (SunColor + (MoonColor * 10));
+	     direct  *= 1.0 * (SunColor + (MoonColor * 1));
 	
-	ambient = mix(ambientColor, direct, 0.15) * 0.05;
-	
-	cloud = mix(ambient, direct, sunlight) * 20.0;
+	ambient = vec3(1.0) * 0.5 * ambientColor * vec3(1.0, 0.5, 0.2);	
+	cloud = mix(ambient, direct, sunlight) * 15.0 * ((SunColor * 2) + MoonColor);
 	
 	color = mix(color, cloud, cloudAlpha * 0.1);
 }

@@ -53,8 +53,6 @@ uniform int isEyeInWater;
 uniform vec3 skyColor;
 uniform float frameTimeCounter;
 
-#include "lib/Sky.fsh"
-
 uniform ivec2 eyeBrightnessSmooth;
 uniform ivec2 eyeBrightness;
 
@@ -261,35 +259,6 @@ vec3 radiation(in float t, in vec3 w)
     );
 }
 
-
-void generateStars(inout vec3 color, in vec3 worldVector, in const float freq, in float visibility) {
-    if (visibility >= 1.0) return;
-
-	vec3 SSunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.0, 1.0, 1.0) * 5;
-	vec3 SMoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
-	vec3 SLightColor = SSunColor + SMoonColor;
-
-
-    const float minTemp =  3500.0;
-    const float maxTemp =  50500.0;
-    const float tempRange = maxTemp - minTemp;
-    const float frequency = freq;
-
-    const float res = 0.8;
-
-    vec3 p  = worldVector * res;
-    vec3 id = floor(p);
-    vec3 fp = fract(p) - 0.5;
-
-    float rp    = hash13(id) * 6;
-    float stars = pow(max0(0.75 - length(fp)) * 1.5, 11.0);
-
-    float starTemp = (sin(rp / frequency * PI * 16.0) * 0.5 + 0.5) * tempRange + minTemp;
-    vec3  starEmission = radiation(starTemp, sRGBApproxWavelengths) * 1.0e-15;
-
-    color = vec3(stars) * step(rp, frequency) * pow2(1.0) * starEmission * 10 * ((SSunColor * 0.0) + (SMoonColor * 10.0));
-}
-
 void celshade(inout vec3 color) {
 
 	float size = 0.63 * Cell_Outline_Thickness;
@@ -372,10 +341,38 @@ float hgPhase(float cosTheta, const float g) {
 	float p2 = (cosTheta * cosTheta + 1.0) * pow(-2.0 * g * cosTheta + 1.0 + gg, -1.5);
 	return p1 * p2;
 }
-
+#include "lib/Sky.fsh"
 #include "/lib/Compute2DClouds.fsh"
-
 #include "/lib/volumeClouds.glsl"
+
+void generateStars(inout vec3 color, in vec3 worldVector, in const float freq, in float visibility) {
+    if (visibility >= 1.0) return;
+
+	vec3 SSunColor = pow(GetSunColorZom(), vec3(2.0)) * vec3(1.0, 1.0, 1.0) * 5;
+	vec3 SMoonColor = GetMoonColorZom() * vec3(0.8, 1.1, 1.3);
+	vec3 SLightColor = SSunColor + SMoonColor;
+
+
+    const float minTemp =  3500.0;
+    const float maxTemp =  50500.0;
+    const float tempRange = maxTemp - minTemp;
+    const float frequency = freq;
+
+    const float res = 0.8;
+
+    vec3 p  = worldVector * res;
+    vec3 id = floor(p);
+    vec3 fp = fract(p) - 0.5;
+
+    float rp    = hash13(id) * 6;
+    float stars = pow(max0(0.75 - length(fp)) * 1.5, 11.0);
+
+    float starTemp = (sin(rp / frequency * PI * 16.0) * 0.5 + 0.5) * tempRange + minTemp;
+    vec3  starEmission = radiation(starTemp, sRGBApproxWavelengths) * 1.0e-15;
+
+    color = vec3(stars) * step(rp, frequency) * pow2(1.0) * starEmission * 10 * ((SSunColor * 0.0) + (SMoonColor * 10.0));
+}
+
 
 vec4 bilateralUpsample(sampler2D sampler, float depth, vec3 normal, float quality) {
 	vec2 recipres = vec2(1.0 / viewWidth, 1.0 / viewHeight);
@@ -469,7 +466,7 @@ ivec2 dither64 = ivec2(
 	64
 );
 
-vec3 ambientCol2 = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 0.8 * Ambient_Brightness;
+vec3 ambientCol2 = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 2.5 * Ambient_Brightness * ((SunColor) + (MoonColor * 0.8));
 //vec3 ambientColor = vec3(1.0, 1.04, 1.2);
 
 float shadow = getShadows(viewspace, dither64.x, dither64.y, lightmaps.y);
@@ -531,7 +528,7 @@ if (depth0 >= 1.0) {
 	 generateStars(color, worldspace, 0.05, visibility);
      color += CalculateSunSpot(dot(viewvec, sunvec)) * 0.01;
      color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor * 0.02;
-     color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientCol2) * 0.6 * blindnessmult;
+     color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientCol2) * 1.0 * blindnessmult;
      if (blindness >= 0.5)  color += AerialPerspective(length(viewspace)) * ((SunColor * 5) + (MoonColor * 5)) * 0.5 * multiplier * (colormult2 * 2) * 0.02;
 
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
@@ -554,7 +551,7 @@ if (depth0 >= 1.0) {
      //color += hgPhase(dot(lightvec, viewvec), 0.999) * 0.0002 * ((SunColor * 2.0 * vec3(1.0, 0.8, 0.3)) + (MoonColor * 20));
 
      #ifdef Volumetric_Light
-     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.4) * VL_Strength * ((SunColor * 0.96 * watermultiplier) + (MoonColor * 6)) * 0.2 * multiplier * colormult2 * 0.8;
+     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.4) * VL_Strength * ((SunColor * 1.26 * watermultiplier) + (MoonColor * 6)) * 0.2 * multiplier * colormult2 * 0.8;
      #endif
 }
 
