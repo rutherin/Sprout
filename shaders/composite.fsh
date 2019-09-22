@@ -466,7 +466,7 @@ ivec2 dither64 = ivec2(
 	64
 );
 
-vec3 ambientCol2 = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 2.5 * Ambient_Brightness * ((SunColor) + (MoonColor * 0.8));
+vec3 ambientCol2 = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 2.5 * Ambient_Brightness * ((SunColor * vec3(0.7, 0.9, 0.9)) + (MoonColor * 0.8));
 //vec3 ambientColor = vec3(1.0, 1.04, 1.2);
 
 float shadow = getShadows(viewspace, dither64.x, dither64.y, lightmaps.y);
