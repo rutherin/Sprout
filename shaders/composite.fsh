@@ -285,9 +285,26 @@ void celshade(inout vec3 color) {
 	color *= outline;
 }
 
+float hgPhase(float cosTheta, const float g) {
+	const float gg = g * g;
+	const float rGG = 0.2 / gg;
+	const float p1 = (2.375 * (1.10 - gg)) * (1.0 / 3.14) * 0.2 * rGG;
+	float p2 = (cosTheta * cosTheta + 1.0) * pow(-2.0 * g * cosTheta + 1.0 + gg, -1.5);
+	return p1 * p2;
+}
+#include "lib/Sky.fsh"
+#include "/lib/Compute2DClouds.fsh"
+#include "/lib/volumeClouds.glsl"
+
 vec3 AerialPerspective(float dist) {
 
+	vec3 transmittance = vec3(1.0);
+	vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * 5.6 * Sunlight_Brightness;
+	vec3 MoonColor = GetMoonColorZom() * vec3(0.3, 1.1, 2.3) * 0.8;
+
    //if (moonFade <= 0.0) return vec3(0.0);
+   vec3 ambientCol2 = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 2.5 * Ambient_Brightness * ((SunColor * vec3(0.1, 0.3, 1.4) * 0.1) + (MoonColor * 0.8));
+
 
 	vec3 colormult = vec3(1.0, 1.0, 1.0);
 
@@ -306,7 +323,7 @@ vec3 AerialPerspective(float dist) {
 	    if (blindness >= 0.5) colormult = vec3(0.2, 0.15, 0.1) * 0.3;
 
 
-    return pow(vec3(0.2, 0.3, 1.25) * colormult, vec3(1.3 - clamp01(factor) * 0.4)) * factor * 2 * indoors;
+    return pow(ambientCol2 * colormult, vec3(1.3 - clamp01(factor) * 0.4)) * factor * 2 * indoors;
 }
 
 vec4 VL() {
@@ -336,17 +353,6 @@ vec4 VL() {
 
     return result / (1.0+result);
 }
-
-float hgPhase(float cosTheta, const float g) {
-	const float gg = g * g;
-	const float rGG = 0.2 / gg;
-	const float p1 = (2.375 * (1.10 - gg)) * (1.0 / 3.14) * 0.2 * rGG;
-	float p2 = (cosTheta * cosTheta + 1.0) * pow(-2.0 * g * cosTheta + 1.0 + gg, -1.5);
-	return p1 * p2;
-}
-#include "lib/Sky.fsh"
-#include "/lib/Compute2DClouds.fsh"
-#include "/lib/volumeClouds.glsl"
 
 void generateStars(inout vec3 color, in vec3 worldVector, in const float freq, in float visibility) {
     if (visibility >= 1.0) return;
