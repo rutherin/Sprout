@@ -234,8 +234,8 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         vec3 sunlight   = lightColor;
             sunlight    = vec3(1.0, 0.95, 0.9) * 2.0 * ((SunColor * 4.8) + (MoonColor * 2));
         vec3 skylight   = ambientColor * 3.0 * ((SunColor * 1.2) + (MoonColor * 0.3));
-        //if (sunAngle > 0.0 && sunAngle < 0.05) skylight = vec3(0.7, 1.1, 1.3) * 0.5;
-        //if (sunAngle > 0.95 && sunAngle < 1.00) skylight = vec3(0.7, 1.1, 1.3) * 0.5;
+        if (sunAngle > 0.0 && sunAngle < 0.05) skylight = vec3(0.7, 1.1, 1.3) * 0.5;
+        if (sunAngle > 0.95 && sunAngle < 1.00) skylight = vec3(0.7, 1.1, 1.3) * 0.5;
 
 
         float oDmult    = sqrt(steps/(rlength*1.73205080757) * 0.4);
