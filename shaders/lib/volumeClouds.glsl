@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Volumetric Clouds Originally by RRe36 (https://github.com/rre36)
-#define vc_steps 18     //[10 12 14 16 18 20 22 24 26 28 30 50 100]
+#define vc_steps 18     //[10 12 14 16 18 20 22 24 26 28 30]
 #define vc_altitude 512.0   //[384.0 512.0 768.0 1024.0]
 #define vc_thickness 284.0  //[128.0 192.0 224.0 256.0 288.0 320.0 384.0 448.0 512.0]
 #define vc_breakThreshold 0.05 //[0.2 0.1 0.05 0.025 0.01]
@@ -14,6 +14,7 @@
 #define VC_Octaves 2 //[1 2 3 4]
 #define VC_Density 1.0 //[0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
 #define VC_Poof 1.2 //[0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
+#define VC_Scattering_Steps 7 //[4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30]
 
 #define RRe36 0 //https://github.com/rre36
 
@@ -85,7 +86,7 @@ float vc_getCoverage(vec3 pos) {
     float lcoverage = GetNoise(pos.xz*0.1+wind.xz*0.1);
         lcoverage   = smoothstep(0.2, 1.9, lcoverage);
 
-    float shape     = fbm(pos, wind, 0.48, 2.3, 3);
+    float shape     = fbm(pos, wind, 0.45, 2.3, 3);
         shape      -= 1.47;
         shape      *= lowFade;
         shape      *= highFade;
@@ -116,7 +117,7 @@ float vc_getShape(vec3 pos, float coverage) {
 
         shape -= (1.0-noise)*0.16;
 
-    return max(shape*0.9, 0.0);
+    return max(shape*0.9 * VC_Density, 0.0);
 }
 
 float vc_mie(float x, float g) {
@@ -160,7 +161,7 @@ float vc_getScatter(float ld, float powder, float vdotl, float ldscale, float ph
 }
 
 void vc_multiscatter(inout vec2 scatter, float oD, vec3 rpos, vec3 lvec, float vdotl, float t, float stept, float pmie) {
-    float ld    = vc_getLD(rpos, 5, lvec);
+    float ld    = vc_getLD(rpos, VC_Scattering_Steps, lvec);
     float integral = scatterIntegral(stept, 1.0);
     float powder = exp(-oD -ld);
         powder  = mix(1.0-powder, 1.0+powder*0.25, pmie);
