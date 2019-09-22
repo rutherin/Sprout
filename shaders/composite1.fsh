@@ -182,7 +182,7 @@ color = motionBlur(color,hand);
 #endif
 
 vec3 antiAliased = mix(color, clamp(texture2DLod(colortex6, prevCoord, 0.0).rgb, limits[0], limits[1]), sqrt(weight) * 0.5 + inversesqrt(weight * 2.0 + 4.0)); 
-colortex0write = vec4(calculateBloom(), 1.0);
+//colortex0write = vec4(calculateBloom(), 1.0);
 #ifdef TAA
 colortex6write = vec4(antiAliased, 1.0);
 #else

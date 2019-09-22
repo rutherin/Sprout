@@ -282,7 +282,6 @@ vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
 #ifdef Depth_Of_Field
 calculateDepthOfField(color, newTC);
 #endif
-calculateBloom(color, newTC);
 
 //calculateExposure(color);
 //tonemap_filmic(color);
@@ -316,6 +315,7 @@ color = dither8x8(newTC, color, pixelCOMB);
 color = floor(color * Color_Downscale) / Color_Downscale;
 //color = floor(color * vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B)) / vec3(Color_Downscale_Values_R, Color_Downscale_Values_G, Color_Downscale_Values_B);
 
+//calculateBloom(color, newTC);
 
 #ifdef Night_Eye
 //calculateNightEye(color);

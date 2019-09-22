@@ -501,13 +501,6 @@ if ((matIDs >= 3.5 &&  matIDs < 4.5)) lighting += (lightmaps.y * 1.6) * ((SunCol
 lighting += SSS;
 #endif
 
-#ifdef GI
-	if (shadow < 0.5 || lightmaps.y < 0.1 || isEyeInWater > 0.5)
-	bounce = bilateralUpsample(colortex4, ld(depth1), normals, 3.0).rgb;
-#endif
-
-lighting += bounce;
-
 //color = texture2D(colortex4, texcoord.st).rgb;
 
 
@@ -537,8 +530,8 @@ if (depth0 >= 1.0) {
      color = vec3(0.0);
 	 generateStars(color, worldspace, 0.05, visibility);
      color += CalculateSunSpot(dot(viewvec, sunvec)) * 0.01;
-     color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor;
-     color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientCol2) * 0.5 * blindnessmult;
+     color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor * 0.02;
+     color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientCol2) * 0.6 * blindnessmult;
      if (blindness >= 0.5)  color += AerialPerspective(length(viewspace)) * ((SunColor * 5) + (MoonColor * 5)) * 0.5 * multiplier * (colormult2 * 2) * 0.02;
 
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
