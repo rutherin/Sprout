@@ -19,7 +19,6 @@
 #define RRe36 0 //https://github.com/rre36
 
 const float vc_highedge     = vc_altitude+vc_thickness;
-uniform float sunAngle;
 uniform float eyeAltitude;
 uniform sampler3D colortex7;
 
@@ -61,7 +60,7 @@ float fbm(vec3 pos, vec3 offset, const float persistence, const float scale, con
     float d     = a;
 
     for (int i = 0; i<(1 + VC_Octaves); ++i) {
-        n   += getNoise3D(pos + shift*(1.0+(float(i)/(1 + VC_Octaves))*0.25))*a;
+        n   += getNoise3D(pos + shift*(1.0+(float(i)/(1 + VC_Octaves))*0.25))*a * (0.95 + rainStrength);
         pos *= scale;
         a   *= persistence;
         d   += a;
@@ -233,9 +232,9 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
 
         vec3 sunlight   = lightColor;
             sunlight    = vec3(1.0, 0.95, 0.9) * 2.0 * ((SunColor * 4.8) + (MoonColor * 2));
-        vec3 skylight   = ambientColor * 3.0 * ((SunColor * 1.2) + (MoonColor * 0.3));
+        vec3 skylight   = ambientColor * 3.0 * ((SunColor * 1.2) + (MoonColor * 0.1));
         if (sunAngle > 0.0 && sunAngle < 0.05) skylight = vec3(0.7, 1.1, 1.3) * 0.5;
-        if (sunAngle > 0.95 && sunAngle < 1.00) skylight = vec3(0.7, 1.1, 1.3) * 0.5;
+        if (sunAngle > 0.95 && sunAngle < 1.00) skylight = vec3(0.7, 1.1, 1.3) * 0.2;
 
 
         float oDmult    = sqrt(steps/(rlength*1.73205080757) * 0.4);

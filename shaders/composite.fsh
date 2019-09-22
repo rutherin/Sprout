@@ -18,6 +18,7 @@ varying vec2 texcoord;
 
 flat in mat2x3 lightVec;
 flat in mat2x3 sunVec;
+uniform float sunAngle;
 
 uniform vec3 shadowLightPosition;
 uniform vec3 upPosition;
@@ -52,6 +53,8 @@ uniform int frameCounter;
 uniform int isEyeInWater;
 uniform vec3 skyColor;
 uniform float frameTimeCounter;
+uniform float rainStrength;
+
 
 uniform ivec2 eyeBrightnessSmooth;
 uniform ivec2 eyeBrightness;
@@ -428,6 +431,8 @@ MoonColor *= (MoonColor * 24);
 #endif
 vec3 LightColor = SunColor + MoonColor;
 
+SunColor = SunColor * vec3(1.0 - (rainStrength * 0.95));
+
 vec3 scatteringAmbient = vec3(0.0);
 
 vec3 transmittance = vec3(1.0);
@@ -468,6 +473,8 @@ ivec2 dither64 = ivec2(
 
 vec3 ambientCol2 = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 2.5 * Ambient_Brightness * ((SunColor * vec3(0.7, 0.9, 0.9)) + (MoonColor * 0.8));
 //vec3 ambientColor = vec3(1.0, 1.04, 1.2);
+    if (sunAngle > 0.0 && sunAngle < 0.05) ambientCol2 = vec3(0.7, 1.1, (1.3 + (sunAngle * 30))) * 0.2 + (sunAngle * 5);
+    if (sunAngle > 0.95 && sunAngle < 1.00) ambientCol2 = vec3(0.7, 1.1, 1.3) * 0.2;
 
 float shadow = getShadows(viewspace, dither64.x, dither64.y, lightmaps.y);
 

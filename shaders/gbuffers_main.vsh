@@ -26,6 +26,7 @@ uniform float viewHeight;
 uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform float rainStrength;
 
 uniform vec3 cameraPosition;
 uniform float frameTimeCounter;
@@ -145,7 +146,7 @@ void calculateMatIDs(out int materialIDs) {
 
 		float underCover = clamp01(pow(lightmap, 15.0) * 2.0);
 
-		float wavyMult  = 1.5;
+		float wavyMult  = 1.5 * (rainStrength * 3);
 
         #if !defined Waving_Plants
         wavyMult *= 0.0;
