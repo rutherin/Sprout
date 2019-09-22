@@ -144,6 +144,7 @@ option.VCloud_Quality=Resolution
 option.vc_altitude=altitude 
 option.vc_breakThreshold=Break Threshold
 option.VC_Octaves=Octaves
+option.VC_Density=Density
 
 profile.Very_Low=Very Low
 profile.Low=Low

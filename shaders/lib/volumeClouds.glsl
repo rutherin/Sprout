@@ -5,13 +5,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Volumetric Clouds Originally by RRe36 (https://github.com/rre36)
-#define vc_steps 18     //[10 12 14 16 18 20 22 24 26 28 30]
+#define vc_steps 18     //[10 12 14 16 18 20 22 24 26 28 30 50 100]
 #define vc_altitude 512.0   //[384.0 512.0 768.0 1024.0]
 #define vc_thickness 284.0  //[128.0 192.0 224.0 256.0 288.0 320.0 384.0 448.0 512.0]
 #define vc_breakThreshold 0.05 //[0.2 0.1 0.05 0.025 0.01]
 #define VCloud_Quality 0.8 //[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
 #define VClouds
 #define VC_Octaves 2 //[1 2 3 4]
+#define VC_Density 1.0 //[0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
 
 #define RRe36 0 //https://github.com/rre36
 
@@ -129,7 +130,7 @@ float vc_miePhase(float x, float gmult) {
 }
 
 float vc_getLD(vec3 rpos, const int steps, vec3 lvec) {
-    const float density     = 1.0;
+    const float density     = VC_Density;
 
     vec3 dir    = normalize(mat3(gbufferModelViewInverse)*lvec);
     float stepSize = (24.5/steps);
@@ -233,7 +234,7 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         vec3 skylight   = ambientColor * vec3(0.7, 0.9, 4.3) * 0.2;
         //skylight = vec3(0.7, 0.8, 1.3) * 0.5;
 
-        float oDmult    = sqrt(steps/(rlength*1.73205080757));
+        float oDmult    = sqrt(steps/(rlength*1.73205080757) * 0.4);
         float powderMie = clamp01(vc_mie(vdotl, 0.25))/0.25;
 
         for (int i = 0; i<steps; ++i, rpos += rstep) {
