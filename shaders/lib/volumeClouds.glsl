@@ -177,7 +177,7 @@ void vc_multiscatter(inout vec2 scatter, float oD, vec3 rpos, vec3 lvec, float v
     scatter.y += skylight*integral*t;
 }
 
-void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, vec3 camerapos, float vdotl, float dither) {
+void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, vec3 camerapos, float vdotl, float dither, vec3 worldpos) {
     vec3 wvec   = mat3(gbufferModelViewInverse)*viewvec;
     vec2 psphere = rsi((atmosphere_planetRadius+eyeAltitude)*upvec, viewvec, atmosphere_planetRadius);
     bool visible = !((eyeAltitude<vc_altitude && psphere.y>0.0) || (eyeAltitude>(vc_altitude+vc_thickness) && wvec.y>0.0));
@@ -195,6 +195,11 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         vec3 startpos   = wvec*startdist;
         vec3 endpos     = wvec*enddist;
 
+        float mrange    = (1.0-clamp01((eyeAltitude-highEdge)*0.2)) * (1.0-clamp01((lowEdge-eyeAltitude)*0.2));
+
+        startpos        = mix(startpos, gbufferModelViewInverse[3].xyz, mrange);
+        endpos          = mix(endpos, worldpos*(highEdge*20.0/far), mrange);
+
         startpos    = planetCurvePosition(startpos);
         endpos      = planetCurvePosition(endpos);
 
@@ -202,6 +207,7 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         const float blength = vc_thickness/vc_steps;
         float stepsCoeff = length(bstep)/blength;
             stepsCoeff  = 0.5+clamp(stepsCoeff-1.25, 0.0, 3.0)*0.4 * VCloud_Quality;
+            stepsCoeff  = mix(stepsCoeff, 30.0, pow3(mrange));      //this compensates the sample loss when being inside the cloud volume
         int steps       = int(vc_steps*stepsCoeff);
 
         vec3 rstep  = (endpos-startpos)/steps;
@@ -221,7 +227,10 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         float powderMie = clamp01(vc_mie(vdotl, 0.25))/0.25;
 
         for (int i = 0; i<steps; ++i, rpos += rstep) {
-            if (rpos.y<lowEdge || rpos.y>highEdge || transmittance<vc_breakThreshold) continue;
+            if (rpos.y<lowEdge || rpos.y>highEdge || transmittance<vc_breakThreshold) {
+                if (mrange<0.5) continue;
+                else break;
+            }
             float dist  = length(rpos-camerapos);
             float dfade = clamp01((dist-3000.0)/27000);
             if ((1.0-dfade)<0.01) continue;

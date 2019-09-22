@@ -544,7 +544,7 @@ if (depth0 >= 1.0) {
      Compute2DClouds(color, cloudAlpha, worldspace, 0.0);
 
 	#ifdef VClouds
-	 vc_render(color, viewvec, upvec, lightvec, cameraPosition, dot(viewvec, lightvec), taaDither);
+	 vc_render(color, viewvec, upvec, lightvec, cameraPosition, dot(viewvec, lightvec), taaDither, worldspace);
 	#endif
 	 #ifdef Fog
      color += AerialPerspective(length(viewspace)) * ((SunColor * 0.07) + (MoonColor * 0.05)) * 0.5 * multiplier * (colormult2 * 2);
