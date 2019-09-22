@@ -146,7 +146,7 @@ void calculateMatIDs(out int materialIDs) {
 
 		float underCover = clamp01(pow(lightmap, 15.0) * 2.0);
 
-		float wavyMult  = 1.5 * (rainStrength * 3);
+		float wavyMult  = 1.5 * (((rainStrength * 2.0) + 1.0));
 
         #if !defined Waving_Plants
         wavyMult *= 0.0;
