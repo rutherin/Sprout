@@ -13,6 +13,7 @@
 #define VClouds
 #define VC_Octaves 2 //[1 2 3 4]
 #define VC_Density 1.0 //[0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
+#define VC_Poof 1.0 //[0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
 
 #define RRe36 0 //https://github.com/rre36
 
@@ -103,11 +104,11 @@ float vc_getShape(vec3 pos, float coverage) {
     float shape     = coverage;
 
     float div   = 0.0;
-    float noise = getSlicedWorley(pos*1.0+wind);    div += 1.0;
-          noise += getSlicedWorley(pos*1.0+wind);    div += 2.0;
-          noise += getSlicedWorley(pos*1.0+wind);    div += 1.0;
-          noise += getSlicedWorley(pos*1.0+wind);    div += 0.2;
-          noise += getSlicedWorley(pos*1.0+wind);    div += 1.1;
+    float noise = getSlicedWorley(pos*1.0+wind)  * VC_Poof;    div += 1.0;
+          noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 2.0;
+          noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 1.0;
+          noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 0.2;
+          noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 1.1;
         //pos += shape*2.0;
         //noise  += getSlicedWorley(pos*113.0+wind*0.1)*0.25; div += 0.05;  //idk, didn't feel necessary
 

@@ -145,6 +145,7 @@ option.vc_altitude=altitude
 option.vc_breakThreshold=Break Threshold
 option.VC_Octaves=Octaves
 option.VC_Density=Density
+option.VC_Poof=Poof
 
 profile.Very_Low=Very Low
 profile.Low=Low
