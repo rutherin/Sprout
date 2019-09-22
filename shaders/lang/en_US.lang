@@ -154,6 +154,9 @@ profile.Higher=Higher
 option.About=pixel effect by
 value.About.0=http://maple.pet/
 
+option.RRe36=original clouds by
+value.RRe36.0=RRe36
+
 value.Preset.1=Default (Bright)
 value.Preset.2=Purple Shift
 value.Preset.3=Warm and Faded
