@@ -430,7 +430,7 @@ vec3 upvec = normalize(upPosition);
 vec3 sunvec = normalize(sunPosition);
 vec3 lightvec = normalize(shadowLightPosition);
 
-vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * 5.6 * Sunlight_Brightness;
+vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * 7.6 * Sunlight_Brightness;
 vec3 MoonColor = GetMoonColorZom() * vec3(0.3, 1.1, 2.3) * 0.8;
 #ifdef Color_Compression
 MoonColor *= (MoonColor * 24);

@@ -73,7 +73,7 @@ float vc_getCoverage(vec3 pos) {
     const float highEdge    = vc_altitude+vc_thickness;
 
     float lowErode  = 1.0-smoothstep(lowEdge, lowEdge+vc_thickness*0.15, pos.y);
-    float highErode = smoothstep(lowEdge+vc_thickness*0.005, highEdge, pos.y);
+    float highErode = smoothstep(lowEdge+vc_thickness*0.0005, highEdge, pos.y);
 
     float lowFade   = smoothstep(lowEdge, lowEdge+vc_thickness*0.08, pos.y);
     float highFade  = 1.0-smoothstep(highEdge-vc_thickness*0.15, highEdge, pos.y);
@@ -106,7 +106,7 @@ float vc_getShape(vec3 pos, float coverage) {
     float div   = 0.0;
     float noise = getSlicedWorley(pos*1.0+wind)  * VC_Poof;    div += 1.0;
           noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 2.0;
-          noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 1.0;
+          noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 1.3;
           noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 0.2;
           noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 1.1;
         //pos += shape*2.0;
