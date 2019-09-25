@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Volumetric Clouds Originally by RRe36 (https://github.com/rre36)
-#define vc_steps 18     //[10 12 14 16 18 20 22 24 26 28 30 50 100]
+#define vc_steps 15     //[10 11 12 13 14 15 16 17 18 19 20 22 24 26 28 30 50 100]
 #define vc_altitude 512.0   //[384.0 512.0 768.0 1024.0]
 #define vc_thickness 288.0  //[128.0 192.0 224.0 256.0 288.0 320.0 384.0 448.0 512.0 1024.0]
 #define vc_breakThreshold 0.05 //[0.2 0.1 0.05 0.025 0.01]
@@ -13,8 +13,10 @@
 #define VClouds
 #define VC_Octaves 2 //[1 2 3 4]
 #define VC_Density 1.0 //[0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
-#define VC_Poof 1.2 //[0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
-#define VC_Scattering_Steps 7 //[4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30]
+#define VC_Poof 1.0 //[0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3.0]
+#define VC_Scattering_Steps 4 //[4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30]
+#define VC_Coverage 1.0 //[0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4]
+#define VC_DetailNoise
 
 #define RRe36 0 //https://github.com/rre36
 
@@ -60,7 +62,8 @@ float fbm(vec3 pos, vec3 offset, const float persistence, const float scale, con
     float d     = a;
 
     for (int i = 0; i<(1 + VC_Octaves); ++i) {
-        n   += getNoise3D(pos + shift*(1.0+(float(i)/(1 + VC_Octaves))*0.25))*a * (0.95 + rainStrength);
+        n   += getNoise3D(pos + shift*(1.0+(float(i)/(1 + VC_Octaves))*0.25))*a * (0.85 + rainStrength) * (VC_Coverage);
+        n   += getSlicedWorley(pos + shift* 1.0 / VC_Octaves) * 0.021 * (0.95 + rainStrength) * pow2(VC_Coverage) * 0.8;
         pos *= scale;
         a   *= persistence;
         d   += a;
@@ -104,13 +107,15 @@ float vc_getShape(vec3 pos, float coverage) {
     float shape     = coverage;
 
     float div   = 0.0;
-    float noise = getSlicedWorley(pos*1.0+wind)  * VC_Poof;    div += 1.0;
-          noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 2.0;
-          noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 1.3;
-          noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 0.2;
-          noise += getSlicedWorley(pos*1.0+wind) * VC_Poof;    div += 1.1;
+    float noise  = getSlicedWorley(pos * 1.0 + wind) * VC_Poof;    div += 1.0;
+        #ifdef VC_DetailNoise
+          noise += getNoise3D(pos *      3.1 + wind) * VC_Poof;    div += 0.1;
+          //noise += getSlicedWorley(pos *      3.1 + wind) * VC_Poof;    div += 0.01;
+        #endif
+          noise += getSlicedWorley(pos * 1.0 + wind) * VC_Poof;    div += 1.3;
+          noise += getSlicedWorley(pos * 1.0 + wind) * VC_Poof;    div += 0.2;
+          noise += getSlicedWorley(pos * 1.0 + wind) * VC_Poof;    div += 1.1;
         //pos += shape*2.0;
-        //noise  += getSlicedWorley(pos*113.0+wind*0.1)*0.25; div += 0.05;  //idk, didn't feel necessary
 
         noise /= div;
 

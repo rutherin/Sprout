@@ -29,6 +29,7 @@ screen.Lighting_and_Shadows=Lighting and Shadows
 screen.Screen_Space=Screen Space Effects
 screen.Global_Illumintion=Global Illumination
 screen.Volumetric_Clouds=Volumetric Clouds
+screen.VClouds_Shape=Shaping Options
 
 option.About1=Sprout by Silvia! v
 value.About1.0=0.95
@@ -146,6 +147,10 @@ option.vc_breakThreshold=Break Threshold
 option.VC_Octaves=Octaves
 option.VC_Density=Density
 option.VC_Poof=Poof
+option.VC_DetailNoise=Detail Noise
+option.VC_Coverage=Coverage
+option.VC_Scattering_Steps=Scattering Steps
+
 
 profile.Very_Low=Very Low
 profile.Low=Low
