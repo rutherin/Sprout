@@ -109,7 +109,7 @@ float vc_getShape(vec3 pos, float coverage) {
     float div   = 0.0;
     float noise  = getSlicedWorley(pos * 1.0 + wind) * VC_Poof;    div += 1.0;
         #ifdef VC_DetailNoise
-          noise += getNoise3D(pos *      3.1 + wind);    div += 0.1;
+          noise += getNoise3D(pos *      3.1 + wind);    div += 0.3;
           //noise += getSlicedWorley(pos *      3.1 + wind) * VC_Poof;    div += 0.01;
         #endif
           noise += getSlicedWorley(pos * 1.0 + wind) * VC_Poof;    div += 1.3;
@@ -168,7 +168,7 @@ void vc_multiscatter(inout vec2 scatter, float oD, vec3 rpos, vec3 lvec, float v
     float ld    = vc_getLD(rpos, VC_Scattering_Steps, lvec);
     float integral = scatterIntegral(stept, 1.0);
     float powder = exp(-oD -ld);
-        powder  = mix(1.0-powder, 1.0+powder*0.25, pmie);
+        powder  = mix(1.0-powder, 1.0+powder*1.95, pmie);
     
     float s     = 0.0;
     float n     = 0.0;
@@ -238,8 +238,14 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         vec3 sunlight   = lightColor;
             sunlight    = vec3(1.0, 0.95, 0.9) * 2.0 * ((SunColor * 4.8) + (MoonColor * 2));
         vec3 skylight   = ambientColor * 3.0 * ((SunColor * 1.2) + (MoonColor * 0.1));
-        if (sunAngle > 0.0 && sunAngle < 0.05) skylight = vec3(0.7, 1.1, 1.3) * 0.5;
-        if (sunAngle > 0.95 && sunAngle < 1.00) skylight = vec3(0.7, 1.1, 1.3) * 0.2;
+        if (sunAngle > 0.0 && sunAngle < 0.05) {
+            skylight = vec3(0.7, 1.1, 1.3) * 0.5;
+            sunlight *= 0.9;
+        }
+        if (sunAngle > 0.95 && sunAngle < 1.00) {
+            skylight = vec3(0.7, 1.1, 1.3) * 0.2;
+            sunlight *= 0.9;
+        }
 
 
         float oDmult    = sqrt(steps/(rlength*1.73205080757) * 0.4);
