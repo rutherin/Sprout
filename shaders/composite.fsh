@@ -165,7 +165,7 @@ float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap
 	int samples = Shadow_Filter_Samples;
 	float size = 0.1;
 	#ifdef Subsurface_Scattering
-	if ((matIDs >= 3.5 &&  matIDs < 4.5)) size = 4.0;
+	if ((matIDs >= 3.5 &&  matIDs < 4.5)) size = 1.0;
 	#endif
 
 	for(int i = 0; i < samples; i++) {
