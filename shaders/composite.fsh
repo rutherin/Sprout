@@ -515,7 +515,7 @@ vec3 lighting = vec3(0.0);
 vec3 SSS            = shadow * powf(color, 0.5) * (SunColor + MoonColor) / 3.14 * 0.84 * transluscent * 0.7;
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
-if (shadow <= 0.1) lighting += pow(lightmaps.y, 1.6) * ambientCol2 * 0.5 * AO * clamp01(0.5 * (sunAngle + 0.5)) + 0.01 + (screenBrightness * 0.05); 
+if (shadow <= 0.1) lighting += pow(lightmaps.y, 1.6) * ambientCol2 * 0.5 * AO * clamp01(0.5 * (sunAngle + 0.5)) + 0.01 * (1.0 + (screenBrightness * 3)); 
 //if (shadow >= 0.81 && shadow <= 0.99) lighting += vec3(1.5);
 	float torchMap  = lightmaps.x * AO;
 		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
@@ -532,7 +532,7 @@ else if (emitter <= 0.5) lighting += (lightmaps.x * vec3(1.4, 0.4, 0.1) * 10.5);
 if (blindness >= 0.5) lighting *= 0.05;
 
 lighting += torchLightmap * AO;
-lighting += (shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLightPosition))) * (SunColor + MoonColor)) * 3;
+lighting += (shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLightPosition))) * (SunColor + (MoonColor * vec3(1.3, 0.7, 0.5) * 5 * (1.0 + (screenBrightness * 0.5))))) * 3;
 
 #ifdef Subsurface_Scattering
 if ((matIDs >= 1.5 &&  matIDs < 2.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.11) + (MoonColor * 0.01)) * 0.8;
