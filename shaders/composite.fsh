@@ -32,6 +32,7 @@ uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
+uniform float screenBrightness; 
 
 uniform sampler2DShadow shadowcolor0;
 uniform sampler2D shadowcolor1;
@@ -39,6 +40,8 @@ uniform sampler2D shadowcolor1;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D noisetex;
+varying vec3 normal;
+
 uniform float blindness;
 
 uniform mat4 gbufferProjection;
@@ -160,7 +163,7 @@ float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap
  	float dist = length(coord);
 
 	int samples = Shadow_Filter_Samples;
-	float size = 0.2;
+	float size = 0.1;
 	#ifdef Subsurface_Scattering
 	if ((matIDs >= 3.5 &&  matIDs < 4.5)) size = 4.0;
 	#endif
@@ -177,12 +180,15 @@ float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap
 	}
 
 	shadow0 /= float(samples);
+
 	if (shadowMapResolution <= 4000) {
 	shadow0  = smoothstep(0.85, 1.0, shadow0);
 	}
 	else {
 	shadow0  = smoothstep(0.1 * (1.8 + sunAngle), 0.3, shadow0);
 	}
+
+	//shadow0 = clamp(shadow0, 0.0, 1.0);
 
 	//if (shadow0 <= 0.1) shadow0 += 0.003;
 
@@ -491,18 +497,25 @@ float SAmultiplier = 1.0;
         SAmultiplier = 1.3;
     }
 
+	#define mDot(x, y) max(dot(x, y), 0.0)
+
+
 vec3 ambientCol2 = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 2.5 * Ambient_Brightness * ((SunColor * vec3(0.7, 0.9, 0.9)) + (MoonColor * 0.8));
 //vec3 ambientColor = vec3(1.0, 1.04, 1.2);
     if (sunAngle > 0.0 && sunAngle < 0.05) ambientCol2 = vec3(0.7, 1.1, (1.3 + (sunAngle * 30))) * 0.2 * SAmultiplier;
     if (sunAngle > 0.95 && sunAngle < 1.00) ambientCol2 = vec3(0.7, 1.1, 1.3) * 0.2;
 
 float shadow = getShadows(viewspace, dither64.x, dither64.y, lightmaps.y);
+//shadow = clamp(shadow, 0.0, 0.85);
+
+shadow *= clamp(dot(normals, normalize(shadowLightPosition)), 0.0, 1.0);
+
 
 vec3 lighting = vec3(0.0);
 vec3 SSS            = shadow * powf(color, 0.5) * (SunColor + MoonColor) / 3.14 * 0.84 * transluscent * 0.7;
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
-if (shadow <= 0.8) lighting += pow(lightmaps.y, 1.6) * ambientCol2 * 0.5 * vec3(0.63, 0.7, 1.18) * AO * clamp01(0.5 * (sunAngle + 0.5));
+if (shadow <= 0.1) lighting += pow(lightmaps.y, 1.6) * ambientCol2 * 0.5 * AO * clamp01(0.5 * (sunAngle + 0.5)) + 0.01 + (screenBrightness * 0.05); 
 //if (shadow >= 0.81 && shadow <= 0.99) lighting += vec3(1.5);
 	float torchMap  = lightmaps.x * AO;
 		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
@@ -519,7 +532,7 @@ else if (emitter <= 0.5) lighting += (lightmaps.x * vec3(1.4, 0.4, 0.1) * 10.5);
 if (blindness >= 0.5) lighting *= 0.05;
 
 lighting += torchLightmap * AO;
-lighting += (shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLightPosition))) * (SunColor + MoonColor));
+lighting += (shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLightPosition))) * (SunColor + MoonColor)) * 3;
 
 #ifdef Subsurface_Scattering
 if ((matIDs >= 1.5 &&  matIDs < 2.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.11) + (MoonColor * 0.01)) * 0.8;
@@ -554,7 +567,8 @@ float taaDither 	= bayer64(ivec2(gl_FragCoord.st));
 
 if (depth0 >= 1.0) {
      color = vec3(0.0);
-	 generateStars(color, worldspace, 0.05, visibility);
+     //generateStars(color, worldspace, 0.09, visibility);
+
      color += CalculateSunSpot(dot(viewvec, sunvec)) * 0.01;
      color += CalculateSunSpot(dot(viewvec, -sunvec)) * MoonColor * 0.02;
      color = sky_atmosphere(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, ambientCol2) * 1.0 * blindnessmult;
