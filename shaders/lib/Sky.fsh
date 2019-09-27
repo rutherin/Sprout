@@ -137,7 +137,7 @@ vec3 sky_atmosphereTransmittance(vec3 position, vec3 direction, const float step
 }
 
 vec3 GetSunColorZom() {
-	return sky_atmosphereTransmittance(vec3(0.0, atmosphere_planetRadius, 0.0), normalize(mat3(gbufferModelViewInverse) * (sunPosition * 0.01)), 3) * vec3(1.0);
+	return sky_atmosphereTransmittance(vec3(0.0, atmosphere_planetRadius, 0.0), normalize(mat3(gbufferModelViewInverse) * (sunPosition * 0.01)), 3) * vec3(0.96, 0.96, 1.1);
 }
 
 vec3 GetMoonColorZom() {

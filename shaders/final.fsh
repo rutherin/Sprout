@@ -294,7 +294,7 @@ m.vibrance = VIB_MOD;
 m.contrast = 1.0 - CONT_MOD;
 m.contrastMidpoint = CONT_MIDPOINT;
 
-m.gain = vec3(1.1, 1.0, 1.0) + GAIN_MOD; //Tint Adjustment
+m.gain = vec3(1.0, 1.0, 1.0) + GAIN_MOD; //Tint Adjustment
 m.lift = vec3(0.0, 0.0, 0.0) + LIFT_MOD * 0.01; //Tint Adjustment
 m.InvGamma = vec3(1.0, 1.0, 1.0);
 
