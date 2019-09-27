@@ -150,6 +150,7 @@ option.VC_Poof=Poof
 option.VC_DetailNoise=Detail Noise
 option.VC_Coverage=Coverage
 option.VC_Scattering_Steps=Scattering Steps
+option.VC_Fade=Fade Multiplier
 
 
 profile.Very_Low=Very Low

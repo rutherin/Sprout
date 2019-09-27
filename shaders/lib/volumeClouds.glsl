@@ -17,6 +17,7 @@
 #define VC_Scattering_Steps 4 //[4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 25 30]
 #define VC_Coverage 1.05 //[0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.05 1.1 1.15 1.2 1.25 1.3 1.35 1.4]
 #define VC_DetailNoise
+#define VC_Fade 1.0 //low values may cause issues depending on cloud resolution[0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 #define RRe36 0 //https://github.com/rre36
 
@@ -263,12 +264,12 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
             float coverage = vc_getCoverage(rpos);
             if (coverage <= 0.0) continue;
 
-            float oD    = vc_getShape(rpos, coverage)*rlength;
+            float oD    = vc_getShape(rpos, coverage) * rlength;
             if (oD <= 0.0) continue;
 
-            float stept = exp2(-oD*invLog2);
+            float stept = exp2(-oD * invLog2);
 
-            fade   -= dfade*transmittance;
+            fade   -= dfade * transmittance * 1.0 / (VCloud_Quality * (vc_steps * 0.11)) * pow2(VC_Fade);
 
             vc_multiscatter(scatter, oD*oDmult, rpos, lightvec, vdotl, transmittance, stept, powderMie);
 
