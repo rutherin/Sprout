@@ -237,15 +237,15 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         float fade      = 1.0;
 
         vec3 sunlight   = lightColor * Sunlight_Brightness;
-            sunlight    = vec3(1.0, 0.95, 0.9) * 2.0 * ((SunColor * 4.8) + (MoonColor * 2)) * Sunlight_Brightness;
-        vec3 skylight   = ambientColor * 3.0 * ((SunColor * 1.2) + (MoonColor * 0.1)) * Ambient_Brightness;
-        if (sunAngle > 0.0 && sunAngle < 0.05) {
-            skylight = vec3(0.7, 1.1, 1.3) * 0.5;
-            sunlight *= 0.9;
+            sunlight    = vec3(1.0, 0.95, 0.9) * 2.0 * ((SunColor * 4.8) + (MoonColor * 2)) * Sunlight_Brightness * 0.9;
+        vec3 skylight   = ambientColor * 3.0 * ((SunColor * 1.2) + (MoonColor * 0.1)) * Ambient_Brightness * 0.5;
+        if (sunAngle > 0.0 && sunAngle < 0.03) {
+            skylight = vec3(0.7, 1.1, 1.3) * 0.3 + (0.0 + (sunAngle * 15));
+            sunlight *= vec3(0.8, 0.4, 1.3) * 0.6 + (0.0 + (sunAngle * 15));
         }
         if (sunAngle > 0.95 && sunAngle < 1.00) {
             skylight = vec3(0.7, 1.1, 1.3) * 0.2;
-            sunlight *= 0.9;
+            sunlight *= vec3(0.8, 0.5, 1.3) * 0.6* (1.0 + (sunAngle * 0.1));
         }
 
 

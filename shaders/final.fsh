@@ -279,6 +279,7 @@ vec2 newTC = texcoord;
 #endif
 
 vec3 color = toLinear(texture2D(colortex6, newTC).rgb);
+
 #ifdef Depth_Of_Field
 calculateDepthOfField(color, newTC);
 #endif
@@ -301,7 +302,7 @@ m.InvGamma = vec3(1.0, 1.0, 1.0);
 FilmToneMap(color);
 
 //color = WhiteBalance(color);
-//color = Vibrance(color, m);
+color = Vibrance(color, m);
 color = Saturation(color, m);
 color = Contrast(color, m);
 color = LiftGammaGain(color, m);
