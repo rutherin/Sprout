@@ -75,8 +75,8 @@ float vc_getCoverage(vec3 pos) {
     const float lowEdge     = vc_altitude;
     const float highEdge    = vc_altitude+vc_thickness;
 
-    float lowErode  = 1.0-smoothstep(lowEdge, lowEdge+vc_thickness*0.15, pos.y);
-    float highErode = smoothstep(lowEdge+vc_thickness*0.0005, highEdge, pos.y);
+    float lowErode  = 1.0-smoothstep(lowEdge, lowEdge+vc_thickness*0.05, pos.y);
+    float highErode = smoothstep(lowEdge+vc_thickness*0.55, highEdge, pos.y);
 
     float lowFade   = smoothstep(lowEdge, lowEdge+vc_thickness*0.08, pos.y);
     float highFade  = 1.0-smoothstep(highEdge-vc_thickness*0.15, highEdge, pos.y);
