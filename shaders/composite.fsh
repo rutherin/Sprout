@@ -313,6 +313,7 @@ vec3 AerialPerspective(float dist) {
 	vec3 transmittance = vec3(1.0);
 	vec3 SunColor = pow(GetSunColorZom(), vec3(2.0)) * 5.6 * Sunlight_Brightness;
 	vec3 MoonColor = GetMoonColorZom() * vec3(0.3, 1.1, 2.3) * 0.8;
+	vec3 LightColor = SunColor + MoonColor;
 
    //if (moonFade <= 0.0) return vec3(0.0);
    vec3 ambientCol2 = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 2.5 * Ambient_Brightness * ((SunColor * vec3(0.1, 0.3, 1.4) * 0.1) + (MoonColor * 0.8));
@@ -335,7 +336,7 @@ vec3 AerialPerspective(float dist) {
 	    if (blindness >= 0.5) colormult = vec3(0.2, 0.15, 0.1) * 0.3;
 
 
-    return pow(ambientCol2 * colormult, vec3(1.3 - clamp01(factor) * 0.4)) * factor * 2 * indoors;
+    return pow(lightColor * (ambientCol2 * 0.5) * colormult, vec3(1.3 - clamp01(factor) * 0.4)) * factor * 30 * indoors * (3.0 - (2 + sunAngle));
 }
 
 vec4 VL() {
@@ -551,7 +552,7 @@ float visibility = 0.0;
 
 //if (lightVec = -sunVec) visibility = 1.0;
 vec3 colormult2 = vec3(1.0, 1.0, 1.0);
-if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 1.6);
+if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 3.6);
 float multiplier = 1.0;
 float watermultiplier = 1.0;
 float blindnessmult = 1.0;
@@ -580,7 +581,7 @@ if (depth0 >= 1.0) {
 	 vc_render(color, viewvec, upvec, lightvec, cameraPosition, dot(viewvec, lightvec), taaDither, worldspace);
 	#endif
 	 #ifdef Fog
-     color += AerialPerspective(length(viewspace)) * ((SunColor * 0.07) + (MoonColor * 0.05)) * 0.5 * multiplier * (colormult2 * 2);
+     color += AerialPerspective(length(viewspace)) * ((SunColor * 0.37) + (MoonColor * 0.05)) * 0.5 * multiplier * (colormult2 * 2) * vec3(1.2, 0.5, 0.15);
 	 #endif
 
      if (isEyeInWater > 0.0) {
@@ -594,7 +595,7 @@ if (depth0 >= 1.0) {
      //color += hgPhase(dot(lightvec, viewvec), 0.999) * 0.0002 * ((SunColor * 2.0 * vec3(1.0, 0.8, 0.3)) + (MoonColor * 20));
 
      #ifdef Volumetric_Light
-     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.4) * VL_Strength * ((SunColor * 1.06 * watermultiplier) + (MoonColor * 6)) * 0.2 * multiplier * colormult2 * 0.8;
+     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.34) * VL_Strength * ((SunColor * 1.7 * watermultiplier) + (MoonColor * 6)) * 0.2 * multiplier * colormult2 * 0.15 * (0.2 / (sunAngle + 0.05));
      #endif
 }
 
@@ -609,9 +610,9 @@ color = normals * 0.5 + 0.5;
 #endif
 #ifdef Fog
 if (depth0 < 1.0) {
-color += AerialPerspective(length(viewspace)) * ((SunColor * 0.08) + (MoonColor * 0.1)) * 0.5 * multiplier * (colormult2) * (watermultiplier * 5);
+color += AerialPerspective(length(viewspace)) * ((SunColor * 0.28) + (MoonColor * 0.1)) * 0.5 * multiplier * (colormult2) * (watermultiplier * 5) * vec3(1.0, 0.5, 0.35);
 #ifdef Volumetric_Light
-color += VL().x * hgPhase(dot(lightvec, viewvec), 0.5) * VL_Strength * ((SunColor * 2.3) + (MoonColor * 5)) * 0.2 * multiplier * colormult2 * 0.8 * watermultiplier;
+color += VL().x * hgPhase(dot(lightvec, viewvec), 0.2) * VL_Strength * ((SunColor * 1.0) + (MoonColor * 5)) * 0.2 * multiplier * colormult2 * 0.8 * watermultiplier * (0.2 / (sunAngle + 0.15));
 #endif
 }
 #endif
