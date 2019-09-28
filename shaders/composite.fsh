@@ -595,7 +595,7 @@ if (depth0 >= 1.0) {
      //color += hgPhase(dot(lightvec, viewvec), 0.999) * 0.0002 * ((SunColor * 2.0 * vec3(1.0, 0.8, 0.3)) + (MoonColor * 20));
 
      #ifdef Volumetric_Light
-     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.34) * VL_Strength * ((SunColor * 1.7 * watermultiplier) + (MoonColor * 26)) * 0.2 * multiplier * colormult2 * 0.15 * (0.2 / (sunAngle + 0.05));
+     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.34) * VL_Strength * ((SunColor * 2.9 * watermultiplier) + (MoonColor * 26)) * 0.2 * multiplier * colormult2 * 0.15 * (0.2 / (sunAngle + 0.05));
      #endif
 }
 
