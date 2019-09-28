@@ -556,7 +556,7 @@ if (isEyeInWater > 0.0) colormult2 = vec3(0.3, 1.3, 3.6);
 float multiplier = 1.0;
 float watermultiplier = 1.0;
 float blindnessmult = 1.0;
-if (isEyeInWater > 0.0) watermultiplier = 2.0;
+if (isEyeInWater > 0.0) watermultiplier = 1.0;
 if (blindness >= 0.5) blindnessmult = 0.0;
 float cloudAlpha = 0.0;
 #ifdef Cell_Shading
@@ -586,8 +586,8 @@ if (depth0 >= 1.0) {
 
      if (isEyeInWater > 0.0) {
          color = vec3(0.1, 0.4, 0.9) * 0.9 * pow(far, 0.4);
-         color += hgPhase(dot(lightvec, viewvec), 0.5) * 4;
-         color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2 * 2) * 0.1 * pow(far, 0.15);
+         color += hgPhase(dot(lightvec, viewvec), 0.5) * 1;
+         color += AerialPerspective(length(viewspace)) * ((SunColor * 0.1) + (MoonColor * 1)) * 0.5 * multiplier * (colormult2 * 2) * 0.1 * pow(far, 0.15) * 1.0;
          color *= 0.3;
          color = color * vec3(0.3, 0.8, 1.0) * ((SunColor * 0.27) + MoonColor);
      }
@@ -595,7 +595,7 @@ if (depth0 >= 1.0) {
      //color += hgPhase(dot(lightvec, viewvec), 0.999) * 0.0002 * ((SunColor * 2.0 * vec3(1.0, 0.8, 0.3)) + (MoonColor * 20));
 
      #ifdef Volumetric_Light
-     color += VL().x * hgPhase(dot(lightvec, viewvec), 0.34) * VL_Strength * ((SunColor * 2.9 * watermultiplier) + (MoonColor * 26)) * 0.2 * multiplier * colormult2 * 0.15 * (0.2 / (sunAngle + 0.05)) * VL_Strength;
+     color += clamp01(VL().x * hgPhase(dot(lightvec, viewvec), 0.34) * VL_Strength * ((SunColor * 2.9 * watermultiplier) + (MoonColor * 26)) * 0.2 * multiplier * colormult2 * 0.15 * (0.2 / (sunAngle + 0.10)) * VL_Strength);
      #endif
 }
 
@@ -612,7 +612,7 @@ color = normals * 0.5 + 0.5;
 if (depth0 < 1.0) {
 color += AerialPerspective(length(viewspace)) * ((SunColor * 0.28) + (MoonColor * 0.1)) * 0.5 * multiplier * (colormult2) * (watermultiplier * 5) * vec3(1.0, 0.5, 0.35);
 #ifdef Volumetric_Light
-color += VL().x * hgPhase(dot(lightvec, viewvec), 0.2) * VL_Strength * ((SunColor * 1.0) + (MoonColor * 5)) * 0.2 * multiplier * colormult2 * 0.8 * watermultiplier * (0.2 / (sunAngle + 0.15)) * VL_Strength;
+color += clamp01(VL().x * hgPhase(dot(lightvec, viewvec), 0.2) * VL_Strength * ((SunColor * 1.0) + (MoonColor * 5)) * 0.2 * multiplier * colormult2 * 0.8 * watermultiplier * (0.2 / (sunAngle + 0.15)) * VL_Strength);
 #endif
 }
 #endif
