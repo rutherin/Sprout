@@ -142,7 +142,7 @@ void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float s
 	vec2 lightOffset = vec2(0.0, 0.2);
 	float sunlight;
 
-	vec3 direct  = lightColor;
+	vec3 direct  = lightColor * vec3(0.8, 0.9, 1.0);
 		 //direct  *= 7.4 * (SunColor + (MoonColor * 10));
 
 	
@@ -192,10 +192,10 @@ void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float s
 	sunlight *= mix(pow(cloudAlpha, 1.6) * 2.5, 2.0, sunglow);
 	sunlight *= mix(1.0, 1.0, sqrt(sunglow));
 	
-	     direct  = lightColor;
+	     direct  = lightColor * vec3(0.5, 0.9, 1.0);
 	     direct  *= 1.0 * (SunColor + (MoonColor * 1));
 	
-	ambient = vec3(1.0) * 0.5 * ambientColor * vec3(1.0, 0.5, 0.2);	
+	ambient = vec3(1.0) * 0.5 * ambientColor * vec3(1.0, 0.4, 0.1) * 2;	
 	cloud = mix(ambient, direct, sunlight) * 15.0 * ((SunColor * 2) + MoonColor);
 	
 	color = mix(color, cloud, cloudAlpha * 0.1);

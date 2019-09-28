@@ -532,7 +532,7 @@ else if (emitter <= 0.5) lighting += (lightmaps.x * vec3(1.4, 0.4, 0.1) * 10.5);
 if (blindness >= 0.5) lighting *= 0.05;
 
 lighting += torchLightmap * AO;
-lighting += (shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLightPosition))) * (SunColor + (MoonColor * vec3(1.3, 0.7, 0.5) * 3 * (1.0 + (screenBrightness * 2.3))))) * 3;
+lighting += (shadow * vec3(0.6) * max(0.0, dot(normals, normalize(shadowLightPosition))) * ((SunColor * 1.3) + (MoonColor * vec3(1.3, 0.7, 0.5) * 3 * (1.0 + (screenBrightness * 2.3))))) * 3;
 
 #ifdef Subsurface_Scattering
 if ((matIDs >= 1.5 &&  matIDs < 2.5)) lighting += (lightmaps.y * 1.6) * ((SunColor * vec3(0.1, 0.4, 1.8) * 0.11) + (MoonColor * 0.01)) * 0.8;
