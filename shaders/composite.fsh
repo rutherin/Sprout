@@ -182,7 +182,7 @@ float getShadows(vec3 viewSpace, int index, const int ditherSize, float lightmap
 	shadow0 /= float(samples);
 
 	if (shadowMapResolution <= 4000) {
-	shadow0  = smoothstep(0.85, 1.0, shadow0);
+	shadow0  = smoothstep(0.5, 1.0, shadow0);
 	}
 	else {
 	shadow0  = smoothstep(0.1 * (1.8 + sunAngle), 0.3, shadow0);
@@ -516,7 +516,7 @@ vec3 lighting = vec3(0.0);
 vec3 SSS            = shadow * powf(color, 0.5) * (SunColor + MoonColor) / 3.14 * 0.84 * transluscent * 0.7;
 float AO = dbao(depthtex0,bayer128(gl_FragCoord.xy));
 
-if (shadow <= 0.1) lighting += pow(lightmaps.y, 1.6) * ambientCol2 * 0.5 * AO * clamp01(0.5 * (sunAngle + 0.5)) + 0.005 * (1.0 + (screenBrightness * 3)); 
+if (shadow <= 0.05) lighting += pow(lightmaps.y, 1.6) * ambientCol2 * 0.5 * AO * clamp01(0.5 * (sunAngle + 0.5)) + 0.005 * (1.0 + (screenBrightness * 3)); 
 //if (shadow >= 0.81 && shadow <= 0.99) lighting += vec3(1.5);
 	float torchMap  = lightmaps.x * AO;
 		torchMap *= pow(1.0, mix(0.0, 1.7, 1.0 - pow(lightmaps.x, 3.0)));
