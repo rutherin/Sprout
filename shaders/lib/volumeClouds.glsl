@@ -237,7 +237,7 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         float fade      = 1.0;
 
         vec3 sunlight   = lightColor * Sunlight_Brightness;
-            sunlight    = vec3(1.0, 0.93, 0.9) * 2.0 * ((SunColor * 4.8) + (MoonColor * 2)) * Sunlight_Brightness * 0.9;
+            sunlight    = vec3(1.0, 0.93, 0.9) * 2.0 * ((SunColor * 5.8) + (MoonColor * 2)) * Sunlight_Brightness * 1.19;
         vec3 skylight   = ambientColor * 3.0 * ((SunColor * 1.2) + (MoonColor * 0.1)) * Ambient_Brightness * 0.6;
         if (sunAngle > 0.0 && sunAngle < 0.03) {
             skylight = vec3(0.7, 1.1, 1.3) * 0.07 + (0.0 + (sunAngle * 15));
@@ -278,7 +278,7 @@ void vc_render(inout vec3 scenecolor, vec3 viewvec, vec3 upvec, vec3 lightvec, v
         transmittance   = clamp((transmittance - vc_breakThreshold) / (1.0 - vc_breakThreshold), 0.0, 1.0);
         fade            = clamp01(pow2(fade));
 
-        vec3 color      = sunlight * scatter.x * PI + skylight * scatter.y * 0.5;
+        vec3 color      = sunlight * scatter.x * PI + skylight * scatter.y * 0.7;
             color      *= 0.57;
 
         transmittance   = mix(1.0, transmittance, fade);

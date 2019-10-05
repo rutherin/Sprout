@@ -501,7 +501,7 @@ float SAmultiplier = 1.0;
 	#define mDot(x, y) max(dot(x, y), 0.0)
 
 
-vec3 ambientCol2 = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 2.5 * Ambient_Brightness * ((SunColor * vec3(0.7, 0.9, 0.9)) + (MoonColor * 0.8));
+vec3 ambientCol2 = sky_atmosphereA(color, viewvec, upvec, sunvec, -sunvec, vec3(3.0), vec3(0.01), 8, transmittance, vec3(1.0)) * 2.5 * Ambient_Brightness * ((SunColor * vec3(0.7, 0.9, 0.9)) + (MoonColor * 0.8)) * 3;
 //vec3 ambientColor = vec3(1.0, 1.04, 1.2);
     if (sunAngle > 0.0 && sunAngle < 0.05) ambientCol2 = vec3(0.7, 1.1, (1.3 + (sunAngle * 30))) * 0.2 * SAmultiplier;
     if (sunAngle > 0.95 && sunAngle < 1.00) ambientCol2 = vec3(0.7, 1.1, 1.3) * 0.2;

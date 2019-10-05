@@ -302,7 +302,6 @@ m.InvGamma = vec3(1.0, 1.0, 1.0);
 FilmToneMap(color);
 
 //color = WhiteBalance(color);
-color = Vibrance(color, m);
 color = Saturation(color, m);
 color = Contrast(color, m);
 color = LiftGammaGain(color, m);
@@ -322,6 +321,7 @@ color = floor(color * Color_Downscale) / Color_Downscale;
 //calculateNightEye(color);
 lowlight_desaturate(color);
 #endif
+color = Vibrance(color, m);
 
 #ifndef Color_Compression
 color          = toSRGB(color);
