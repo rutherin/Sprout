@@ -199,5 +199,5 @@ void Compute2DClouds(inout vec3 color, inout float cloudAlpha, vec3 ray, float s
 	cloud = mix(ambient, direct, sunlight) * 15.0 * ((SunColor * 2) + MoonColor);
 
 	color = mix(color, cloud, cloudAlpha * 0.1);
-	color = clamp(color, 0.0, 1.0);
+	//color = clamp(color, 0.0, 1.0);
 }
